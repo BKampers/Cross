@@ -1,0 +1,6 @@
+#ifndef _HARDWARESETTINGS_H_
+#define _HARDWARESETTINGS_H_
+
+#define IGNITION_LED 0x10
+
+#endif /* _HARDWARESETTINGS_H_ */
