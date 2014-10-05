@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="API" displayName="API" projectFiles="true">
+        <itemPath>../../API/AnalogInput.h</itemPath>
+        <itemPath>../../API/ApiStatus.h</itemPath>
+        <itemPath>../../API/Communication.h</itemPath>
+        <itemPath>../../API/Lcd.h</itemPath>
+        <itemPath>../../API/Leds.h</itemPath>
+        <itemPath>../../API/PersistentElementManager.h</itemPath>
+        <itemPath>../../API/Timers.h</itemPath>
+        <itemPath>../../API/Types.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="include" displayName="include" projectFiles="true">
+        <itemPath>../../Json/include/JsonMessage.h</itemPath>
+        <itemPath>../../Json/include/contiki-conf.h</itemPath>
+        <itemPath>../../Json/include/json.h</itemPath>
+        <itemPath>../../Json/include/jsonparse.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
+        <itemPath>../../Platforms/MacOS/PersistentMemoryDriver.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Motor Management"
+                     displayName="Motor Management"
+                     projectFiles="true">
+        <itemPath>../../Applications/Motor Management/Crank.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Engine.h</itemPath>
+        <itemPath>../../Applications/Motor Management/HardwareSettings.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Ignition.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Injection.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Measurements.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Messaging.h</itemPath>
+        <itemPath>../../Applications/Motor Management/Table.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
+        <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
+        <itemPath>../../Platforms/MacOS/ApiStatus.c</itemPath>
+        <itemPath>../../Platforms/MacOS/ConsoleJson.c</itemPath>
+        <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
+        <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
+        <itemPath>../../Platforms/MacOS/LedStub.c</itemPath>
+        <itemPath>../../Platforms/MacOS/PersistentElementManager.c</itemPath>
+        <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Motor Management"
+                     displayName="Motor Management"
+                     projectFiles="true">
+        <itemPath>../../Applications/Motor Management/Crank.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Ignition.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Injection.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Measurements.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Messaging.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Table.c</itemPath>
+        <itemPath>../../Applications/Motor Management/main.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="source" displayName="source" projectFiles="true">
+        <itemPath>../../Json/source/JsonMessage.c</itemPath>
+        <itemPath>../../Json/source/jsonparse.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>../../API</Elem>
+    <Elem>../../Applications/Motor Management</Elem>
+    <Elem>../../Json/include</Elem>
+    <Elem>../../Platforms/MacOS</Elem>
+    <Elem>../../Json/source</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>../../API</pElem>
+            <pElem>../../Json/include</pElem>
+            <pElem>../../Applications/Motor Management</pElem>
+            <pElem>../../Platforms/MacOS</pElem>
+          </incDir>
+        </cTool>
+      </compileType>
+      <item path="../../API/AnalogInput.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/PersistentElementManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Types.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Crank.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Crank.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Engine.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/HardwareSettings.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Ignition.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Ignition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Injection.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Injection.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Measurements.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Measurements.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Messaging.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Messaging.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Table.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Table.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/main.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/json.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/jsonparse.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/source/JsonMessage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Json/source/jsonparse.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/AnalogInput.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/ConsoleJson.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/FiledMemory.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/PersistentElementManager.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="../../API/AnalogInput.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/PersistentElementManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Types.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Crank.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Crank.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Engine.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/HardwareSettings.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Ignition.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Ignition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Injection.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Injection.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Measurements.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Measurements.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Messaging.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Messaging.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Table.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Table.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/main.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/json.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/include/jsonparse.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../Json/source/JsonMessage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Json/source/jsonparse.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/AnalogInput.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/ConsoleJson.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/FiledMemory.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/PersistentElementManager.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

@@ -154,7 +154,7 @@ bool Contains(const char* jsonString, const char* name, const char* value)
 {
 	struct jsonparse_state state;
 	Status status = FindPair(jsonString, name, &state);
-	if ((status == OK) /*&& (state.vtype == JSON_TYPE_ARRAY)*/)
+	if (status == OK) /*&& (state.vtype == JSON_TYPE_ARRAY)*/
 	{
 		int valueLength = strlen(value);
 		int next;
