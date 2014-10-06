@@ -26,12 +26,37 @@ $RECYCLE.BIN/
 # OSX
 # =========================
 
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+>>>>>>> origin/master
 .DS_Store
 .AppleDouble
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -46,3 +71,5 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+/Projects/MMOsX/build/
+/Projects/MMOsX/dist/

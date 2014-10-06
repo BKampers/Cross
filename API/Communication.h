@@ -22,4 +22,4 @@ Status ReadString(char* string);
 Status WriteChannel(int channelId, char*);
 Status WriteString(char* string);
 
-#endif /* _COMMUNICATION_ */
+#endif /* _COMMUNICATION_H_ */
