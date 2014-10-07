@@ -140,6 +140,12 @@ Status FindMeasurement(const char* name, Measurement** measurement)
 }
 
 
+float GetMeasurementRange(Measurement* measurement)
+{
+    return measurement->maximum - measurement->minimum;
+}
+
+
 Status GetMeasurementValue(Measurement* measurement, float* value)
 {
     if (measurement->simulationValue == NULL)

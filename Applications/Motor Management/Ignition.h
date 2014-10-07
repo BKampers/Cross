@@ -1,5 +1,5 @@
-#ifndef __IGNITION_H__
-#define __IGNITION_H__
+#ifndef _IGNITION_H_
+#define _IGNITION_H_
 
 #include "Types.h"
 #include "ApiStatus.h"
@@ -21,8 +21,8 @@ Status InitIgnition();
 void GetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 
-int GetColumnIndex();
-int GetRowIndex();
+int GetIgnitionColumnIndex();
+int GetIgnitionRowIndex();
 int GetIgnitionAngle();
 
 Status UpdateIgnition();
@@ -32,4 +32,4 @@ Status UpdateIgnition();
 int GetIgnitionTicks();
 
 
-#endif /* __IGNITION_H__ */
+#endif /* _IGNITION_H_ */

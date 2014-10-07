@@ -190,7 +190,7 @@ void RespondTableRequest(const char* jsonString, const Table* table, const char*
     }
     if (sendIndex || sendDefault)
     {
-        SendIndexes(GetColumnIndex(), GetRowIndex());
+        SendIndexes(GetIgnitionColumnIndex(), GetIgnitionRowIndex());
     }
     sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
     WriteString(response);

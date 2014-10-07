@@ -80,7 +80,7 @@ void UpdateDisplay()
                 PutLcd(0, 0, "  RPM  LOAD  IGN");
                 break;
             case DISPLAY_STATE_INJECTION:
-                sprintf(text, "%5.0f%6.1f%5.0f", rpm, load, GetInjectionTime());
+                sprintf(text, "%5.0f%6.1f%5.1f", rpm, load, GetInjectionTime());
                 PutLcd(0, 0, "  RPM  LOAD  INJ");
                 break;
         }
@@ -140,8 +140,6 @@ int main(void)
     SetLeds(0x00);
 
     RegisterTableTypes();
-    RegisterIgnitionTypes();
-
     memoryStatus = CheckPersistentMemory(&checkPersistentMemoryNotifyCallback);
     ShowStatus("Check memory", memoryStatus);
 

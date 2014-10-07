@@ -1,5 +1,5 @@
-#ifndef __INJECTION_H__
-#define __INJECTION_H__
+#ifndef _INJECTION_H_
+#define _INJECTION_H_
 
 #include "Types.h"
 #include "ApiStatus.h"
@@ -7,7 +7,7 @@
 
 extern char INJECTION[];
 
-void RegisterInjectionTypes();
+
 Status InitInjection();
 
 int GetInjectionColumnIndex();
@@ -17,4 +17,4 @@ float GetInjectionTime();
 Status UpdateInjection();
 
 
-#endif /* __INJECTION_H__ */
+#endif /* _INJECTION_H_ */

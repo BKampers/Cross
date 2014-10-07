@@ -12,6 +12,8 @@
 
 #include "Crank.h"
 #include "AnalogInput.h"
+
+#include "Controllers.h"
 #include "Measurements.h"
 #include "Table.h"
 
@@ -27,14 +29,9 @@
 #define ROW_COUNT 20
 
 
-Measurement* rpmMeasurement;
-Measurement* loadMeasurement;
-Table injectionTable;
+TableController injectionController;
 
 float injectionTime;
-
-byte injectionRowIndex = 0;
-byte injectionColumnIndex = 0;
 
 
 Status SetInjectionTime(float time)
@@ -54,44 +51,42 @@ Status SetInjectionTime(float time)
 char INJECTION[] = "Injection";
 
 
-void RegisterInjectionTypes()
-{
-}
-
-
 Status InitInjection()
 {
-    Status status = FindTable(INJECTION, &injectionTable);
+    injectionController.name = INJECTION;
+    Status status = FindTable(INJECTION, &(injectionController.table));
     if (status != OK)
     {
-        status = CreateTable(INJECTION, COLUMN_COUNT, ROW_COUNT);
+        status = CreateTable(INJECTION, COLUMN_COUNT, ROW_COUNT, &(injectionController.table));
+    }
+    if (status == OK)
+    {
+        status = FindMeasurement(LOAD, &(injectionController.columnMeasurement));
+    }
+    if (status == OK)
+    {
+        status = FindMeasurement(RPM, &(injectionController.rowMeasurement));
     }
     if (status == OK)
     {
         status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
     }
+    injectionController.columnIndex = 0;
+    injectionController.rowIndex = 0;
     SetInjectionTime(0.0f);
-    if (status == OK)
-    {
-        status = FindMeasurement(RPM, &rpmMeasurement);
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement("Load", &loadMeasurement);
-    }
     return status;
 }
 
 
 int GetInjectionColumnIndex()
 {
-    return injectionColumnIndex;
+    return injectionController.columnIndex;
 }
 
 
 int GetInjectionRowIndex()
 {
-    return injectionRowIndex;
+    return injectionController.rowIndex;
 }
 
 
@@ -103,35 +98,11 @@ float GetInjectionTime()
 
 Status UpdateInjection()
 {
-    Status status;
-    if ((rpmMeasurement != NULL) && (loadMeasurement != NULL))
+    TableField time;
+    Status status = GetTableControllerValue(&injectionController, &time);
+    if (status == OK)
     {
-        float rpmValue;
-        float loadValue;
-        status = GetMeasurementValue(rpmMeasurement, &rpmValue);
-        if (status == OK)
-        {
-            status = GetMeasurementValue(loadMeasurement, &loadValue);
-        }
-        if (status == OK)
-        {
-            TableField time;
-            float rpmRange = rpmMeasurement->maximum - rpmMeasurement->minimum;
-            float loadRange = loadMeasurement->maximum - loadMeasurement->minimum;
-//            injectionRowIndex = (byte) ((rpmValue - rpmMeasurement->minimum) / (rpmRange / injectionTable.rows));
-//            injectionColumnIndex = (byte) ((loadValue - loadMeasurement->minimum) / (loadRange / injectionTable.columns));
-            injectionRowIndex = (byte) (rpmValue / (rpmRange / injectionTable.rows));
-            injectionColumnIndex = (byte) (loadValue / (loadRange / injectionTable.columns));
-            status = GetTableField(INJECTION, injectionColumnIndex, injectionRowIndex, &time);
-            if (status == OK)
-            {
-                status = SetInjectionTime(time);
-            }
-        }
-    }
-    else
-    {
-        status = "MeasurementNotFound";
+        status = SetInjectionTime(time * 0.1f);
     }
     return status;
 }

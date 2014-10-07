@@ -27,6 +27,7 @@ typedef struct
 Status FindMeasurement(const char* name, Measurement** measurement);
 
 Status GetMeasurementValue(Measurement* measurement, float* value);
+float GetMeasurementRange(Measurement* measurement);
 
 Status SetMeasurementSimulation(const char* name, float value);
 Status ResetMeasurementSimulation(const char* name);

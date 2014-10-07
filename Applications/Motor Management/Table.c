@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* INVALID_TABLE_INDEX = "Invalid table index";
-char* OUT_OF_BOUNDS = "Table out of bounds";
+char* INVALID_TABLE_INDEX = "InvalidTableIndex";
+char* OUT_OF_BOUNDS = "TableOutOfBounds";
 
 
 /*
@@ -60,6 +60,26 @@ Status FindTableReference(const char* name, Reference* reference)
 }
 
 
+Status GetTableFieldByReference(Reference reference, int column, int row, TableField* value)
+{
+    Table table;
+    Status status = GetElement(reference, sizeof(Table), &table);
+    if (status == OK)
+    {
+        if ((column < table.columns) && (row < table.rows))
+        {
+            int offset = sizeof(Table) + (row * table.columns + column) * sizeof(TableField);
+            status = GetElementBytes(reference, (ElementSize) offset, sizeof(TableField), value);
+        }
+        else
+        {
+            status = OUT_OF_BOUNDS;
+        }
+    }
+    return status;
+}
+
+
 /*
 ** interface
 */
@@ -83,17 +103,18 @@ Status FindTable(const char* name, Table* table)
 }
 
 
-Status CreateTable(char* name, byte columns, byte rows)
+Status CreateTable(char* name, byte columns, byte rows, Table* table)
 {
     Status status = OK;
-    Table table = { NULL_REFERENCE, columns, rows };
+    table->columns = columns;
+    table->rows = rows;
     if (name != NULL)
     {
         ElementSize length = (ElementSize) strlen(name);
-        status = AllocateElement(tableNameTypeId, length, &table.nameReference);
+        status = AllocateElement(tableNameTypeId, length, &(table->nameReference));
         if (status == OK)
         {
-            status = StoreElement(name, table.nameReference, length);
+            status = StoreElement(name, table->nameReference, length);
         }
     }
     if (status == OK)
@@ -102,7 +123,7 @@ Status CreateTable(char* name, byte columns, byte rows)
         status = AllocateElement(tableTypeId, sizeof(Table) + columns * rows * sizeof(TableField), &reference);
         if (status == OK)
         {
-            status = StoreElement(&table, reference, sizeof(Table));
+            status = StoreElement(table, reference, sizeof(Table));
         }
     }
     return status;
@@ -161,20 +182,7 @@ Status GetTableField(const char* name, int column, int row, TableField* value)
     Status status = FindTableReference(name, &reference);
     if (status == OK)
     {
-        Table table;
-        status = GetElement(reference, sizeof(Table), &table);
-        if (status == OK)
-        {
-            if ((column < table.columns) && (row < table.rows))
-            {
-                int offset = sizeof(Table) + (row * table.columns + column) * sizeof(TableField);
-                status = GetElementBytes(reference, (ElementSize) offset, sizeof(TableField), value);
-            }
-            else
-            {
-                status = OUT_OF_BOUNDS;
-            }
-        }
+        status = GetTableFieldByReference(reference, column, row, value);
     }
-return status;
+    return status;
 }

@@ -20,7 +20,7 @@ void RegisterTableTypes();
 
 Status FindTable(const char* name, Table* table);
 
-Status CreateTable(char* name, byte columns, byte rows);
+Status CreateTable(char* name, byte columns, byte rows, Table* table);
 Status RemoveTable(const char* name);
 
 Status SetTableField(const char* name, int column, int row, TableField value);

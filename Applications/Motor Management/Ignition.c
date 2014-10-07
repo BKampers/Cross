@@ -12,8 +12,11 @@
 #include "Engine.h"
 #include "Crank.h"
 #include "AnalogInput.h"
-#include "Measurements.h"
-#include "Table.h"
+
+//#include "Measurements.h"
+//#include "Table.h"
+#include "Controllers.h"
+
 
 #include "Timers.h"
 #include "Leds.h"
@@ -42,17 +45,13 @@
 char INVALID_IGNITION_ANGLE[] = "Invalid ignition angle";
 
 
-Measurement* rpmMeasurement;
-Measurement* loadMeasurement;
-Table ignitionTable;
+TableController ignitionController;
+
 TypeId timerSettingsTypeId;
 
 Status ignitionTimeStatus = UNINITIALIZED;
 
 int ignitionAngle;
-
-byte ignitionRowIndex = 0;
-byte ignitionColumnIndex = 0;
 
 
 /*
@@ -120,36 +119,39 @@ Status InitIgnition()
     TIMER_SETTINGS timerSettings;
     GetIgnitionTimerSettings(&timerSettings);
     ignitionTicks = timerSettings.counter;
-    Status status = FindTable(IGNITION, &ignitionTable);
+    ignitionController.name = IGNITION;
+    Status status = FindTable(IGNITION, &(ignitionController.table));
     if (status != OK)
     {
-        status = CreateTable(IGNITION, COLUMN_COUNT, ROW_COUNT);
+        status = CreateTable(IGNITION, COLUMN_COUNT, ROW_COUNT, &(ignitionController.table));
     }
+    if (status == OK)
+    {
+        status = FindMeasurement(LOAD, &(ignitionController.columnMeasurement));
+    }
+    if (status == OK)
+    {
+        status = FindMeasurement(RPM, &(ignitionController.rowMeasurement));
+    }
+    ignitionController.columnIndex = 0;
+    ignitionController.rowIndex = 0;
     SetCogCountCallback(&StartIgnition, /*cog number*/20);
     SetCogCountCallback(&StartIgnition, /*cog number*/50);
     SetIgnitionAngle(0);
     InitPeriodTimer(&StopIgnition);
-    if (status == OK)
-    {
-        status = FindMeasurement(RPM, &rpmMeasurement);
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement("Load", &loadMeasurement);
-    }
     return status;
 }
 
 
-int GetColumnIndex()
+int GetIgnitionColumnIndex()
 {
-    return ignitionColumnIndex;
+    return ignitionController.columnIndex;
 }
 
 
-int GetRowIndex()
+int GetIgnitionRowIndex()
 {
-    return ignitionRowIndex;
+    return ignitionController.rowIndex;
 }
 
 
@@ -158,45 +160,14 @@ int GetIgnitionAngle()
     return ignitionAngle;
 }
 
-//#include "Messaging.h"
 
 Status UpdateIgnition()
 {
-    Status status;
-    if ((rpmMeasurement != NULL) && (loadMeasurement != NULL))
+    TableField angle;
+    Status status = GetTableControllerValue(&ignitionController, &angle);
+    if (status == OK)
     {
-        float rpmValue;
-        float loadValue;
-        status = GetMeasurementValue(rpmMeasurement, &rpmValue);
-        if (status == OK)
-        {
-            status = GetMeasurementValue(loadMeasurement, &loadValue);
-        }
-        if (status == OK)
-        {
-//            SendRealNotification("rpmValue", rpmValue);
-//            SendRealNotification("loadValue", loadValue);
-            TableField angle;
-            float rpmRange = rpmMeasurement->maximum - rpmMeasurement->minimum;
-            float loadRange = loadMeasurement->maximum - loadMeasurement->minimum;
-//            SendRealNotification("rpmRange", rpmRange);
-//            SendRealNotification("loadRange", loadRange);
-//            ignitionRowIndex = (byte) ((rpmValue - rpmMeasurement->minimum) / (rpmRange / ignitionTable.rows));
-//            ignitionColumnIndex = (byte) ((loadValue - loadMeasurement->minimum) / (loadRange / ignitionTable.columns));
-            ignitionRowIndex = (byte) (rpmValue / (rpmRange / ignitionTable.rows));
-            ignitionColumnIndex = (byte) (loadValue / (loadRange / ignitionTable.columns));
-//            SendIntegerNotification("ignitionRowIndex", ignitionRowIndex);
-//            SendIntegerNotification("ignitionColumnIndex", ignitionColumnIndex);
-            status = GetTableField(IGNITION, ignitionColumnIndex, ignitionRowIndex, &angle);
-            if (status == OK)
-            {
-                status = SetIgnitionAngle(angle);
-            }
-        }
-    }
-    else
-    {
-        status = "MeasurementNotFound";
+        status = SetIgnitionAngle(angle);
     }
     return status;
 }
