@@ -7,9 +7,10 @@
 
 #include <stdio.h>
 
+#include "Controllers.h"
+
 #include "HardwareSettings.h"
 #include "Communication.h"
-
 #include "Crank.h"
 #include "AnalogInput.h"
 
@@ -21,12 +22,8 @@
 #define INJECTION_CHANNEL 1
 #define CHANNEL_BUFFER_SIZE 64
 
-#define COLUMN_COUNT 20
-#define ROW_COUNT 20
 
-
-TableController injectionController;
-
+TableController* injectionController;
 float injectionTime;
 
 
@@ -44,39 +41,11 @@ Status SetInjectionTime(float time)
 ** Interface
 */
 
-char INJECTION[] = "Injection";
-
-
 Status InitInjection()
 {
-    injectionController.name = INJECTION;
-    Status status = FindTable(INJECTION, &(injectionController.table));
-    if (status != OK)
-    {
-        status = CreateTable(INJECTION, COLUMN_COUNT, ROW_COUNT, &(injectionController.table));
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement(LOAD, &(injectionController.columnMeasurement));
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement(RPM, &(injectionController.rowMeasurement));
-    }
-    if (status == OK)
-    {
-        status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
-    }
-    injectionController.columnIndex = 0;
-    injectionController.rowIndex = 0;
     SetInjectionTime(0.0f);
-    return status;
-}
-
-
-TableController* GetInjectionTableController()
-{
-    return &injectionController;
+    injectionController = FindTableController(INJECTION);
+    return (injectionController != NULL) ? OK : "NoInjectionControllerFound";
 }
 
 
@@ -89,7 +58,7 @@ float GetInjectionTime()
 Status UpdateInjection()
 {
     TableField time;
-    Status status = GetTableControllerValue(&injectionController, &time);
+    Status status = GetTableControllerValue(injectionController, &time);
     if (status == OK)
     {
         status = SetInjectionTime(time * 0.1f);

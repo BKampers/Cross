@@ -215,14 +215,10 @@ void RespondRequest(const struct jsonparse_state* subject)
     }
     if (! responded)
     {
-        if (strcmp(subjectString, INJECTION) == 0)
+        TableController* tableController = FindTableController(subjectString);
+        if (tableController != NULL)
         {
-            RespondTableControllerRequest(subject->json, GetInjectionTableController(), subjectString);
-            responded = TRUE;
-        }
-        else if (strcmp(subjectString, IGNITION) == 0)
-        {
-            RespondTableControllerRequest(subject->json, GetIgnitionTableController(), subjectString);
+            RespondTableControllerRequest(subject->json,tableController, subjectString);
             responded = TRUE;
         }
     }

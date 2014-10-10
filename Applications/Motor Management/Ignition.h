@@ -3,7 +3,6 @@
 
 #include "Types.h"
 #include "ApiStatus.h"
-#include "Controllers.h"
 
 
 typedef struct
@@ -14,20 +13,15 @@ typedef struct
 } TIMER_SETTINGS;
 
 
-extern char IGNITION[];
-
 void RegisterIgnitionTypes();
 Status InitIgnition();
 
 void GetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 
-TableController* GetIgnitionTableController();
-
 int GetIgnitionAngle();
 
 Status UpdateIgnition();
-//Status SetIgnitionAngle(int angle /*degrees*/);
 
 
 int GetIgnitionTicks();

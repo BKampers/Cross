@@ -1,5 +1,5 @@
-#ifndef _CONTROL_H_
-#define _CONTROL_H_
+#ifndef _CONTROLLERS_H_
+#define _CONTROLLERS_H_
 
 #include "ApiStatus.h"
 
@@ -8,6 +8,8 @@
 
 
 extern char INJECTION[];
+extern char IGNITION[];
+
 
 
 typedef struct
@@ -21,6 +23,10 @@ typedef struct
 } TableController;
 
 
+Status InitControllers();
+
+TableController* FindTableController(const char* name);
+
 Status GetTableControllerValue(TableController* tableController, TableField* value);
 
-#endif /* _CONTROL_H_ */
+#endif /* _CONTROLLERS_H_ */

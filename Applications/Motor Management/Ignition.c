@@ -7,14 +7,16 @@
 
 #include <stdlib.h>
 
-#include "HardwareSettings.h"
+#include "Controllers.h"
 
+#include "HardwareSettings.h"
 #include "Engine.h"
 #include "Crank.h"
 #include "AnalogInput.h"
 
 #include "Timers.h"
 #include "Leds.h"
+
 
 
 #define IGNITION_ANGLE_BASE 60
@@ -33,19 +35,14 @@
 ** Private
 */
 
-#define COLUMN_COUNT 20
-#define ROW_COUNT 20
+char INVALID_IGNITION_ANGLE[] = "InvalidIgnitionAngle";
 
-
-char INVALID_IGNITION_ANGLE[] = "Invalid ignition angle";
-
-
-TableController ignitionController;
 
 TypeId timerSettingsTypeId;
 
 Status ignitionTimeStatus = UNINITIALIZED;
 
+TableController* ignitionController;
 int ignitionAngle;
 
 
@@ -100,9 +97,6 @@ Status SetIgnitionAngle(int angle)
 ** Interface
 */
 
-char IGNITION[] = "Ignition";
-
-
 void RegisterIgnitionTypes()
 {
     RegisterType(&timerSettingsTypeId);
@@ -114,33 +108,12 @@ Status InitIgnition()
     TIMER_SETTINGS timerSettings;
     GetIgnitionTimerSettings(&timerSettings);
     ignitionTicks = timerSettings.counter;
-    ignitionController.name = IGNITION;
-    Status status = FindTable(IGNITION, &(ignitionController.table));
-    if (status != OK)
-    {
-        status = CreateTable(IGNITION, COLUMN_COUNT, ROW_COUNT, &(ignitionController.table));
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement(LOAD, &(ignitionController.columnMeasurement));
-    }
-    if (status == OK)
-    {
-        status = FindMeasurement(RPM, &(ignitionController.rowMeasurement));
-    }
-    ignitionController.columnIndex = 0;
-    ignitionController.rowIndex = 0;
     SetCogCountCallback(&StartIgnition, /*cog number*/20);
     SetCogCountCallback(&StartIgnition, /*cog number*/50);
     SetIgnitionAngle(0);
     InitPeriodTimer(&StopIgnition);
-    return status;
-}
-
-
-TableController* GetIgnitionTableController()
-{
-    return &ignitionController;
+    ignitionController = FindTableController(IGNITION);
+    return (ignitionController != NULL) ? OK : "NoIgnitionControllerFound";
 }
 
 
@@ -153,7 +126,7 @@ int GetIgnitionAngle()
 Status UpdateIgnition()
 {
     TableField angle;
-    Status status = GetTableControllerValue(&ignitionController, &angle);
+    Status status = GetTableControllerValue(ignitionController, &angle);
     if (status == OK)
     {
         status = SetIgnitionAngle(angle);

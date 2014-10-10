@@ -37,6 +37,7 @@ char input[INPUT_BUFFER_SIZE];
 char text[LCD_LINE_LENGTH + 1];
 
 Status memoryStatus = UNINITIALIZED;
+Status controllerStatus = UNINITIALIZED;
 Status ignitionStatus = UNINITIALIZED;
 Status injectionStatus = UNINITIALIZED;
 Status communicationStatus = UNINITIALIZED;
@@ -145,11 +146,15 @@ int main(void)
 
     if (memoryStatus == OK)
     {
-        ignitionStatus = InitIgnition();
-        ShowStatus("Initialize ignition", ignitionStatus);
-
-        injectionStatus = InitInjection();
-        ShowStatus("Initialize injection", injectionStatus);
+        controllerStatus = InitControllers();
+        ShowStatus("Initialize controller", controllerStatus);
+        if (controllerStatus == OK)
+        {
+            ignitionStatus = InitIgnition();
+            ShowStatus("Initialize ignition", ignitionStatus);
+            injectionStatus = InitInjection();
+            ShowStatus("Initialize injection", injectionStatus);
+        }
     }
 
     if (FindMeasurement(RPM, &rpmMeasurement) != OK)

@@ -4,9 +4,31 @@
 
 #include "Controllers.h"
 
+#include <string.h>
+
 /*
 ** Private
 */
+
+
+#define TABLE_CONTROLLER_COUNT 2
+
+TableController tableControllers[TABLE_CONTROLLER_COUNT];
+
+
+Status InitTableController(TableController* tableController, char* name, byte columns, byte rows)
+{
+    Status status = FindTable(name, &(tableController->table));
+    if (status != OK)
+    {
+        status = CreateTable(name, columns, rows, &(tableController->table));
+    }
+    tableController->name = name;
+    tableController->columnIndex = 0;
+    tableController->rowIndex = 0;
+    return status;
+}
+
 
 Status CalculateIndex(Measurement* measurement, int bound, byte* index)
 {
@@ -25,6 +47,35 @@ Status CalculateIndex(Measurement* measurement, int bound, byte* index)
 /*
 ** Interface
 */
+
+char IGNITION[] = "Ignition";
+char INJECTION[] = "Injection";
+
+
+Status InitControllers()
+{
+    Status status = InitTableController(&(tableControllers[0]), IGNITION, 20, 20);
+    if (status == OK)
+    {
+        status = InitTableController(&(tableControllers[1]), INJECTION, 20, 20);
+    }
+    return status;
+}
+
+
+TableController* FindTableController(const char* name)
+{
+    int i;
+    for (i = 0; i < TABLE_CONTROLLER_COUNT; ++i)
+    {
+        if (strcmp(name, tableControllers[i].name) == 0)
+        {
+            return &(tableControllers[i]);
+        }
+    }
+    return NULL;
+}
+
 
 Status GetTableControllerValue(TableController* tableControl, TableField* value)
 {
