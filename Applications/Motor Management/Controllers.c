@@ -8,7 +8,7 @@
 ** Private
 */
 
-Status GetIndex(Measurement* measurement, int bound, byte* index)
+Status CalculateIndex(Measurement* measurement, int bound, byte* index)
 {
     float value;
     Status status = GetMeasurementValue(measurement, &value);
@@ -28,10 +28,10 @@ Status GetIndex(Measurement* measurement, int bound, byte* index)
 
 Status GetTableControllerValue(TableController* tableControl, TableField* value)
 {
-    Status status = GetIndex(tableControl->columnMeasurement, tableControl->table.columns, &(tableControl->columnIndex));
+    Status status = CalculateIndex(tableControl->columnMeasurement, tableControl->table.columns, &(tableControl->columnIndex));
     if (status == OK)
     {
-        status = GetIndex(tableControl->rowMeasurement, tableControl->table.rows, &(tableControl->rowIndex));
+        status = CalculateIndex(tableControl->rowMeasurement, tableControl->table.rows, &(tableControl->rowIndex));
         if (status == OK)
         {
             status = GetTableField(tableControl->name, tableControl->columnIndex, tableControl->rowIndex, value);

@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "ApiStatus.h"
+#include "Controllers.h"
 
 
 extern char INJECTION[];
@@ -10,8 +11,7 @@ extern char INJECTION[];
 
 Status InitInjection();
 
-int GetInjectionColumnIndex();
-int GetInjectionRowIndex();
+TableController* GetInjectionTableController();
 float GetInjectionTime();
 
 Status UpdateInjection();

@@ -14,6 +14,9 @@
 
 #include "Crank.h"
 #include "Ignition.h"
+#include "Injection.h"
+
+#include "Controllers.h"
 #include "Measurements.h"
 #include "Table.h"
 
@@ -172,7 +175,7 @@ Status SendTableFields(const Table* table, const char* tableName)
 }
 
 
-void RespondTableRequest(const char* jsonString, const Table* table, const char* name)
+void RespondTableControllerRequest(const char* jsonString, const TableController* tableController, const char* name)
 {
     Status status = OK;
     bool sendTable = Contains(jsonString, PROPERTIES, TABLE);
@@ -186,11 +189,11 @@ void RespondTableRequest(const char* jsonString, const Table* table, const char*
         WriteString(response);
     if (sendTable || sendDefault)
     {
-        status = SendTableFields(table, name);
+        status = SendTableFields(&(tableController->table), name);
     }
     if (sendIndex || sendDefault)
     {
-        SendIndexes(GetIgnitionColumnIndex(), GetIgnitionRowIndex());
+        SendIndexes(tableController->columnIndex, tableController->rowIndex);
     }
     sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
     WriteString(response);
@@ -212,11 +215,14 @@ void RespondRequest(const struct jsonparse_state* subject)
     }
     if (! responded)
     {
-        Table table;
-        Status status = FindTable(subjectString, &table);
-        if (status == OK)
+        if (strcmp(subjectString, INJECTION) == 0)
         {
-            RespondTableRequest(subject->json, &table, subjectString);
+            RespondTableControllerRequest(subject->json, GetInjectionTableController(), subjectString);
+            responded = TRUE;
+        }
+        else if (strcmp(subjectString, IGNITION) == 0)
+        {
+            RespondTableControllerRequest(subject->json, GetIgnitionTableController(), subjectString);
             responded = TRUE;
         }
     }

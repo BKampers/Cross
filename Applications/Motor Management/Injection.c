@@ -13,10 +13,6 @@
 #include "Crank.h"
 #include "AnalogInput.h"
 
-#include "Controllers.h"
-#include "Measurements.h"
-#include "Table.h"
-
 
 /*
 ** Private
@@ -78,15 +74,9 @@ Status InitInjection()
 }
 
 
-int GetInjectionColumnIndex()
+TableController* GetInjectionTableController()
 {
-    return injectionController.columnIndex;
-}
-
-
-int GetInjectionRowIndex()
-{
-    return injectionController.rowIndex;
+    return &injectionController;
 }
 
 

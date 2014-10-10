@@ -13,11 +13,6 @@
 #include "Crank.h"
 #include "AnalogInput.h"
 
-//#include "Measurements.h"
-//#include "Table.h"
-#include "Controllers.h"
-
-
 #include "Timers.h"
 #include "Leds.h"
 
@@ -143,15 +138,9 @@ Status InitIgnition()
 }
 
 
-int GetIgnitionColumnIndex()
+TableController* GetIgnitionTableController()
 {
-    return ignitionController.columnIndex;
-}
-
-
-int GetIgnitionRowIndex()
-{
-    return ignitionController.rowIndex;
+    return &ignitionController;
 }
 
 
