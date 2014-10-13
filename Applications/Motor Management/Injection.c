@@ -58,7 +58,7 @@ float GetInjectionTime()
 Status UpdateInjection()
 {
     TableField time;
-    Status status = GetTableControllerValue(injectionController, &time);
+    Status status = GetActualTableControllerValue(injectionController, &time);
     if (status == OK)
     {
         status = SetInjectionTime(time * 0.1f);

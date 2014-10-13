@@ -18,6 +18,7 @@ typedef struct
     Table table;
     Measurement* columnMeasurement;
     Measurement* rowMeasurement;
+    float factor;
     byte columnIndex;
     byte rowIndex;
 } TableController;
@@ -27,6 +28,7 @@ Status InitControllers();
 
 TableController* FindTableController(const char* name);
 
-Status GetTableControllerValue(TableController* tableController, TableField* value);
+Status GetActualTableControllerField(TableController* tableController, TableField* field);
+Status GetTableControllerFieldValue(const TableController* tableController, byte column, byte row, float* fieldValue);
 
 #endif /* _CONTROLLERS_H_ */

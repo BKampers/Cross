@@ -15,9 +15,11 @@
 #include "AnalogInput.h"
 #include "Messaging.h"
 
+#include "Controllers.h"
 #include "Table.h"
 #include "Crank.h"
 #include "Measurements.h"
+
 #include "Ignition.h"
 #include "Injection.h"
 
@@ -27,7 +29,7 @@
 #define DISPLAY_STATE_INJECTION 1
 #define DISPLAY_STATE_COUNT 2
 
-#define DISPLAY_REFRESH_RATE 350
+#define DISPLAY_REFRESH_RATE 1400
 #define DISPLAY_CYCLE_MAX (DISPLAY_REFRESH_RATE * DISPLAY_STATE_COUNT)
 
 

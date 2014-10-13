@@ -29,18 +29,24 @@ Status InitTableController(TableController* tableController, char* name, byte co
     return status;
 }
 
-
 Status CalculateIndex(Measurement* measurement, int bound, byte* index)
 {
-    float value;
-    Status status = GetMeasurementValue(measurement, &value);
-    if (status == OK)
+    if (measurement != NULL)
     {
-        float range = GetMeasurementRange(measurement);
-        int valueIndex = value / (range / bound);
-        *index = (byte) max(0, min(valueIndex, bound));
+        float value;
+        Status status = GetMeasurementValue(measurement, &value);
+        if (status == OK)
+        {
+            float range = GetMeasurementRange(measurement);
+            int valueIndex = value / (range / bound);
+            *index = (byte) max(0, min(valueIndex, bound));
+        }
+        return status;
     }
-    return status;
+    else
+    {
+        return "NoMeasurementConfigured";
+    }
 }
 
 
@@ -54,11 +60,27 @@ char INJECTION[] = "Injection";
 
 Status InitControllers()
 {
-    Status status = InitTableController(&(tableControllers[0]), IGNITION, 20, 20);
+    Measurement* loadMeasurement = NULL;
+    Measurement* rpmMeasurement = NULL;
+    Status status = FindMeasurement(LOAD, &loadMeasurement);
     if (status == OK)
     {
-        status = InitTableController(&(tableControllers[1]), INJECTION, 20, 20);
+        status = FindMeasurement(RPM, &rpmMeasurement);
+        if (status == OK)
+        {
+            status = InitTableController(&(tableControllers[0]), IGNITION, 20, 20);
+            if (status == OK)
+            {
+                status = InitTableController(&(tableControllers[1]), INJECTION, 20, 20);
+            }
+        }
     }
+    tableControllers[0].columnMeasurement = loadMeasurement;
+    tableControllers[1].columnMeasurement = loadMeasurement;
+    tableControllers[0].rowMeasurement = rpmMeasurement;
+    tableControllers[1].rowMeasurement = rpmMeasurement;
+    tableControllers[0].factor = 0.1f;
+    tableControllers[1].factor = 0.1f;
     return status;
 }
 
@@ -77,16 +99,28 @@ TableController* FindTableController(const char* name)
 }
 
 
-Status GetTableControllerValue(TableController* tableControl, TableField* value)
+Status GetActualTableControllerValue(TableController* tableController, TableField* field)
 {
-    Status status = CalculateIndex(tableControl->columnMeasurement, tableControl->table.columns, &(tableControl->columnIndex));
+    Status status = CalculateIndex(tableController->columnMeasurement, tableController->table.columns, &(tableController->columnIndex));
     if (status == OK)
     {
-        status = CalculateIndex(tableControl->rowMeasurement, tableControl->table.rows, &(tableControl->rowIndex));
+        status = CalculateIndex(tableController->rowMeasurement, tableController->table.rows, &(tableController->rowIndex));
         if (status == OK)
         {
-            status = GetTableField(tableControl->name, tableControl->columnIndex, tableControl->rowIndex, value);
+            status = GetTableField(tableController->name, tableController->columnIndex, tableController->rowIndex, field);
         }
+    }
+    return status;
+}
+
+
+Status GetTableControllerFieldValue(const TableController* tableController, byte column, byte row, float* fieldValue)
+{
+    TableField field;
+    Status status = GetTableField(tableController->name, column, row, &field);
+    if (status == OK)
+    {
+        *fieldValue = field * tableController->factor;
     }
     return status;
 }

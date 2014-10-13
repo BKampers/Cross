@@ -139,19 +139,19 @@ void SendIndexes(int columnIndex, int rowIndex)
 }
 
 
-Status SendTableFields(const Table* table, const char* tableName)
+Status SendTableFields(const TableController* tableController)
 {
     Status status = OK;
     byte c, r;
     sprintf(response, ", \"%s\":\r\n  [\r\n", TABLE);
     WriteString(response);
-    for (r = 0; (r < table->rows) && (status == OK); ++r)
+    for (r = 0; (r < tableController->table.rows) && (status == OK); ++r)
     {
         WriteString("    [ ");
-        for (c = 0; (c < table->columns) && (status == OK); ++c)
+        for (c = 0; (c < tableController->table.columns) && (status == OK); ++c)
         {
-            TableField field;
-            Status getFieldStatus = GetTableField(tableName, c, r, &field);
+            float field;
+            Status getFieldStatus = GetTableControllerFieldValue(tableController, c, r, &field);
             if (getFieldStatus != OK)
             {
                 status = getFieldStatus;
@@ -160,11 +160,11 @@ Status SendTableFields(const Table* table, const char* tableName)
             {
                 WriteString(", ");
             }
-            sprintf(response, "%d", field);
+            sprintf(response, "%f", field);
             WriteString(response);
         }
         WriteString(" ]");
-        if (r < table->rows - 1)
+        if (r < tableController->table.rows - 1)
         {
             WriteString(",");
         }
@@ -189,7 +189,7 @@ void RespondTableControllerRequest(const char* jsonString, const TableController
         WriteString(response);
     if (sendTable || sendDefault)
     {
-        status = SendTableFields(&(tableController->table), name);
+        status = SendTableFields(tableController);
     }
     if (sendIndex || sendDefault)
     {

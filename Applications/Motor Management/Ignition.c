@@ -126,7 +126,7 @@ int GetIgnitionAngle()
 Status UpdateIgnition()
 {
     TableField angle;
-    Status status = GetTableControllerValue(ignitionController, &angle);
+    Status status = GetActualTableControllerValue(ignitionController, &angle);
     if (status == OK)
     {
         status = SetIgnitionAngle(angle);
