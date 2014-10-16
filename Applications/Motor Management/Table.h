@@ -23,7 +23,7 @@ Status FindTable(const char* name, Table* table);
 Status CreateTable(char* name, byte columns, byte rows, Table* table);
 Status RemoveTable(const char* name);
 
-Status SetTableField(const char* name, int column, int row, TableField value);
+Status SetTableField(const char* name, int column, int row, int value);
 Status GetTableField(const char* name, int column, int row, TableField* value);
 
 #endif /* _TABLE_H_ */

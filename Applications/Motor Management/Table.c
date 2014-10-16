@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+char* INVALID_TABLE_VALUE = "InvalidTableValue";
 char* INVALID_TABLE_INDEX = "InvalidTableIndex";
 char* OUT_OF_BOUNDS = "TableOutOfBounds";
 
@@ -19,6 +20,12 @@ char* OUT_OF_BOUNDS = "TableOutOfBounds";
 
 TypeId tableTypeId;
 TypeId tableNameTypeId;
+
+
+Status ValidateTableValue(int value)
+{
+    return ((-32768 <= value) && (value <= 32767)) ? OK : INVALID_TABLE_VALUE;
+}
 
 
 Status FindTableReference(const char* name, Reference* reference)
@@ -151,24 +158,29 @@ Status RemoveTable(const char* name)
 }
 
 
-Status SetTableField(const char* name, int column, int row, TableField value)
+Status SetTableField(const char* name, int column, int row, int value)
 {
-    Reference reference;
-    Status status = FindTableReference(name, &reference);
+    Status status = ValidateTableValue(value);
     if (status == OK)
     {
-        Table table;
-        status = GetElement(reference, sizeof(Table), &table);
+        Reference reference;
+        status = FindTableReference(name, &reference);
         if (status == OK)
         {
-            if ((column < table.columns) && (row < table.rows))
+            Table table;
+            status = GetElement(reference, sizeof(Table), &table);
+            if (status == OK)
             {
-                int offset = sizeof(Table) + (row * table.columns + column) * sizeof(TableField);
-                status = StoreElementBytes(reference, (ElementSize) offset, sizeof(TableField), &value);
-            }
-            else
-            {
-                status = OUT_OF_BOUNDS;
+                if ((column < table.columns) && (row < table.rows))
+                {
+                    TableField field = (TableField) value;
+                    int offset = sizeof(Table) + (row * table.columns + column) * sizeof(TableField);
+                    status = StoreElementBytes(reference, (ElementSize) offset, sizeof(TableField), &field);
+                }
+                else
+                {
+                    status = OUT_OF_BOUNDS;
+                }
             }
         }
     }

@@ -28,7 +28,9 @@ Status InitControllers();
 
 TableController* FindTableController(const char* name);
 
-Status GetActualTableControllerField(TableController* tableController, TableField* field);
+Status GetActualTableControllerFieldValue(TableController* tableController, float* fieldValue);
 Status GetTableControllerFieldValue(const TableController* tableController, byte column, byte row, float* fieldValue);
+
+Status SetTableControllerFieldValue(const char*  name, int column, int row, float value);
 
 #endif /* _CONTROLLERS_H_ */

@@ -50,6 +50,21 @@ Status CalculateIndex(Measurement* measurement, int bound, byte* index)
 }
 
 
+Status GetActualTableControllerField(TableController* tableController, TableField* field)
+{
+    Status status = CalculateIndex(tableController->columnMeasurement, tableController->table.columns, &(tableController->columnIndex));
+    if (status == OK)
+    {
+        status = CalculateIndex(tableController->rowMeasurement, tableController->table.rows, &(tableController->rowIndex));
+        if (status == OK)
+        {
+            status = GetTableField(tableController->name, tableController->columnIndex, tableController->rowIndex, field);
+        }
+    }
+    return status;
+}
+
+
 /*
 ** Interface
 */
@@ -79,7 +94,7 @@ Status InitControllers()
     tableControllers[1].columnMeasurement = loadMeasurement;
     tableControllers[0].rowMeasurement = rpmMeasurement;
     tableControllers[1].rowMeasurement = rpmMeasurement;
-    tableControllers[0].factor = 0.1f;
+    tableControllers[0].factor = 1.0f;
     tableControllers[1].factor = 0.1f;
     return status;
 }
@@ -99,16 +114,13 @@ TableController* FindTableController(const char* name)
 }
 
 
-Status GetActualTableControllerValue(TableController* tableController, TableField* field)
+Status GetActualTableControllerFieldValue(TableController* tableController, float* fieldValue)
 {
-    Status status = CalculateIndex(tableController->columnMeasurement, tableController->table.columns, &(tableController->columnIndex));
+    TableField field;
+    Status status = GetActualTableControllerField(tableController, &field);
     if (status == OK)
     {
-        status = CalculateIndex(tableController->rowMeasurement, tableController->table.rows, &(tableController->rowIndex));
-        if (status == OK)
-        {
-            status = GetTableField(tableController->name, tableController->columnIndex, tableController->rowIndex, field);
-        }
+        *fieldValue = field * tableController->factor;
     }
     return status;
 }
@@ -123,4 +135,19 @@ Status GetTableControllerFieldValue(const TableController* tableController, byte
         *fieldValue = field * tableController->factor;
     }
     return status;
+}
+
+
+Status SetTableControllerFieldValue(const char*  name, int column, int row, float value)
+{
+    TableController* tableController = FindTableController(name);
+    if (tableController != NULL)
+    {
+        int field = (int) (value / tableController->factor + 0.5f);
+        return SetTableField(name, column, row, field);
+    }
+    else
+    {
+        return "NoSuchTableController";
+    }
 }

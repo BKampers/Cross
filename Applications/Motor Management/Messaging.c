@@ -18,7 +18,6 @@
 
 #include "Controllers.h"
 #include "Measurements.h"
-#include "Table.h"
 
 
 const char* STATUS = "Status";
@@ -333,7 +332,7 @@ void ModifyTable(const char* jsonString, const char* name)
             status = GetFloatValue(jsonString, VALUE, &value);
             if (status == OK)
             {
-                status = SetTableField(name, (byte) column, (byte) row, (TableField) value);
+                status = SetTableControllerFieldValue(name, column, row, value);
             }
         }
     }
