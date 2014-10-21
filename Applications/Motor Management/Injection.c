@@ -31,8 +31,7 @@ Status SendInjectionTime()
 {
     char message[64];
     sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    WriteChannel(INJECTION_CHANNEL, message);
-    return OK;
+    return WriteChannel(INJECTION_CHANNEL, message);
 }
 
 
@@ -42,9 +41,17 @@ Status SendInjectionTime()
 
 Status InitInjection()
 {
-    SendInjectionTime();
-    injectionController = FindTableController(INJECTION);
-    return (injectionController != NULL) ? OK : "NoInjectionControllerFound";
+    Status status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+    if (status == OK)
+    {
+        SendInjectionTime();
+        injectionController = FindTableController(INJECTION);
+        if (injectionController == NULL)
+        {
+            status = "NoInjectionControllerFound";
+        }
+    }
+    return status;
 }
 
 
