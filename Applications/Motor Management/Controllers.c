@@ -104,16 +104,6 @@ Status InitControllers()
             }
         }
     }
-    /*
-    tableControllers[0].factor = 1.0f;
-    tableControllers[1].factor = 0.1f;
-    tableControllers[0].minimum = 0.0f;
-    tableControllers[1].minimum = 0.0f;
-    tableControllers[0].maximum = 59.0f;
-    tableControllers[1].maximum = 22.0f;
-    tableControllers[0].decimals = 0;
-    tableControllers[1].decimals = 1;
-    */
     return status;
 }
 
