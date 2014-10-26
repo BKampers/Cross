@@ -176,7 +176,7 @@ int main(void)
             HandleMessage(input);
         }
 
-        if ((memoryStatus == OK) && (ignitionStatus == OK) && (injectionStatus == OK))
+        if (memoryStatus == OK)
         {
             ignitionStatus = UpdateIgnition();
             ShowIfError(ignitionStatus);

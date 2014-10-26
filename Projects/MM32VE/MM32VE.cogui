@@ -18,23 +18,26 @@
 <part id="5"/>
 <part id="6"/>
 <part id="7"/>
-<part id="8"/>
 <part id="9"/>
+<part id="8"/>
+<part id="10"/>
+<part id="11"/>
+<part id="12"/>
 </presentation>
 </folder>
 </info>
 </editorArea>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.c" partName="Injection.c" path="E:/Project/Cross/Applications/Motor Management/Injection.c" title="Injection.c" tooltip="E:/Project/Cross/Applications/Motor Management/Injection.c" workbook="DefaultEditorWorkbook">
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.c" partName="Injection.c" path="E:/Project/Cross/Applications/Motor Management/Injection.c" title="Injection.c" tooltip="E:/Project/Cross/Applications/Motor Management/Injection.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Injection.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="208" selectionTopPixel="349"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1008" selectionTopPixel="43"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Measurements.h" partName="Measurements.h" path="E:/Project/Cross/Applications/Motor Management/Measurements.h" title="Measurements.h" tooltip="E:/Project/Cross/Applications/Motor Management/Measurements.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Measurements.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="8" selectionOffset="401" selectionTopPixel="126"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="409" selectionTopPixel="123"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Measurements.c" partName="Measurements.c" path="E:/Project/Cross/Applications/Motor Management/Measurements.c" title="Measurements.c" tooltip="E:/Project/Cross/Applications/Motor Management/Measurements.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Measurements.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="19" selectionOffset="3415" selectionTopPixel="0"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1669" selectionTopPixel="493"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.h" partName="Injection.h" path="E:/Project/Cross/Applications/Motor Management/Injection.h" title="Injection.h" tooltip="E:/Project/Cross/Applications/Motor Management/Injection.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Injection.h"/>
@@ -42,27 +45,39 @@
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="main.c" partName="main.c" path="E:/Project/Cross/Applications/Motor Management/main.c" title="main.c" tooltip="E:/Project/Cross/Applications/Motor Management/main.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/main.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3804" selectionTopPixel="2047"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="610" selectionTopPixel="300"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Ignition.c" partName="Ignition.c" path="E:/Project/Cross/Applications/Motor Management/Ignition.c" title="Ignition.c" tooltip="E:/Project/Cross/Applications/Motor Management/Ignition.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Ignition.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="179" selectionTopPixel="0"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2774" selectionTopPixel="1845"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Ignition.h" partName="Ignition.h" path="E:/Project/Cross/Applications/Motor Management/Ignition.h" title="Ignition.h" tooltip="E:/Project/Cross/Applications/Motor Management/Ignition.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Ignition.h"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="384" selectionTopPixel="0"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Controllers.c" partName="Controllers.c" path="E:/Project/Cross/Applications/Motor Management/Controllers.c" title="Controllers.c" tooltip="E:/Project/Cross/Applications/Motor Management/Controllers.c" workbook="DefaultEditorWorkbook">
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Controllers.c" partName="Controllers.c" path="E:/Project/Cross/Applications/Motor Management/Controllers.c" title="Controllers.c" tooltip="E:/Project/Cross/Applications/Motor Management/Controllers.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Controllers.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1640" selectionTopPixel="930"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3237" selectionTopPixel="1191"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Messaging.c" partName="Messaging.c" path="E:/Project/Cross/Applications/Motor Management/Messaging.c" title="Messaging.c" tooltip="E:/Project/Cross/Applications/Motor Management/Messaging.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Messaging.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="5301" selectionTopPixel="2931"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2725" selectionTopPixel="1736"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Controllers.h" partName="Controllers.h" path="E:/Project/Cross/Applications/Motor Management/Controllers.h" title="Controllers.h" tooltip="E:/Project/Cross/Applications/Motor Management/Controllers.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Controllers.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="6" selectionOffset="450" selectionTopPixel="81"/>
+<editorState selectionHorizontalPixel="0" selectionLength="215" selectionOffset="221" selectionTopPixel="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Table.c" partName="Table.c" path="E:/Project/Cross/Applications/Motor Management/Table.c" title="Table.c" tooltip="E:/Project/Cross/Applications/Motor Management/Table.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Table.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="2" selectionOffset="4610" selectionTopPixel="2601"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Table.h" partName="Table.h" path="E:/Project/Cross/Applications/Motor Management/Table.h" title="Table.h" tooltip="E:/Project/Cross/Applications/Motor Management/Table.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Table.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="5" selectionOffset="171" selectionTopPixel="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="UartJson.c" partName="UartJson.c" path="E:/Project/Cross/Platforms/STM32/UartJson.c" title="UartJson.c" tooltip="E:/Project/Cross/Platforms/STM32/UartJson.c" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Cross/STM32/UartJson.c"/>
+<editorState selectionHorizontalPixel="0" selectionLength="12" selectionOffset="5719" selectionTopPixel="3300"/>
 </editor>
 </editors>
 <views>
@@ -76,7 +91,7 @@
 <element path="/MM32VE/Motor Management"/>
 </expanded>
 <selection>
-<element path="/MM32VE/Motor Management/Injection.c"/>
+<element path="/MM32VE/Motor Management/Controllers.c"/>
 </selection>
 </viewState>
 </view>
@@ -192,165 +207,168 @@
 <workingSets/>
 <navigationHistory>
 <editors>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.c"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Ignition.h"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Injection.c"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Injection.h"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Ignition.c"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/main.c"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Table.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Injection.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Cross/STM32/UartJson.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Measurements.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Measurements.c"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Messaging.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Measurements.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Table.h"/>
 </editors>
-<item historyLabel="Ignition.h" index="1">
-<position info="not_deleted" x="197" y="0"/>
+<item historyLabel="main.c" index="0">
+<position/>
 </item>
-<item historyLabel="Injection.h" index="3">
-<position info="not_deleted" x="94" y="0"/>
+<item historyLabel="main.c" index="0">
+<position/>
 </item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="850" y="0"/>
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="800" y="0"/>
 </item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="684" y="0"/>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="609" y="1"/>
 </item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="386" y="0"/>
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="561" y="0"/>
 </item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2514" y="0"/>
+<item historyLabel="UartJson.c" index="2">
+<position info="not_deleted" x="5719" y="12"/>
 </item>
-<item historyLabel="Controllers.h" index="5">
-<position info="not_deleted" x="182" y="0"/>
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="604" y="0"/>
 </item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="1111" y="0"/>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="2861" y="83"/>
 </item>
-<item historyLabel="main.c" index="6">
-<position info="not_deleted" x="2032" y="0"/>
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="604" y="0"/>
 </item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2045" y="12"/>
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="1008" y="0"/>
 </item>
-<item historyLabel="main.c" index="6">
-<position info="not_deleted" x="3804" y="0"/>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="610" y="0"/>
 </item>
-<item historyLabel="Controllers.c" index="0">
+<item historyLabel="Injection.c" index="1">
+<position info="not_deleted" x="1008" y="0"/>
+</item>
+<item historyLabel="main.c" index="0">
+<position info="not_deleted" x="610" y="0"/>
+</item>
+<item historyLabel="Measurements.h" index="3">
+<position info="not_deleted" x="547" y="11"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="2789" y="15"/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position info="not_deleted" x="3389" y="0"/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position/>
+</item>
+<item historyLabel="Controllers.h" index="6">
+<position info="not_deleted" x="354" y="0"/>
+</item>
+<item historyLabel="Controllers.h" index="6">
+<position info="not_deleted" x="255" y="0"/>
+</item>
+<item historyLabel="Measurements.h" index="3">
+<position info="not_deleted" x="579" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="2789" y="15"/>
+</item>
+<item historyLabel="Measurements.h" index="3">
+<position info="not_deleted" x="409" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="3028" y="0"/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position info="not_deleted" x="3956" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="2895" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="1488" y="17"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="1548" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="1669" y="0"/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position info="not_deleted" x="3956" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="7">
+<position info="not_deleted" x="2883" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="4">
+<position info="not_deleted" x="1669" y="0"/>
+</item>
+<item historyLabel="Messaging.c" index="5">
+<position info="not_deleted" x="3956" y="0"/>
+</item>
+<item historyLabel="Measurements.c" index="8">
+<position info="not_deleted" x="1669" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="3513" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="2772" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="676" y="19"/>
+</item>
+<item historyLabel="Controllers.h" index="10">
+<position info="not_deleted" x="255" y="0"/>
+</item>
+<item historyLabel="Table.h" index="11">
+<position info="not_deleted" x="216" y="0"/>
+</item>
+<item historyLabel="Table.h" index="11">
+<position info="not_deleted" x="171" y="5"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="2488" y="15"/>
+</item>
+<item historyLabel="Controllers.h" index="10">
+<position info="not_deleted" x="234" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="408" y="0"/>
+</item>
+<item historyLabel="Controllers.h" index="10">
+<position info="not_deleted" x="221" y="215"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="408" y="0"/>
+</item>
+<item historyLabel="Controllers.c" index="9">
 <position info="not_deleted" x="598" y="0"/>
 </item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="1502" y="58"/>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="549" y="0"/>
 </item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="89" y="0"/>
+<item historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="312" y="100"/>
 </item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="90" y="0"/>
-</item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="1547" y="0"/>
-</item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="1640" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2626" y="74"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2472" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2505" y="0"/>
-</item>
-<item historyLabel="Table.h" index="7">
-<position info="not_deleted" x="0" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2505" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2369" y="19"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="386" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="772" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="849" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2505" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="849" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="830" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="715" y="59"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="825" y="19"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="795" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="2505" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="772" y="0"/>
-</item>
-<item historyLabel="Controllers.h" index="5">
-<position info="not_deleted" x="472" y="86"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="1018" y="0"/>
-</item>
-<item historyLabel="Messaging.c" index="8">
-<position info="not_deleted" x="5634" y="90"/>
-</item>
-<item historyLabel="Messaging.c" index="8">
-<position info="not_deleted" x="5766" y="0"/>
-</item>
-<item historyLabel="Controllers.h" index="5">
-<position info="not_deleted" x="413" y="57"/>
-</item>
-<item historyLabel="Messaging.c" index="8">
-<position info="not_deleted" x="5505" y="80"/>
-</item>
-<item historyLabel="Controllers.h" index="5">
-<position info="not_deleted" x="450" y="6"/>
-</item>
-<item historyLabel="Messaging.c" index="8">
-<position info="not_deleted" x="5301" y="0"/>
-</item>
-<item historyLabel="Controllers.c" index="0">
-<position info="not_deleted" x="1640" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="1018" y="0"/>
-</item>
-<item historyLabel="Ignition.h" index="1">
-<position info="not_deleted" x="46" y="0"/>
-</item>
-<item historyLabel="Ignition.c" index="4">
-<position info="not_deleted" x="179" y="0"/>
-</item>
-<item historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="1018" y="0"/>
-</item>
-<item historyLabel="Ignition.h" index="1">
-<position info="not_deleted" x="384" y="0"/>
-</item>
-<item historyLabel="Injection.h" index="3">
-<position info="not_deleted" x="123" y="0"/>
-</item>
-<item active="true" historyLabel="Injection.c" index="2">
-<position info="not_deleted" x="1018" y="0"/>
+<item active="true" historyLabel="Controllers.c" index="9">
+<position info="not_deleted" x="207" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
@@ -359,8 +377,20 @@
 <actionBarAdvisor/>
 </window>
 <mruList>
+<file factoryID="org.eclipse.cdt.ui.ExternalEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="math.h" tooltip="C:\CooCox\CoIDE\gcc\arm-none-eabi\include\math.h">
+<persistable path="C:\CooCox\CoIDE\gcc\arm-none-eabi\include\math.h" project="MM32VE"/>
+</file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Table.h" tooltip="MM32VE/Motor Management/Table.h">
 <persistable path="/MM32VE/Motor Management/Table.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Table.c" tooltip="MM32VE/Motor Management/Table.c">
+<persistable path="/MM32VE/Motor Management/Table.c"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Crank.c" tooltip="MM32VE/Motor Management/Crank.c">
+<persistable path="/MM32VE/Motor Management/Crank.c"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Messaging.h" tooltip="MM32VE/Motor Management/Messaging.h">
+<persistable path="/MM32VE/Motor Management/Messaging.h"/>
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="PersistentMemoryDriver.h" tooltip="MM32VE/Cross/STM32/PersistentMemoryDriver.h">
 <persistable path="/MM32VE/Cross/STM32/PersistentMemoryDriver.h"/>
@@ -386,23 +416,11 @@
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="main.c" tooltip="MM32VE/Motor Management/main.c">
 <persistable path="/MM32VE/Motor Management/main.c"/>
 </file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Table.c" tooltip="MM32VE/Motor Management/Table.c">
-<persistable path="/MM32VE/Motor Management/Table.c"/>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Crank.h" tooltip="MM32VE/application/Crank.h">
+<persistable path="/MM32VE/application/Crank.h"/>
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.h" tooltip="MM32VE/Motor Management/Injection.h">
 <persistable path="/MM32VE/Motor Management/Injection.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Measurements.c" tooltip="MM32VE/Motor Management/Measurements.c">
-<persistable path="/MM32VE/Motor Management/Measurements.c"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Measurements.h" tooltip="MM32VE/Motor Management/Measurements.h">
-<persistable path="/MM32VE/Motor Management/Measurements.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Control.h" tooltip="MM32VE/Motor Management/Control.h">
-<persistable path="/MM32VE/Motor Management/Control.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Control.c" tooltip="MM32VE/Motor Management/Control.c">
-<persistable path="/MM32VE/Motor Management/Control.c"/>
 </file>
 </mruList>
 </workbench>
