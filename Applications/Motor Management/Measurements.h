@@ -16,6 +16,7 @@ extern const char AUX2[];
 
 typedef struct
 {
+    const char* name;
     Status (*GetValue) (float* value);
     const char* format;
     float minimum;
@@ -26,8 +27,8 @@ typedef struct
 
 Status FindMeasurement(const char* name, Measurement** measurement);
 
-Status GetMeasurementValue(Measurement* measurement, float* value);
-float GetMeasurementRange(Measurement* measurement);
+Status GetMeasurementValue(const Measurement* measurement, float* value);
+float GetMeasurementRange(const Measurement* measurement);
 
 Status SetMeasurementSimulation(const char* name, float value);
 Status ResetMeasurementSimulation(const char* name);

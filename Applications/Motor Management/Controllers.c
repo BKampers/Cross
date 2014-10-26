@@ -11,9 +11,17 @@
 */
 
 
-#define TABLE_CONTROLLER_COUNT 2
+#define UNINITIALIZED_TABLE { NULL_REFERENCE, 0, 0 }
 
-TableController tableControllers[TABLE_CONTROLLER_COUNT];
+TableController tableControllers[] =
+{/*   name,      table,               colMt, rowMt, factor, minimum, maximum, decimals, Indexes */
+    { IGNITION,  UNINITIALIZED_TABLE, NULL,  NULL,    1.0f,    0.0f,   59.0f,        0,    0, 0 },
+    { INJECTION, UNINITIALIZED_TABLE, NULL,  NULL,    0.1f,    0.0f,   22.0f,        1,    0, 0 }
+};
+
+#define TABLE_CONTROLLER_COUNT (sizeof(tableControllers) / sizeof(TableController))
+
+//TableController tableControllers[TABLE_CONTROLLER_COUNT];
 
 
 Status InitTableController(TableController* tableController, char* name, byte columns, byte rows)
@@ -75,6 +83,8 @@ char INJECTION[] = "Injection";
 
 Status InitControllers()
 {
+    TableController* ignitionController = &(tableControllers[0]);
+    TableController* injectionController = &(tableControllers[1]);
     Measurement* loadMeasurement = NULL;
     Measurement* rpmMeasurement = NULL;
     Status status = FindMeasurement(LOAD, &loadMeasurement);
@@ -83,19 +93,27 @@ Status InitControllers()
         status = FindMeasurement(RPM, &rpmMeasurement);
         if (status == OK)
         {
-            status = InitTableController(&(tableControllers[0]), IGNITION, 20, 20);
+            status = InitTableController(ignitionController, IGNITION, 20, 20);
+            ignitionController->columnMeasurement = loadMeasurement;
+            ignitionController->rowMeasurement = rpmMeasurement;
             if (status == OK)
             {
-                status = InitTableController(&(tableControllers[1]), INJECTION, 20, 20);
+                status = InitTableController(injectionController, INJECTION, 20, 20);
+                injectionController->columnMeasurement = loadMeasurement;
+                injectionController->rowMeasurement = rpmMeasurement;
             }
         }
     }
-    tableControllers[0].columnMeasurement = loadMeasurement;
-    tableControllers[1].columnMeasurement = loadMeasurement;
-    tableControllers[0].rowMeasurement = rpmMeasurement;
-    tableControllers[1].rowMeasurement = rpmMeasurement;
+    /*
     tableControllers[0].factor = 1.0f;
     tableControllers[1].factor = 0.1f;
+    tableControllers[0].minimum = 0.0f;
+    tableControllers[1].minimum = 0.0f;
+    tableControllers[0].maximum = 59.0f;
+    tableControllers[1].maximum = 22.0f;
+    tableControllers[0].decimals = 0;
+    tableControllers[1].decimals = 1;
+    */
     return status;
 }
 

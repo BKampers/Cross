@@ -29,26 +29,30 @@ const char* REQUEST      = "Request";
 const char* MODIFY       = "Modify";
 const char* NOTIFICATION = "Notification";
 
-const char* SUBJECT  = "Subject";
+const char* SUBJECT = "Subject";
 
 const char* ERR = "Error";
 
 const char* PROPERTIES = "Properties";
-const char* VALUE      = "Value";
+const char* VALUE = "Value";
 const char* SIMULATION = "Simulation";
 
-const char* TABLE  = "Table";
-const char* INDEX  = "Index";
+const char* MINIMUM = "Minimum";
+const char* MAXIMUM = "Maximum";
+
+const char* TABLE = "Table";
+const char* INDEX = "Index";
 const char* COLUMN = "Column";
-const char* ROW    = "Row";
+const char* ROW = "Row";
+const char* DECIMALS = "Decimals";
 
 const char* FLASH_ELEMENTS = "FlashElements";
-const char* FLASH_MEM      = "Flash";
-const char* REFERENCE      = "Reference";
-const char* TYPE_ID        = "TypeId";
-const char* SIZE           = "Size";
-const char* COUNT          = "Count";
-const char* ELEMENTS       = "Elements";
+const char* FLASH_MEM = "Flash";
+const char* REFERENCE = "Reference";
+const char* TYPE_ID = "TypeId";
+const char* SIZE = "Size";
+const char* COUNT = "Count";
+const char* ELEMENTS = "Elements";
 
 const char* IGNITION_TIMER = "IgnitionTimer";
 
@@ -115,14 +119,18 @@ void SendStatus(const char* message, const char* subject, const Status status)
 }
 
 
-void SendValue(const char* subject, float value, const Status status)
+void SendMeasurementValue(const char* name, const Measurement* measurement)
 {
+    float value;
+    Status status = GetMeasurementValue(measurement, &value);
     sprintf(
         response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %f, \"%s\": \"%s\" }\r\n",
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %f, \"%s\": %f, \"%s\": %f, \"%s\": \"%s\" }\r\n",
         RESPONSE, REQUEST,
-        SUBJECT, subject,
+        SUBJECT, name,
         VALUE, value,
+        MINIMUM, measurement->minimum,
+        MAXIMUM, measurement->maximum,
         STATUS, status);
     WriteString(response);
 }
@@ -142,7 +150,23 @@ Status SendTableFields(const TableController* tableController)
 {
     Status status = OK;
     byte c, r;
-    sprintf(response, ", \"%s\":\r\n  [\r\n", TABLE);
+    if (tableController->columnMeasurement != NULL)
+    {
+        sprintf(response, ", \"%s\": \"%s\"", "ColumnMeasurement", tableController->columnMeasurement->name);
+        WriteString(response);
+    }
+    if (tableController->rowMeasurement != NULL)
+    {
+        sprintf(response, ", \"%s\": \"%s\"", "RowMeasurement", tableController->rowMeasurement->name);
+        WriteString(response);
+    }
+    sprintf(
+        response,
+        ", \"%s\": %f, \"%s\": %f, \"%s\": %d, \"%s\":\r\n  [\r\n",
+        MINIMUM, tableController->minimum,
+        MAXIMUM, tableController->maximum,
+        DECIMALS, tableController->decimals,
+        TABLE);
     WriteString(response);
     for (r = 0; (r < tableController->table.rows) && (status == OK); ++r)
     {
@@ -207,9 +231,7 @@ void RespondRequest(const struct jsonparse_state* subject)
     Status status = FindMeasurement(subjectString, &measurement);
     if (status == OK)
     {
-        float value;
-        status = GetMeasurementValue(measurement, &value);
-        SendValue(subjectString, value, status);
+        SendMeasurementValue(subjectString, measurement);
         responded = TRUE;
     }
     if (! responded)

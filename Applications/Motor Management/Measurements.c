@@ -22,13 +22,6 @@ const char AUX1[] = "Aux1";
 const char AUX2[] = "Aux2";
 
 
-typedef struct
-{
-    const char* name;
-    Measurement measurement;
-} MeasurementDeclaration;
-
-
 Status GetRpmValue(float* value);
 Status GetLoadValue(float* value);
 Status GetWaterTemperatureValue(float* value);
@@ -40,22 +33,22 @@ Status GetAux1Value(float* value);
 Status GetMapAux2Value(float* value);
 
 
-MeasurementDeclaration measurements[] =
-{ /*  Name                 GetValue                   format  minimum   maximum  simulation*/
-    { RPM,               { &GetRpmValue,              "%5d",     0.0f, 10000.0f, NULL } },
-    { LOAD,              { &GetLoadValue,             "%3.1f",   0.0f,   100.0f, NULL } },
-    { WATER_TEMPERATURE, { &GetWaterTemperatureValue, "%3.1f",   0.0f,   100.0f, NULL } },
-    { AIR_TEMPERATURE,   { &GetAirTemperatureValue,   "%3.1f", -50.0f,   200.0f, NULL } },
-    { BATTERY_VOLTAGE,   { &GetBatteryVoltageValue,   "%2.1f",   0.0f,    30.0f, NULL } },
-    { MAP_SENSOR,        { &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL } }
+Measurement measurements[] =
+{ /*  Name                 GetValue                 format  minimum   maximum  simulation*/
+    { RPM,               &GetRpmValue,              "%5d",     0.0f, 10000.0f, NULL },
+    { LOAD,              &GetLoadValue,             "%3.1f",   0.0f,   100.0f, NULL },
+    { WATER_TEMPERATURE, &GetWaterTemperatureValue, "%3.1f",   0.0f,   100.0f, NULL },
+    { AIR_TEMPERATURE,   &GetAirTemperatureValue,   "%3.1f", -50.0f,   200.0f, NULL },
+    { BATTERY_VOLTAGE,   &GetBatteryVoltageValue,   "%2.1f",   0.0f,    30.0f, NULL },
+    { MAP_SENSOR,        &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL }
 };
 
-#define MEASUREMENT_COUNT (sizeof(measurements) / sizeof(MeasurementDeclaration))
+#define MEASUREMENT_COUNT (sizeof(measurements) / sizeof(Measurement))
 
 
 Status GetAnalogMeasurement(int index, float* value)
 {
-    Measurement* measurement = &(measurements[index + 1].measurement);
+    Measurement* measurement = &(measurements[index + 1]);
     int adcValue;
     Status status = GetAnalogValue(index, &adcValue);
     if (status == OK)
@@ -132,7 +125,7 @@ Status FindMeasurement(const char* name, Measurement** measurement)
     {
         if (strcmp(name, measurements[i].name) == 0)
         {
-            *measurement = &(measurements[i].measurement);
+            *measurement = &(measurements[i]);
             return OK;
         }
     }
@@ -140,13 +133,13 @@ Status FindMeasurement(const char* name, Measurement** measurement)
 }
 
 
-float GetMeasurementRange(Measurement* measurement)
+float GetMeasurementRange(const Measurement* measurement)
 {
     return measurement->maximum - measurement->minimum;
 }
 
 
-Status GetMeasurementValue(Measurement* measurement, float* value)
+Status GetMeasurementValue(const Measurement* measurement, float* value)
 {
     if (measurement->simulationValue == NULL)
     {

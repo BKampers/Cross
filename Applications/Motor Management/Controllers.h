@@ -19,6 +19,9 @@ typedef struct
     Measurement* columnMeasurement;
     Measurement* rowMeasurement;
     float factor;
+    float minimum;
+    float maximum;
+    byte decimals;
     byte columnIndex;
     byte rowIndex;
 } TableController;
