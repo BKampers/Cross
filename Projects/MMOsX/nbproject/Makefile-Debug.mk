@@ -47,11 +47,11 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1788660382/jsonparse.o \
 	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
 	${OBJECTDIR}/_ext/1308665564/ApiStatus.o \
-	${OBJECTDIR}/_ext/1308665564/ConsoleJson.o \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
 	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
 	${OBJECTDIR}/_ext/1308665564/LedStub.o \
 	${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o \
+	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
 	${OBJECTDIR}/_ext/1308665564/Timers.o
 
 
@@ -139,11 +139,6 @@ ${OBJECTDIR}/_ext/1308665564/ApiStatus.o: ../../Platforms/MacOS/ApiStatus.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ApiStatus.o ../../Platforms/MacOS/ApiStatus.c
 
-${OBJECTDIR}/_ext/1308665564/ConsoleJson.o: ../../Platforms/MacOS/ConsoleJson.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
-	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ConsoleJson.o ../../Platforms/MacOS/ConsoleJson.c
-
 ${OBJECTDIR}/_ext/1308665564/FiledMemory.o: ../../Platforms/MacOS/FiledMemory.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
@@ -163,6 +158,11 @@ ${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o: ../../Platforms/MacOS/P
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o ../../Platforms/MacOS/PersistentElementManager.c
+
+${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o ../../Platforms/MacOS/SocketCommunication.c
 
 ${OBJECTDIR}/_ext/1308665564/Timers.o: ../../Platforms/MacOS/Timers.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564

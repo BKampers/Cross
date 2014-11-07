@@ -47,11 +47,11 @@
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
         <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
         <itemPath>../../Platforms/MacOS/ApiStatus.c</itemPath>
-        <itemPath>../../Platforms/MacOS/ConsoleJson.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
         <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/LedStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/PersistentElementManager.c</itemPath>
+        <itemPath>../../Platforms/MacOS/SocketCommunication.c</itemPath>
         <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Motor Management"
@@ -231,11 +231,6 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../../Platforms/MacOS/ConsoleJson.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
       <item path="../../Platforms/MacOS/FiledMemory.c"
             ex="false"
             tool="0"
@@ -253,6 +248,11 @@
       <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
             ex="false"
             tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketCommunication.c"
+            ex="false"
+            tool="0"
             flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">
@@ -401,11 +401,6 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../../Platforms/MacOS/ConsoleJson.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
       <item path="../../Platforms/MacOS/FiledMemory.c"
             ex="false"
             tool="0"
@@ -423,6 +418,11 @@
       <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
             ex="false"
             tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketCommunication.c"
+            ex="false"
+            tool="0"
             flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">

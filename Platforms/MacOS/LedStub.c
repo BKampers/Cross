@@ -7,6 +7,7 @@ uint32_t ODR = 0;
 
 void showLeds()
 {
+    /*
     printf("LEDS: ");
     uint32_t mask = 0x00000100;
     int i;
@@ -16,6 +17,7 @@ void showLeds()
         mask = mask << 1;
     }
     printf("\r\n");
+    */
 }
 
 

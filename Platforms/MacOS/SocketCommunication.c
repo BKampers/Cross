@@ -1,5 +1,5 @@
 /*
-** Implementation of the UART driver recognizing JSON objects
+** Implementation of the Communication interface driver recognizing JSON objects
 ** Copyright 2014, Bart Kampers
 */
 
@@ -22,10 +22,12 @@
 ** private 
 */
 
-#define USER_PORT 10007
+#define DEFAULT_PORT 44252
 #define MAXPENDING 5 /* Maximum outstanding connection requests */
 #define RCVBUFSIZE 256
 
+
+char* CONNECTED = "Connected";
 
 typedef struct
 {
@@ -34,6 +36,7 @@ typedef struct
     uint8_t inputIndex;
     uint8_t bracketCount;
     bool inputAvailable;
+    uint16_t port;
 }  Channel;
 
 
@@ -67,6 +70,7 @@ void HandleReceivedCharacter(char ch, Channel* channel)
                 if (channel->bracketCount == 0)
                 {
                     channel->inputAvailable = TRUE;
+                    printf("%s\r\n", channel->inputBuffer);
                 }
             }
         }
@@ -80,65 +84,86 @@ void* ThreadMain(void* threadArgs)
     struct sockaddr_in serverAddress; /* Local address */
     struct sockaddr_in clientAddress; /* Client address */
     socklen_t clientAddressLength = sizeof(clientAddress); /* Length of client address data structure */
-    uint64_t count = 0;
-    printf("=== ThreadMain %d ===\n", ((Channel*) threadArgs)->bufferSize);
+    printf("=== ThreadMain: port %d ===\n", ((Channel*) threadArgs)->port);
 
     /* Create socket for incoming connections */
-    serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
     if (serverSocketId >= 0)
     {      
         /* Construct local address structure */
         memset(&serverAddress, 0, sizeof(serverAddress)); /* Zero out structure */
         serverAddress.sin_family = AF_INET; /* Internet address family */
         serverAddress.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
-        serverAddress.sin_port = htons(USER_PORT); /* Local port */
+        serverAddress.sin_port = htons(((Channel*) threadArgs)->port);
 
         /* Bind to the local address */
         int result = bind(serverSocketId, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
         if (result == 0)
         {
-            /* Mark the socket so it will listen for incoming connections */
-            result = listen(serverSocketId, MAXPENDING);
-            if (result == 0)
+            threadStatus = "Binded";
+            printf("%s\r\n", threadStatus);
+            for (;;) /* Run forever */
             {
-                threadStatus = OK;
-                for (;;) /* Run forever */
+                /* Mark the socket so it will listen for incoming connections */
+                result = listen(serverSocketId, MAXPENDING);
+                if (result == 0)
                 {
-                    printf("=== Forever...\n");
+                    threadStatus = "Listening";
                     /* Wait for a client to connect */
                     clientSocketId = accept(serverSocketId, (struct sockaddr *) &clientAddress, &clientAddressLength);
-                    printf("=== clientSocketId = %d\n", clientSocketId);
+                    printf("%s: clientSocketId = %d\r\n", threadStatus, clientSocketId);
                     if (clientSocketId >= 0)
                     {
-                        /* client connected */
-                        while (running)
+                        threadStatus = CONNECTED;
+                        while (threadStatus == CONNECTED)
                         {
                             char ch;
-                            printf("=== running...\n");                    
-                            int received = recv(clientSocketId, &ch, 1, 0);
-                            HandleReceivedCharacter(ch, (Channel*) threadArgs);
-                            count++;
+                            int received = recv(clientSocketId, &ch, sizeof(ch), 0);
+                            if (received > 0)
+                            {
+                                HandleReceivedCharacter(ch, (Channel*) threadArgs);
+                            }
+                            else
+                            {
+                                if (received == 0)
+                                {
+                                    threadStatus = "Disconnected";
+                                    printf("%s\r\n", threadStatus);
+                                }
+                                else
+                                {
+                                    threadStatus = "ReceiveFailed";
+                                    printf("%s: %d, %d\r\n", threadStatus, errno, received);
+                                }
+                            }
                         }
                     }
+                    else
+                    {
+                        threadStatus = "AcceptFailed";
+                        printf("%s: %d\r\n", threadStatus, errno);
+                    }
                 }
-            }
-            else
-            {
-                threadStatus = "LISTEN_FAILED";
+                else
+                {
+                    threadStatus = "ListenFailed";
+                    printf("%s: %d\r\n", threadStatus, errno);
+                }
             }
         }
         else
         {
-            int e = errno;
             threadStatus = "BIND_ADDRESS_FAILED";
+            printf("%s: %d \r\n", threadStatus, errno);
         }
     }
     else 
     {
         threadStatus = "CREATE_SOCKET_FAILED";
+        printf("%s: %d \r\n", threadStatus, errno);
     }
     
-    printf("=== %s ===\n", threadStatus);
+    printf("=== Unexpected thread end: %s ===\n", threadStatus);
     return NULL;
 }
 
@@ -228,6 +253,7 @@ Status OpenCommunicationChannel(int channelId, uint8_t bufferSize)
         channels[channelId]->inputIndex = 0;
         channels[channelId]->bracketCount = 0;
         channels[channelId]->inputAvailable = FALSE;
+        channels[channelId]->port = DEFAULT_PORT + channelId;
         InitChannel(channelId);
     }
     return status;

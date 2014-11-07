@@ -29,9 +29,9 @@ float injectionTime = 0.0f;
 
 Status SendInjectionTime()
 {
-    char message[64];
+    /*char message[64];
     sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    WriteChannel(INJECTION_CHANNEL, message);
+    WriteChannel(INJECTION_CHANNEL, message);*/
     return OK;
 }
 
