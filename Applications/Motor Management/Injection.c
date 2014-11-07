@@ -41,17 +41,20 @@ Status SendInjectionTime()
 
 Status InitInjection()
 {
-    Status status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
-    if (status == OK)
+    injectionController = FindTableController(INJECTION);
+    if (injectionController != NULL)
     {
-        SendInjectionTime();
-        injectionController = FindTableController(INJECTION);
-        if (injectionController == NULL)
+        Status status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+        if (status == OK)
         {
-            status = "NoInjectionControllerFound";
+            status = SendInjectionTime();
         }
+        return status;
     }
-    return status;
+    else
+    {
+        return "NoInjectionControllerFound";
+    }
 }
 
 

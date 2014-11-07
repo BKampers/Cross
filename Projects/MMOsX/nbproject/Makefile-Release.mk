@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/_ext/445223610/Controllers.o \
 	${OBJECTDIR}/_ext/445223610/Crank.o \
 	${OBJECTDIR}/_ext/445223610/Ignition.o \
 	${OBJECTDIR}/_ext/445223610/Injection.o \
@@ -46,11 +47,11 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1788660382/jsonparse.o \
 	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
 	${OBJECTDIR}/_ext/1308665564/ApiStatus.o \
-	${OBJECTDIR}/_ext/1308665564/ConsoleJson.o \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
 	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
 	${OBJECTDIR}/_ext/1308665564/LedStub.o \
 	${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o \
+	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
 	${OBJECTDIR}/_ext/1308665564/Timers.o
 
 
@@ -77,6 +78,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/_ext/445223610/Controllers.o: ../../Applications/Motor\ Management/Controllers.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Controllers.o ../../Applications/Motor\ Management/Controllers.c
 
 ${OBJECTDIR}/_ext/445223610/Crank.o: ../../Applications/Motor\ Management/Crank.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
@@ -133,11 +139,6 @@ ${OBJECTDIR}/_ext/1308665564/ApiStatus.o: ../../Platforms/MacOS/ApiStatus.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ApiStatus.o ../../Platforms/MacOS/ApiStatus.c
 
-${OBJECTDIR}/_ext/1308665564/ConsoleJson.o: ../../Platforms/MacOS/ConsoleJson.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ConsoleJson.o ../../Platforms/MacOS/ConsoleJson.c
-
 ${OBJECTDIR}/_ext/1308665564/FiledMemory.o: ../../Platforms/MacOS/FiledMemory.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
@@ -157,6 +158,11 @@ ${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o: ../../Platforms/MacOS/P
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o ../../Platforms/MacOS/PersistentElementManager.c
+
+${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o ../../Platforms/MacOS/SocketCommunication.c
 
 ${OBJECTDIR}/_ext/1308665564/Timers.o: ../../Platforms/MacOS/Timers.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564

@@ -52,9 +52,11 @@ void PutLcdLine(int row, char* text)
 
 void UpdateLcd()
 {
+    /*
     int line;
     for (line = 0; line < LCD_LINE_COUNT; ++line)
     {
         printf("LCD: %s\r\n", buffer[line]);
     }
+    */
 }
