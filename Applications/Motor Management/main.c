@@ -109,7 +109,6 @@ void ShowIfError(Status status)
 {
     if (status != OK)
     {
-        SendErrorNotification(status);
         StatusToDisplay(status);
     }
 }
@@ -178,11 +177,21 @@ int main(void)
 
         if (memoryStatus == OK)
         {
-            ignitionStatus = UpdateIgnition();
-            ShowIfError(ignitionStatus);
+            Status status = UpdateIgnition();
+            ShowIfError(status);
+            if (status != ignitionStatus)
+            {
+                SendTextNotification(IGNITION, status);
+                status = ignitionStatus;
+            }
 
-            injectionStatus = UpdateInjection();
-            ShowIfError(injectionStatus);
+            status = UpdateInjection();
+            ShowIfError(status);
+            if (status != injectionStatus)
+            {
+                SendTextNotification(INJECTION, status);
+                status = injectionStatus;
+            }
 
             if ((ignitionStatus == OK) && (injectionStatus == OK))
             {
