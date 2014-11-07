@@ -74,3 +74,5 @@ Temporary Items
 /Projects/MMOsX/build/
 /Projects/MMOsX/dist/
 *.cogui
+
+Projects/MMOsX/runtime_data/persistent_memory
