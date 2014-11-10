@@ -1,6 +1,7 @@
 #Coocox
 Debug
 *.pbxproj
+*.cogui
 
 
 # Windows image file caches
