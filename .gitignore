@@ -3,6 +3,8 @@ Debug
 *.pbxproj
 *.cogui
 
+#NetBeans
+nbproject/private
 
 # Windows image file caches
 Thumbs.db
