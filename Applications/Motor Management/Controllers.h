@@ -10,6 +10,7 @@
 extern char INJECTION[];
 extern char IGNITION[];
 
+extern char WATER_TEMPERATURE_CORRECTION[];
 
 
 typedef struct

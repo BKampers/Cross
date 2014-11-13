@@ -24,6 +24,9 @@
 
 
 TableController* injectionController;
+
+TableController* waterTemperatureCorrectonController;
+
 float injectionTime = 0.0f;
 
 
@@ -44,6 +47,7 @@ Status InitInjection()
     injectionController = FindTableController(INJECTION);
     if (injectionController != NULL)
     {
+        waterTemperatureCorrectonController = FindTableController(WATER_TEMPERATURE_CORRECTION);
         Status status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
         if (status == OK)
         {
@@ -66,9 +70,21 @@ float GetInjectionTime()
 
 Status UpdateInjection()
 {
-    Status status = GetActualTableControllerFieldValue(injectionController, &injectionTime);
+    float time;
+    Status status = GetActualTableControllerFieldValue(injectionController, &time);
     if (status == OK)
     {
+        float totalCorrectionPercentage = 0.0f;
+        if (waterTemperatureCorrectonController != NULL)
+        {
+            float percentage;
+            status = GetActualTableControllerFieldValue(waterTemperatureCorrectonController, &percentage);
+            if (status == OK)
+            {
+                totalCorrectionPercentage += percentage;
+            }
+        }
+        injectionTime = time * (1.0f + totalCorrectionPercentage / 100.0f);
         status = SendInjectionTime();
     }
     return status;

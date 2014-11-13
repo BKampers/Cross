@@ -6,17 +6,18 @@
 
 #include <string.h>
 
+
 /*
 ** Private
 */
 
-
 #define UNINITIALIZED_TABLE { NULL_REFERENCE, 0, 0 }
 
 TableController tableControllers[] =
-{/*   name,      table,               colMt, rowMt, factor, minimum, maximum, decimals, Indexes */
-    { IGNITION,  UNINITIALIZED_TABLE, NULL,  NULL,    1.0f,    0.0f,   59.0f,        0,    0, 0 },
-    { INJECTION, UNINITIALIZED_TABLE, NULL,  NULL,    0.1f,    0.0f,   22.0f,        1,    0, 0 }
+{/*   name,                         table,               colMt, rowMt, factor, minimum, maximum, decimals, Indexes */
+    { IGNITION,                     UNINITIALIZED_TABLE, NULL,  NULL,    1.0f,    0.0f,   59.0f,        0,    0, 0 },
+    { INJECTION,                    UNINITIALIZED_TABLE, NULL,  NULL,    0.1f,    0.0f,   22.0f,        1,    0, 0 },
+    { WATER_TEMPERATURE_CORRECTION, UNINITIALIZED_TABLE, NULL,  NULL,    1.0f, -150.0f,  150.0f,        0,    0, 0 }
 };
 
 #define TABLE_CONTROLLER_COUNT (sizeof(tableControllers) / sizeof(TableController))
@@ -32,28 +33,35 @@ Status InitTableController(TableController* tableController, char* name, byte co
         status = CreateTable(name, columns, rows, &(tableController->table));
     }
     tableController->name = name;
-    tableController->columnIndex = 0;
-    tableController->rowIndex = 0;
     return status;
 }
 
-Status CalculateIndex(Measurement* measurement, int bound, byte* index)
+
+Status CalculateIndex(Measurement* measurement, byte bound, byte* index)
 {
-    if (measurement != NULL)
+    if (bound > 0)
     {
-        float value;
-        Status status = GetMeasurementValue(measurement, &value);
-        if (status == OK)
+        if (measurement != NULL)
         {
-            float range = GetMeasurementRange(measurement);
-            int valueIndex = value / (range / bound);
-            *index = (byte) max(0, min(valueIndex, bound));
+            float value;
+            Status status = GetMeasurementValue(measurement, &value);
+            if (status == OK)
+            {
+                float range = GetMeasurementRange(measurement);
+                int valueIndex = value / (range / bound);
+                *index = (byte) max(0, min(valueIndex, bound));
+            }
+            return status;
         }
-        return status;
+        else
+        {
+            *index = 0;
+            return (bound == 1) ? OK : "NoMeasurementConfigured";
+        }
     }
     else
     {
-        return "NoMeasurementConfigured";
+        return "InvalidBound";
     }
 }
 
@@ -80,11 +88,14 @@ Status GetActualTableControllerField(TableController* tableController, TableFiel
 char IGNITION[] = "Ignition";
 char INJECTION[] = "Injection";
 
+char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection"; 
+
 
 Status InitControllers()
 {
     TableController* ignitionController = &(tableControllers[0]);
     TableController* injectionController = &(tableControllers[1]);
+    TableController* waterTemperatureController = &(tableControllers[2]);
     Measurement* loadMeasurement = NULL;
     Measurement* rpmMeasurement = NULL;
     Status status = FindMeasurement(LOAD, &loadMeasurement);
@@ -101,6 +112,19 @@ Status InitControllers()
                 status = InitTableController(injectionController, INJECTION, 20, 20);
                 injectionController->columnMeasurement = loadMeasurement;
                 injectionController->rowMeasurement = rpmMeasurement;
+                if (status == OK)
+                {
+                    Measurement* waterTemperatureMeasurement = NULL;
+                    status = FindMeasurement(WATER_TEMPERATURE, &waterTemperatureMeasurement);
+                    if (status == OK)
+                    {
+                        status = InitTableController(waterTemperatureController, WATER_TEMPERATURE_CORRECTION, 15, 1);
+                        if (status == OK)
+                        {
+                            waterTemperatureController->columnMeasurement = waterTemperatureMeasurement;
+                        }
+                    }
+                }
             }
         }
     }
