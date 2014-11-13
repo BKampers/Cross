@@ -4,7 +4,7 @@ Debug
 *.cogui
 
 #NetBeans
-nbproject/private
+nbproject/private/private.xml
 
 # Windows image file caches
 Thumbs.db
