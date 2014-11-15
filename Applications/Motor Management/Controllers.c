@@ -22,8 +22,6 @@ TableController tableControllers[] =
 
 #define TABLE_CONTROLLER_COUNT (sizeof(tableControllers) / sizeof(TableController))
 
-//TableController tableControllers[TABLE_CONTROLLER_COUNT];
-
 
 Status InitTableController(TableController* tableController, char* name, byte columns, byte rows)
 {
@@ -39,7 +37,7 @@ Status InitTableController(TableController* tableController, char* name, byte co
 
 Status CalculateIndex(Measurement* measurement, byte bound, byte* index)
 {
-    if (bound > 0)
+    if (bound > 1)
     {
         if (measurement != NULL)
         {
@@ -55,9 +53,13 @@ Status CalculateIndex(Measurement* measurement, byte bound, byte* index)
         }
         else
         {
-            *index = 0;
-            return (bound == 1) ? OK : "NoMeasurementConfigured";
+            return "NoMeasurementConfigured";
         }
+    }
+    else if (bound == 1)
+    {
+        *index = 0;
+        return OK;
     }
     else
     {

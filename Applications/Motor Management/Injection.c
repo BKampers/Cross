@@ -78,14 +78,17 @@ Status UpdateInjection()
         if (waterTemperatureCorrectonController != NULL)
         {
             float percentage;
-            status = GetActualTableControllerFieldValue(waterTemperatureCorrectonController, &percentage);
-            if (status == OK)
+            if (GetActualTableControllerFieldValue(waterTemperatureCorrectonController, &percentage) == OK)
             {
                 totalCorrectionPercentage += percentage;
             }
         }
-        injectionTime = time * (1.0f + totalCorrectionPercentage / 100.0f);
-        status = SendInjectionTime();
+        time = time * (1.0f + totalCorrectionPercentage / 100.0f);
+        if (time != injectionTime)
+        {
+            injectionTime = time;
+            status = SendInjectionTime();
+        }
     }
     return status;
 }
