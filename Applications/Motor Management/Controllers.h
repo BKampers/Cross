@@ -7,10 +7,7 @@
 #include "Measurements.h"
 
 
-extern char INJECTION[];
-extern char IGNITION[];
-
-extern char WATER_TEMPERATURE_CORRECTION[];
+#define MAX_TABLE_CONTROLLERS 16
 
 
 typedef struct
@@ -31,6 +28,7 @@ typedef struct
 Status InitControllers();
 
 TableController* FindTableController(const char* name);
+Status CreateTableController(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, TableController** tableController);
 
 Status GetActualTableControllerFieldValue(TableController* tableController, float* fieldValue);
 Status GetTableControllerFieldValue(const TableController* tableController, byte column, byte row, float* fieldValue);

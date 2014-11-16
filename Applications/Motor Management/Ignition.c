@@ -97,6 +97,9 @@ Status SetIgnitionAngle(int angle)
 ** Interface
 */
 
+char IGNITION[] = "Ignition";
+
+
 void RegisterIgnitionTypes()
 {
     RegisterType(&timerSettingsTypeId);
@@ -113,6 +116,14 @@ Status InitIgnition()
     SetIgnitionAngle(0);
     InitPeriodTimer(&StopIgnition);
     ignitionController = FindTableController(IGNITION);
+    if (ignitionController == NULL)
+    {
+        CreateTableController(IGNITION, LOAD, RPM, 20, 20, &ignitionController);
+        ignitionController->factor = 1.0f;
+        ignitionController->minimum = 0.0f;
+        ignitionController->maximum = 59.0f;
+        ignitionController->decimals = 0;
+    }
     return (ignitionController != NULL) ? OK : "NoIgnitionControllerFound";
 }
 

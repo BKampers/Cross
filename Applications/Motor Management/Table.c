@@ -110,7 +110,7 @@ Status FindTable(const char* name, Table* table)
 }
 
 
-Status CreateTable(char* name, byte columns, byte rows, Table* table)
+Status CreateTable(const char* name, byte columns, byte rows, Table* table)
 {
     Status status = OK;
     table->columns = columns;
@@ -121,7 +121,7 @@ Status CreateTable(char* name, byte columns, byte rows, Table* table)
         status = AllocateElement(tableNameTypeId, length, &(table->nameReference));
         if (status == OK)
         {
-            status = StoreElement(name, table->nameReference, length);
+            status = StoreElement((void*) name, table->nameReference, length);
         }
     }
     if (status == OK)

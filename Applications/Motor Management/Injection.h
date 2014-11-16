@@ -4,6 +4,9 @@
 #include "Types.h"
 #include "ApiStatus.h"
 
+extern char INJECTION[];
+extern char WATER_TEMPERATURE_CORRECTION[]; 
+
 
 Status InitInjection();
 

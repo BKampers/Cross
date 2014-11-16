@@ -42,13 +42,40 @@ Status SendInjectionTime()
 ** Interface
 */
 
+char INJECTION[] = "Injection";
+char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection"; 
+
+
 Status InitInjection()
 {
+    Status status;
     injectionController = FindTableController(INJECTION);
-    if (injectionController != NULL)
+    if (injectionController == NULL)
     {
-        waterTemperatureCorrectonController = FindTableController(WATER_TEMPERATURE_CORRECTION);
-        Status status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+        status = CreateTableController(INJECTION, LOAD, RPM, 20, 20, &injectionController);
+        if (status == OK)
+        {
+            injectionController->factor = 0.1f;
+            injectionController->minimum = 0.0f;
+            injectionController->maximum = 22.0f;
+            injectionController->decimals = 1;
+        }
+    }
+    waterTemperatureCorrectonController = FindTableController(WATER_TEMPERATURE_CORRECTION);
+    if (waterTemperatureCorrectonController == NULL)
+    {
+        status = CreateTableController(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureCorrectonController);
+        if (status == OK)
+        {
+            waterTemperatureCorrectonController->factor = 1.0f;
+            waterTemperatureCorrectonController->minimum = -150.0f;
+            waterTemperatureCorrectonController->maximum = 150.0f;
+            waterTemperatureCorrectonController->decimals = 0;
+        }
+    }
+    if (status == OK)
+    {
+        status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
         if (status == OK)
         {
             status = SendInjectionTime();

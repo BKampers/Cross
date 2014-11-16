@@ -4,6 +4,7 @@
 
 #include "Controllers.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -13,17 +14,12 @@
 
 #define UNINITIALIZED_TABLE { NULL_REFERENCE, 0, 0 }
 
-TableController tableControllers[] =
-{/*   name,                         table,               colMt, rowMt, factor, minimum, maximum, decimals, Indexes */
-    { IGNITION,                     UNINITIALIZED_TABLE, NULL,  NULL,    1.0f,    0.0f,   59.0f,        0,    0, 0 },
-    { INJECTION,                    UNINITIALIZED_TABLE, NULL,  NULL,    0.1f,    0.0f,   22.0f,        1,    0, 0 },
-    { WATER_TEMPERATURE_CORRECTION, UNINITIALIZED_TABLE, NULL,  NULL,    1.0f, -150.0f,  150.0f,        0,    0, 0 }
-};
 
-#define TABLE_CONTROLLER_COUNT (sizeof(tableControllers) / sizeof(TableController))
+TableController createdControllers[MAX_TABLE_CONTROLLERS];
+int tableControllerCount = 0;
 
 
-Status InitTableController(TableController* tableController, char* name, byte columns, byte rows)
+Status InitTableController(TableController* tableController, const char* name, byte columns, byte rows)
 {
     Status status = FindTable(name, &(tableController->table));
     if (status != OK)
@@ -87,61 +83,62 @@ Status GetActualTableControllerField(TableController* tableController, TableFiel
 ** Interface
 */
 
-char IGNITION[] = "Ignition";
-char INJECTION[] = "Injection";
-
-char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection"; 
-
 
 Status InitControllers()
 {
-    TableController* ignitionController = &(tableControllers[0]);
-    TableController* injectionController = &(tableControllers[1]);
-    TableController* waterTemperatureController = &(tableControllers[2]);
-    Measurement* loadMeasurement = NULL;
-    Measurement* rpmMeasurement = NULL;
-    Status status = FindMeasurement(LOAD, &loadMeasurement);
-    if (status == OK)
+    return OK;
+}
+
+
+Status CreateTableController(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, TableController** tableController)
+{
+    if (tableControllerCount < MAX_TABLE_CONTROLLERS)
     {
-        status = FindMeasurement(RPM, &rpmMeasurement);
+        Status status;
+        *tableController = &(createdControllers[tableControllerCount]);
+        tableControllerCount++;
+        status = InitTableController(*tableController, name, columns, rows);
         if (status == OK)
         {
-            status = InitTableController(ignitionController, IGNITION, 20, 20);
-            ignitionController->columnMeasurement = loadMeasurement;
-            ignitionController->rowMeasurement = rpmMeasurement;
+            if (columnMeasurementName != NULL)
+            {
+                status = FindMeasurement(columnMeasurementName, &((*tableController)->columnMeasurement));
+            }
+            else
+            {
+                (*tableController)->columnMeasurement = NULL;
+            }
             if (status == OK)
             {
-                status = InitTableController(injectionController, INJECTION, 20, 20);
-                injectionController->columnMeasurement = loadMeasurement;
-                injectionController->rowMeasurement = rpmMeasurement;
-                if (status == OK)
+                if (rowMeasurementName != NULL)
                 {
-                    Measurement* waterTemperatureMeasurement = NULL;
-                    status = FindMeasurement(WATER_TEMPERATURE, &waterTemperatureMeasurement);
-                    if (status == OK)
-                    {
-                        status = InitTableController(waterTemperatureController, WATER_TEMPERATURE_CORRECTION, 15, 1);
-                        if (status == OK)
-                        {
-                            waterTemperatureController->columnMeasurement = waterTemperatureMeasurement;
-                        }
-                    }
+                    status = FindMeasurement(rowMeasurementName, &((*tableController)->rowMeasurement));
+                }
+                else
+                {
+                    (*tableController)->rowMeasurement = NULL;
                 }
             }
         }
+        (*tableController)->columnIndex = 0;
+        (*tableController)->rowIndex = 0;
+        return status;
     }
-    return status;
+    else
+    {
+        return "OutOfTableControllers";
+    }
 }
 
 
 TableController* FindTableController(const char* name)
 {
     int i;
-    for (i = 0; i < TABLE_CONTROLLER_COUNT; ++i)
+    for (i = 0; i < tableControllerCount; ++i)
     {
-        if (strcmp(name, tableControllers[i].name) == 0)
+        if (strcmp(name, createdControllers[i].name) == 0)
         {
-            return &(tableControllers[i]);
+            return &(createdControllers[i]);
         }
     }
     return NULL;

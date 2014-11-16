@@ -13,6 +13,9 @@ typedef struct
 } TIMER_SETTINGS;
 
 
+extern char IGNITION[];
+
+
 void RegisterIgnitionTypes();
 Status InitIgnition();
 
