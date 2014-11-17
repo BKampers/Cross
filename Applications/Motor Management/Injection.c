@@ -48,14 +48,14 @@ char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection";
 
 Status InitInjection()
 {
-    Status status = CreateTableController(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
+    Status status = CreateMeasurementTable(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
     if (status == OK)
     {
         injectionTable->precision = 0.1f;
         injectionTable->minimum = 0.0f;
         injectionTable->maximum = 22.0f;
         injectionTable->decimals = 1;
-        status = CreateTableController(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureTable);
+        status = CreateMeasurementTable(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureTable);
         if (status == OK)
         {
             waterTemperatureTable->precision = 1.0f;

@@ -25,7 +25,7 @@ typedef struct
 } MeasurementTable;
 
 
-Status CreateTableController(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable);
+Status CreateMeasurementTable(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable);
 
 MeasurementTable* FindMeasurementTable(const char* name);
 

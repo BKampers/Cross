@@ -83,7 +83,7 @@ Status GetActualTableControllerField(MeasurementTable* measurementTable, TableFi
 ** Interface
 */
 
-Status CreateTableController(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable)
+Status CreateMeasurementTable(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable)
 {
     if (tableControllerCount < MAX_MEASUREMENT_TABLES)
     {

@@ -115,7 +115,7 @@ Status InitIgnition()
     SetCogCountCallback(&StartIgnition, /*cog number*/50);
     SetIgnitionAngle(0);
     InitPeriodTimer(&StopIgnition);
-    Status status = CreateTableController(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
+    Status status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
     {
         ignitionTable->precision = 1.0f;
