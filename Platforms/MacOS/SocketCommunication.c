@@ -40,10 +40,9 @@ typedef struct
 }  Channel;
 
 
-char receiveBuffer[RCVBUFSIZE];
 char statusMessage[32];
 
-Channel* channels[] = { NULL };
+Channel* channels[] = { NULL, NULL };
 #define CHANNEL_COUNT (sizeof(channels) / sizeof(Channel*))
 
 Status threadStatus = UNINITIALIZED;
@@ -213,19 +212,22 @@ Status ValidateChannelOpen(int channelId)
 
 void InitChannel(int channelId)
 {
-    Channel* channel = channels[channelId];
-    if (! running)
+    if (channelId == DEFAULT_CHANNEL)
     {
-        running = TRUE;
-        pthread_t threadID;
-        int error = pthread_create(&threadID, NULL, ThreadMain, (void*) channel);
-        if (error == 0)
+        Channel* channel = channels[channelId];
+        if (! running)
         {
-            printf("=== Server thread created ===\n");
-        }
-        else
-        {
-            printf("=== Thread error %d ===\n", error);
+            running = TRUE;
+            pthread_t threadID;
+            int error = pthread_create(&threadID, NULL, ThreadMain, (void*) channel);
+            if (error == 0)
+            {
+                printf("=== Server thread created ===\n");
+            }
+            else
+            {
+                printf("=== Thread error %d ===\n", error);
+            }
         }
     }
 }
@@ -305,18 +307,25 @@ Status WriteChannel(int channelId, char* string)
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
     {
-        if (clientSocketId >= 0)
+        if (channelId == DEFAULT_CHANNEL)
         {
-            int length = strlen(string);
-            int sent = send(clientSocketId, string, length, 0);
-            if (sent != length)
+            if (clientSocketId >= 0)
             {
-                status = "SendFailure";
+                int length = strlen(string);
+                int sent = send(clientSocketId, string, length, 0);
+                if (sent != length)
+                {
+                    status = "SendFailure";
+                }
+            }
+            else
+            {
+                status = "SocketNotInitialized";
             }
         }
         else
         {
-            status = "SocketNotInitialized";
+            printf("Channel %d: %s", channelId, string);
         }
     }
     return status;
