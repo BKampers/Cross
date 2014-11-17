@@ -16,7 +16,7 @@
 #include "Ignition.h"
 #include "Injection.h"
 
-#include "Controllers.h"
+#include "MeasurementTable.h"
 #include "Measurements.h"
 
 
@@ -148,35 +148,35 @@ void SendIndexes(int columnIndex, int rowIndex)
 }
 
 
-Status SendTableFields(const TableController* tableController)
+Status SendTableFields(const MeasurementTable* measurementTable)
 {
     Status status = OK;
     byte c, r;
-    if (tableController->columnMeasurement != NULL)
+    if (measurementTable->columnMeasurement != NULL)
     {
-        sprintf(response, ", \"%s\": \"%s\"", "ColumnMeasurement", tableController->columnMeasurement->name);
+        sprintf(response, ", \"%s\": \"%s\"", "ColumnMeasurement", measurementTable->columnMeasurement->name);
         WriteString(response);
     }
-    if (tableController->rowMeasurement != NULL)
+    if (measurementTable->rowMeasurement != NULL)
     {
-        sprintf(response, ", \"%s\": \"%s\"", "RowMeasurement", tableController->rowMeasurement->name);
+        sprintf(response, ", \"%s\": \"%s\"", "RowMeasurement", measurementTable->rowMeasurement->name);
         WriteString(response);
     }
     sprintf(
         response,
         ", \"%s\": %f, \"%s\": %f, \"%s\": %d, \"%s\":\r\n  [\r\n",
-        MINIMUM, tableController->minimum,
-        MAXIMUM, tableController->maximum,
-        DECIMALS, tableController->decimals,
+        MINIMUM, measurementTable->minimum,
+        MAXIMUM, measurementTable->maximum,
+        DECIMALS, measurementTable->decimals,
         TABLE);
     WriteString(response);
-    for (r = 0; (r < tableController->table.rows) && (status == OK); ++r)
+    for (r = 0; (r < measurementTable->table.rows) && (status == OK); ++r)
     {
         WriteString("    [ ");
-        for (c = 0; (c < tableController->table.columns) && (status == OK); ++c)
+        for (c = 0; (c < measurementTable->table.columns) && (status == OK); ++c)
         {
             float field;
-            Status getFieldStatus = GetTableControllerFieldValue(tableController, c, r, &field);
+            Status getFieldStatus = GetTableControllerFieldValue(measurementTable, c, r, &field);
             if (getFieldStatus != OK)
             {
                 status = getFieldStatus;
@@ -189,7 +189,7 @@ Status SendTableFields(const TableController* tableController)
             WriteString(response);
         }
         WriteString(" ]");
-        if (r < tableController->table.rows - 1)
+        if (r < measurementTable->table.rows - 1)
         {
             WriteString(",");
         }
@@ -200,7 +200,7 @@ Status SendTableFields(const TableController* tableController)
 }
 
 
-void RespondTableControllerRequest(const char* jsonString, const TableController* tableController, const char* name)
+void RespondTableControllerRequest(const char* jsonString, const MeasurementTable* measurementTable, const char* name)
 {
     Status status = OK;
     bool sendTable = Contains(jsonString, PROPERTIES, TABLE);
@@ -214,11 +214,11 @@ void RespondTableControllerRequest(const char* jsonString, const TableController
         WriteString(response);
     if (sendTable || sendDefault)
     {
-        status = SendTableFields(tableController);
+        status = SendTableFields(measurementTable);
     }
     if (sendIndex || sendDefault)
     {
-        SendIndexes(tableController->columnIndex, tableController->rowIndex);
+        SendIndexes(measurementTable->columnIndex, measurementTable->rowIndex);
     }
     sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
     WriteString(response);
@@ -238,10 +238,10 @@ void RespondRequest(const struct jsonparse_state* subject)
     }
     if (! responded)
     {
-        TableController* tableController = FindTableController(subjectString);
-        if (tableController != NULL)
+        MeasurementTable* measurementTable = FindMeasurementTable(subjectString);
+        if (measurementTable != NULL)
         {
-            RespondTableControllerRequest(subject->json,tableController, subjectString);
+            RespondTableControllerRequest(subject->json,measurementTable, subjectString);
             responded = TRUE;
         }
     }

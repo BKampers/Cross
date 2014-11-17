@@ -35,10 +35,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/_ext/445223610/Controllers.o \
 	${OBJECTDIR}/_ext/445223610/Crank.o \
 	${OBJECTDIR}/_ext/445223610/Ignition.o \
 	${OBJECTDIR}/_ext/445223610/Injection.o \
+	${OBJECTDIR}/_ext/445223610/MeasurementTable.o \
 	${OBJECTDIR}/_ext/445223610/Measurements.o \
 	${OBJECTDIR}/_ext/445223610/Messaging.o \
 	${OBJECTDIR}/_ext/445223610/Table.o \
@@ -79,11 +79,6 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/_ext/445223610/Controllers.o: ../../Applications/Motor\ Management/Controllers.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
-	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Controllers.o ../../Applications/Motor\ Management/Controllers.c
-
 ${OBJECTDIR}/_ext/445223610/Crank.o: ../../Applications/Motor\ Management/Crank.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
 	${RM} "$@.d"
@@ -98,6 +93,11 @@ ${OBJECTDIR}/_ext/445223610/Injection.o: ../../Applications/Motor\ Management/In
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Injection.o ../../Applications/Motor\ Management/Injection.c
+
+${OBJECTDIR}/_ext/445223610/MeasurementTable.o: ../../Applications/Motor\ Management/MeasurementTable.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/MeasurementTable.o ../../Applications/Motor\ Management/MeasurementTable.c
 
 ${OBJECTDIR}/_ext/445223610/Measurements.o: ../../Applications/Motor\ Management/Measurements.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610

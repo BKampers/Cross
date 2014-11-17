@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#include "Controllers.h"
+#include "MeasurementTable.h"
 
 #include "HardwareSettings.h"
 #include "Engine.h"
@@ -42,7 +42,7 @@ TypeId timerSettingsTypeId;
 
 Status ignitionTimeStatus = UNINITIALIZED;
 
-TableController* ignitionController;
+MeasurementTable* ignitionTable;
 int ignitionAngle;
 
 
@@ -115,16 +115,15 @@ Status InitIgnition()
     SetCogCountCallback(&StartIgnition, /*cog number*/50);
     SetIgnitionAngle(0);
     InitPeriodTimer(&StopIgnition);
-    ignitionController = FindTableController(IGNITION);
-    if (ignitionController == NULL)
+    Status status = CreateTableController(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
+    if (status == OK)
     {
-        CreateTableController(IGNITION, LOAD, RPM, 20, 20, &ignitionController);
-        ignitionController->factor = 1.0f;
-        ignitionController->minimum = 0.0f;
-        ignitionController->maximum = 59.0f;
-        ignitionController->decimals = 0;
+        ignitionTable->precision = 1.0f;
+        ignitionTable->minimum = 0.0f;
+        ignitionTable->maximum = 59.0f;
+        ignitionTable->decimals = 0;
     }
-    return (ignitionController != NULL) ? OK : "NoIgnitionControllerFound";
+    return status;
 }
 
 
@@ -137,7 +136,7 @@ int GetIgnitionAngle()
 Status UpdateIgnition()
 {
     float angle;
-    Status status = GetActualTableControllerFieldValue(ignitionController, &angle);
+    Status status = GetActualTableControllerFieldValue(ignitionTable, &angle);
     if (status == OK)
     {
         status = SetIgnitionAngle((int) angle);

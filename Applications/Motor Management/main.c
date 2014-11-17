@@ -15,7 +15,7 @@
 #include "AnalogInput.h"
 #include "Messaging.h"
 
-#include "Controllers.h"
+#include "MeasurementTable.h"
 #include "Table.h"
 #include "Crank.h"
 #include "Measurements.h"
@@ -39,7 +39,6 @@ char input[INPUT_BUFFER_SIZE];
 char text[LCD_LINE_LENGTH + 1];
 
 Status memoryStatus = UNINITIALIZED;
-Status controllerStatus = UNINITIALIZED;
 Status ignitionStatus = UNINITIALIZED;
 Status injectionStatus = UNINITIALIZED;
 Status communicationStatus = UNINITIALIZED;
@@ -147,15 +146,10 @@ int main(void)
 
     if (memoryStatus == OK)
     {
-        controllerStatus = InitControllers();
-        ShowStatus("Initialize controller", controllerStatus);
-        if (controllerStatus == OK)
-        {
-            ignitionStatus = InitIgnition();
-            ShowStatus("Initialize ignition", ignitionStatus);
-            injectionStatus = InitInjection();
-            ShowStatus("Initialize injection", injectionStatus);
-        }
+        ignitionStatus = InitIgnition();
+        ShowStatus("Initialize ignition", ignitionStatus);
+        injectionStatus = InitInjection();
+        ShowStatus("Initialize injection", injectionStatus);
     }
 
     if (FindMeasurement(RPM, &rpmMeasurement) != OK)

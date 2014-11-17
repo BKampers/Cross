@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-#include "Controllers.h"
+#include "MeasurementTable.h"
 
 #include "HardwareSettings.h"
 #include "Communication.h"
@@ -23,9 +23,9 @@
 #define CHANNEL_BUFFER_SIZE 64
 
 
-TableController* injectionController;
+MeasurementTable* injectionTable;
 
-TableController* waterTemperatureCorrectonController;
+MeasurementTable* waterTemperatureTable;
 
 float injectionTime = 0.0f;
 
@@ -48,29 +48,20 @@ char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection";
 
 Status InitInjection()
 {
-    Status status;
-    injectionController = FindTableController(INJECTION);
-    if (injectionController == NULL)
+    Status status = CreateTableController(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
+    if (status == OK)
     {
-        status = CreateTableController(INJECTION, LOAD, RPM, 20, 20, &injectionController);
+        injectionTable->precision = 0.1f;
+        injectionTable->minimum = 0.0f;
+        injectionTable->maximum = 22.0f;
+        injectionTable->decimals = 1;
+        status = CreateTableController(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureTable);
         if (status == OK)
         {
-            injectionController->factor = 0.1f;
-            injectionController->minimum = 0.0f;
-            injectionController->maximum = 22.0f;
-            injectionController->decimals = 1;
-        }
-    }
-    waterTemperatureCorrectonController = FindTableController(WATER_TEMPERATURE_CORRECTION);
-    if (waterTemperatureCorrectonController == NULL)
-    {
-        status = CreateTableController(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureCorrectonController);
-        if (status == OK)
-        {
-            waterTemperatureCorrectonController->factor = 1.0f;
-            waterTemperatureCorrectonController->minimum = -150.0f;
-            waterTemperatureCorrectonController->maximum = 150.0f;
-            waterTemperatureCorrectonController->decimals = 0;
+            waterTemperatureTable->precision = 1.0f;
+            waterTemperatureTable->minimum = -150.0f;
+            waterTemperatureTable->maximum = 150.0f;
+            waterTemperatureTable->decimals = 0;
         }
     }
     if (status == OK)
@@ -80,12 +71,8 @@ Status InitInjection()
         {
             status = SendInjectionTime();
         }
-        return status;
     }
-    else
-    {
-        return "NoInjectionControllerFound";
-    }
+    return status;
 }
 
 
@@ -98,14 +85,14 @@ float GetInjectionTime()
 Status UpdateInjection()
 {
     float time;
-    Status status = GetActualTableControllerFieldValue(injectionController, &time);
+    Status status = GetActualTableControllerFieldValue(injectionTable, &time);
     if (status == OK)
     {
         float totalCorrectionPercentage = 0.0f;
-        if (waterTemperatureCorrectonController != NULL)
+        if (waterTemperatureTable != NULL)
         {
             float percentage;
-            if (GetActualTableControllerFieldValue(waterTemperatureCorrectonController, &percentage) == OK)
+            if (GetActualTableControllerFieldValue(waterTemperatureTable, &percentage) == OK)
             {
                 totalCorrectionPercentage += percentage;
             }
