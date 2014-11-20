@@ -27,6 +27,9 @@ typedef struct
 
 Status CreateMeasurementTable(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable);
 
+int GetMeasurementTableCount();
+const char* GetMeasurementTableName(int index);
+
 MeasurementTable* FindMeasurementTable(const char* name);
 
 Status GetActualTableControllerFieldValue(MeasurementTable* measurementTable, float* fieldValue);

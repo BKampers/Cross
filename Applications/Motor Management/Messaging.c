@@ -22,11 +22,11 @@
 
 const char* STATUS = "Status";
 
-const char* MESSAGE  = "Message";
+const char* MESSAGE = "Message";
 const char* RESPONSE = "Response";
 
-const char* REQUEST      = "Request";
-const char* MODIFY       = "Modify";
+const char* REQUEST = "Request";
+const char* MODIFY = "Modify";
 const char* NOTIFICATION = "Notification";
 
 const char* SUBJECT = "Subject";
@@ -39,6 +39,9 @@ const char* SIMULATION = "Simulation";
 
 const char* MINIMUM = "Minimum";
 const char* MAXIMUM = "Maximum";
+
+const char* MEASUREMENT_TABLES = "MeasurementTables";
+const char* NAMES = "Names";
 
 const char* TABLE = "Table";
 const char* INDEX = "Index";
@@ -200,7 +203,7 @@ Status SendTableFields(const MeasurementTable* measurementTable)
 }
 
 
-void RespondTableControllerRequest(const char* jsonString, const MeasurementTable* measurementTable, const char* name)
+void RespondMeasurementTableRequest(const char* jsonString, const MeasurementTable* measurementTable, const char* name)
 {
     Status status = OK;
     bool sendTable = Contains(jsonString, PROPERTIES, TABLE);
@@ -241,7 +244,7 @@ void RespondRequest(const struct jsonparse_state* subject)
         MeasurementTable* measurementTable = FindMeasurementTable(subjectString);
         if (measurementTable != NULL)
         {
-            RespondTableControllerRequest(subject->json,measurementTable, subjectString);
+            RespondMeasurementTableRequest(subject->json, measurementTable, subjectString);
             responded = TRUE;
         }
     }
@@ -252,6 +255,26 @@ void RespondRequest(const struct jsonparse_state* subject)
         free(messageString);
     }
     free(subjectString);
+}
+
+
+void SendMeasurementTableNames()
+{
+    int i;
+    int count = GetMeasurementTableCount();
+    sprintf(
+        response,
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [\r\n",
+        RESPONSE, REQUEST,
+        SUBJECT, MEASUREMENT_TABLES,
+        NAMES);
+    WriteString(response);
+    for (i = 0; i < count; ++i)
+    {
+        sprintf(response, "  \"%s\",\r\n", GetMeasurementTableName(i));
+        WriteString(response);
+    }
+    WriteString("] }\r\n");
 }
 
 
@@ -432,6 +455,10 @@ void HandleRequest(const struct jsonparse_state* subject)
     else if (EqualString(subject, FLASH_ELEMENTS))
     {
         SendFlashElements();
+    }
+    else if (EqualString(subject, MEASUREMENT_TABLES))
+    {
+        SendMeasurementTableNames();
     }
     else
     {

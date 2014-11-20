@@ -16,7 +16,7 @@
 
 
 MeasurementTable measurementTables[MAX_MEASUREMENT_TABLES];
-int tableControllerCount = 0;
+int measurementTableCount = 0;
 
 
 Status InitTableController(MeasurementTable* measurementTable, const char* name, byte columns, byte rows)
@@ -85,11 +85,11 @@ Status GetActualTableControllerField(MeasurementTable* measurementTable, TableFi
 
 Status CreateMeasurementTable(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable)
 {
-    if (tableControllerCount < MAX_MEASUREMENT_TABLES)
+    if (measurementTableCount < MAX_MEASUREMENT_TABLES)
     {
         Status status;
-        *measurementTable = &(measurementTables[tableControllerCount]);
-        tableControllerCount++;
+        *measurementTable = &(measurementTables[measurementTableCount]);
+        measurementTableCount++;
         status = InitTableController(*measurementTable, name, columns, rows);
         if (status == OK)
         {
@@ -128,10 +128,22 @@ Status CreateMeasurementTable(const char* name, const char* columnMeasurementNam
 }
 
 
+int GetMeasurementTableCount()
+{
+    return measurementTableCount;
+}
+
+
+const char* GetMeasurementTableName(int index)
+{
+    return measurementTables[index].name;
+}
+
+
 MeasurementTable* FindMeasurementTable(const char* name)
 {
     int i;
-    for (i = 0; i < tableControllerCount; ++i)
+    for (i = 0; i < measurementTableCount; ++i)
     {
         if (strcmp(name, measurementTables[i].name) == 0)
         {
