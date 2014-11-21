@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 
 /*
@@ -183,7 +184,7 @@ Status SetTableControllerFieldValue(const char*  name, int column, int row, floa
     MeasurementTable* measurementTable = FindMeasurementTable(name);
     if (measurementTable != NULL)
     {
-        int field = (int) (value / measurementTable->precision + 0.5f);
+        int field = roundf(value / measurementTable->precision);
         return SetTableField(name, column, row, field);
     }
     else

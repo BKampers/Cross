@@ -5,7 +5,9 @@
 
 #include "Injection.h"
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "MeasurementTable.h"
 
@@ -23,9 +25,28 @@
 #define CHANNEL_BUFFER_SIZE 64
 
 
-MeasurementTable* injectionTable;
+typedef struct
+{
+    const char* measurementName;
+    MeasurementTable* table;
+} CorrectionConfiguration;
 
-MeasurementTable* waterTemperatureTable;
+
+CorrectionConfiguration corrections[] =
+{
+    { WATER_TEMPERATURE, NULL },
+    { AIR_TEMPERATURE, NULL },
+    { BATTERY_VOLTAGE, NULL},
+    { MAP_SENSOR , NULL }
+};
+
+#define CORRECTION_COUNT (sizeof(corrections) / sizeof(CorrectionConfiguration))
+
+
+char CORRECTION_POSTFIX[] = "Correction";
+
+
+MeasurementTable* injectionTable;
 
 float injectionTime = 0.0f;
 
@@ -38,12 +59,29 @@ Status SendInjectionTime()
 }
 
 
+Status CreateCorrectionTable(const char* measurementName, MeasurementTable** correctionTable)
+{
+    size_t nameLength = strlen(measurementName) + strlen(CORRECTION_POSTFIX);
+    char* tableName = malloc(nameLength + 1);
+    strcpy(tableName, measurementName);
+    strcat(tableName, CORRECTION_POSTFIX);
+    Status status = CreateMeasurementTable(tableName, measurementName, NULL, 10, 1, correctionTable);
+    if (status == OK)
+    {
+        (*correctionTable)->precision = 1.0f;
+        (*correctionTable)->minimum = -150.0f;
+        (*correctionTable)->maximum = 150.0f;
+        (*correctionTable)->decimals = 0;
+    }
+    return status;
+}
+
+
 /*
 ** Interface
 */
 
 char INJECTION[] = "Injection";
-char WATER_TEMPERATURE_CORRECTION[] = "WaterTemperatureCorrection"; 
 
 
 Status InitInjection()
@@ -51,17 +89,15 @@ Status InitInjection()
     Status status = CreateMeasurementTable(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
     if (status == OK)
     {
+        int i;
         injectionTable->precision = 0.1f;
         injectionTable->minimum = 0.0f;
         injectionTable->maximum = 22.0f;
         injectionTable->decimals = 1;
-        status = CreateMeasurementTable(WATER_TEMPERATURE_CORRECTION, WATER_TEMPERATURE, NULL, 15, 1, &waterTemperatureTable);
-        if (status == OK)
+        for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
         {
-            waterTemperatureTable->precision = 1.0f;
-            waterTemperatureTable->minimum = -150.0f;
-            waterTemperatureTable->maximum = 150.0f;
-            waterTemperatureTable->decimals = 0;
+            status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
+            
         }
     }
     if (status == OK)
@@ -88,13 +124,19 @@ Status UpdateInjection()
     Status status = GetActualTableControllerFieldValue(injectionTable, &time);
     if (status == OK)
     {
+        int i;
         float totalCorrectionPercentage = 0.0f;
-        if (waterTemperatureTable != NULL)
+        for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
         {
-            float percentage;
-            if (GetActualTableControllerFieldValue(waterTemperatureTable, &percentage) == OK)
+            MeasurementTable* table = corrections[i].table;
+            if (table != NULL)
             {
-                totalCorrectionPercentage += percentage;
+                float percentage;
+                status = GetActualTableControllerFieldValue(table, &percentage);
+                if (status == OK)
+                {
+                    totalCorrectionPercentage += percentage;
+                }
             }
         }
         time = time * (1.0f + totalCorrectionPercentage / 100.0f);
