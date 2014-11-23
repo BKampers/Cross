@@ -4,7 +4,11 @@ Debug
 *.cogui
 
 #NetBeans
-nbproject/private/private.xml
+/Projects/MMOsX/build/
+/Projects/MMOsX/dist/
+/Projects/MMOsX/nbproject/private/
+Projects/MMOsX/runtime_data/persistent_memory
+
 
 # Windows image file caches
 Thumbs.db
@@ -74,8 +78,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-/Projects/MMOsX/build/
-/Projects/MMOsX/dist/
-*.cogui
-
-Projects/MMOsX/runtime_data/persistent_memory
