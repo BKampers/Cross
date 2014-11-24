@@ -129,10 +129,11 @@ void SendMeasurementValue(const char* name, const Measurement* measurement)
     Status status = GetMeasurementValue(measurement, &value);
     sprintf(
         response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %f, \"%s\": \"%s\", \"%s\": %f, \"%s\": %f, \"%s\": \"%s\" }\r\n",
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %f, \"%s\": %s, \"%s\": \"%s\", \"%s\": %f, \"%s\": %f, \"%s\": \"%s\" }\r\n",
         RESPONSE, REQUEST,
         SUBJECT, name,
         VALUE, value,
+        SIMULATION, (measurement->simulationValue != NULL) ? TRUE_LITERAL : FALSE_LITERAL,
         FORMAT, measurement->format,
         MINIMUM, measurement->minimum,
         MAXIMUM, measurement->maximum,

@@ -54,6 +54,10 @@ struct jsonparse_state {
   char stack[JSONPARSE_MAX_DEPTH];
 };
 
+
+const char* FALSE_LITERAL;
+const char* TRUE_LITERAL;
+
 /**
  * \brief      Initialize a JSON parser state.
  * \param state A pointer to a JSON parser state
