@@ -22,12 +22,11 @@
 <part id="8"/>
 <part id="10"/>
 <part id="11"/>
-<part id="12"/>
 </presentation>
 </folder>
 </info>
 </editorArea>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.c" partName="Injection.c" path="E:/Project/Cross/Applications/Motor Management/Injection.c" title="Injection.c" tooltip="E:/Project/Cross/Applications/Motor Management/Injection.c" workbook="DefaultEditorWorkbook">
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Injection.c" partName="Injection.c" path="E:/Project/Cross/Applications/Motor Management/Injection.c" title="Injection.c" tooltip="E:/Project/Cross/Applications/Motor Management/Injection.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Injection.c"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1008" selectionTopPixel="43"/>
 </editor>
@@ -54,10 +53,6 @@
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Ignition.h" partName="Ignition.h" path="E:/Project/Cross/Applications/Motor Management/Ignition.h" title="Ignition.h" tooltip="E:/Project/Cross/Applications/Motor Management/Ignition.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Ignition.h"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="384" selectionTopPixel="0"/>
-</editor>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Controllers.c" partName="Controllers.c" path="E:/Project/Cross/Applications/Motor Management/Controllers.c" title="Controllers.c" tooltip="E:/Project/Cross/Applications/Motor Management/Controllers.c" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Controllers.c"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3268" selectionTopPixel="1470"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Messaging.c" partName="Messaging.c" path="E:/Project/Cross/Applications/Motor Management/Messaging.c" title="Messaging.c" tooltip="E:/Project/Cross/Applications/Motor Management/Messaging.c" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/MM32VE/Motor Management/Messaging.c"/>
@@ -91,7 +86,7 @@
 <element path="/MM32VE/Motor Management"/>
 </expanded>
 <selection>
-<element path="/MM32VE/Motor Management/Controllers.c"/>
+<element path="/MM32VE/Motor Management/Injection.c"/>
 </selection>
 </viewState>
 </view>
@@ -220,10 +215,8 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Controllers.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Table.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Measurements.c"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/MM32VE/Motor Management/Injection.c"/>
 </editors>
-<item historyLabel="Injection.c" index="1">
-<position info="not_deleted" x="800" y="0"/>
-</item>
 <item historyLabel="main.c" index="0">
 <position info="not_deleted" x="609" y="1"/>
 </item>
@@ -368,8 +361,11 @@
 <item historyLabel="Measurements.c" index="12">
 <position info="not_deleted" x="1669" y="0"/>
 </item>
-<item active="true" historyLabel="Controllers.c" index="9">
+<item historyLabel="Controllers.c" index="9">
 <position info="not_deleted" x="3270" y="0"/>
+</item>
+<item active="true" historyLabel="Injection.c" index="13">
+<position info="not_deleted" x="1008" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
