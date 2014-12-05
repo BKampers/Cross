@@ -143,7 +143,13 @@ Status GetMeasurementValue(const Measurement* measurement, float* value)
 {
     if (measurement->simulationValue == NULL)
     {
-        return measurement->GetValue(value);
+        float measurementValue;
+        Status status = measurement->GetValue(&measurementValue);
+        if (status == OK)
+        {
+            *value = maxf(measurement->minimum, minf(measurementValue, measurement->maximum));
+        }
+        return status;
     }
     else
     {
