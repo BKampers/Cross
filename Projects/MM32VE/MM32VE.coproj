@@ -98,9 +98,9 @@
     <File name="cmsis_boot/startup/startup_stm32f10x_hd.c" path="cmsis_boot/startup/startup_stm32f10x_hd.c" type="1"/>
     <File name="stm_lib/src/misc.c" path="stm_lib/src/misc.c" type="1"/>
     <File name="Cross/STM32/PersistentMemoryDriver.h" path="../../Platforms/STM32/PersistentMemoryDriver.h" type="1"/>
+    <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="Motor Management/Injection.h" path="../../Applications/Motor Management/Injection.h" type="1"/>
     <File name="Motor Management/Messaging.c" path="../../Applications/Motor Management/Messaging.c" type="1"/>
-    <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="Cross/API/Types.h" path="../../API/Types.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_flash.h" path="stm_lib/inc/stm32f10x_flash.h" type="1"/>
@@ -121,9 +121,9 @@
     <File name="stm_lib/src/stm32f10x_gpio.c" path="stm_lib/src/stm32f10x_gpio.c" type="1"/>
     <File name="Motor Management/Ignition.h" path="../../Applications/Motor Management/Ignition.h" type="1"/>
     <File name="Motor Management/Crank.c" path="../../Applications/Motor Management/Crank.c" type="1"/>
+    <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_gpio.h" path="stm_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Motor Management/main.c" path="../../Applications/Motor Management/main.c" type="1"/>
-    <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>
     <File name="Cross/API/ApiStatus.h" path="../../API/ApiStatus.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_usart.h" path="stm_lib/inc/stm32f10x_usart.h" type="1"/>
     <File name="Cross/STM32/GPIO_LCD1602.c" path="../../Platforms/STM32/GPIO_LCD1602.c" type="1"/>
