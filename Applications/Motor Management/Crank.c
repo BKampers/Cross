@@ -26,12 +26,12 @@
 #define MICROS_PER_TICK 10.24f
 
 
+typedef void (*Callback) ();
+
 char* INVALID_COG_NUMBER = "Invalid cog number";
 
 
-void (*cogCountCallbacks[EFFECTIVE_COG_COUNT]) ();
-
-int32_t rotationCount = -1;
+Callback* cogCountCallbacks = NULL;
 
 int cogCount = 0;
 int cogTicks = 0;
@@ -45,7 +45,9 @@ bool captured = FALSE;
 void InitCrankCallbacks()
 {
     int i;
-    for (i = 0; i < EFFECTIVE_COG_COUNT; ++i)
+    int count = GetEffectiveCogCount();
+    cogCountCallbacks = malloc(sizeof(Callback) * count);
+    for (i = 0; i < count; ++i)
     {
         cogCountCallbacks[i] = NULL;
     }
@@ -65,7 +67,6 @@ void PulseDetected(int capture)
         {
             gapTicks = delta;
             cogCount = 1;
-            rotationCount++;
         }
         else
         {
@@ -79,7 +80,7 @@ void PulseDetected(int capture)
                 }
             }
         }
-        if ((0 < cogCount) && (cogCount <= EFFECTIVE_COG_COUNT))
+        if ((0 < cogCount) && (cogCount <= GetEffectiveCogCount()))
         {
             void (*callback) () = cogCountCallbacks[cogCount-1];
             if (callback != NULL)
@@ -108,12 +109,6 @@ void InitCrank()
 bool SignalDetected()
 {
     return captured;
-}
-
-
-int GetRotationCount()
-{
-    return rotationCount;
 }
 
 
@@ -153,9 +148,9 @@ float GetRpm()
 
 Status SetCogCountCallback(void (*callback) (), int cogNumber)
 {
-    if ((0 <= cogNumber) && (cogNumber < EFFECTIVE_COG_COUNT))
+    if ((0 < cogNumber) && (cogNumber <= GetEffectiveCogCount()))
     {
-        cogCountCallbacks[cogNumber] = callback;
+        cogCountCallbacks[cogNumber - 1] = callback;
         return OK;
     }
     else

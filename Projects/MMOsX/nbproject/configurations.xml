@@ -58,6 +58,7 @@
                      displayName="Motor Management"
                      projectFiles="true">
         <itemPath>../../Applications/Motor Management/Crank.c</itemPath>
+        <itemPath>../../API/Engine.c</itemPath>
         <itemPath>../../Applications/Motor Management/Ignition.c</itemPath>
         <itemPath>../../Applications/Motor Management/Injection.c</itemPath>
         <itemPath>../../Applications/Motor Management/MeasurementTable.c</itemPath>
@@ -113,6 +114,8 @@
       <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Engine.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -283,6 +286,8 @@
       <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/Engine.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>

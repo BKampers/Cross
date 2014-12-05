@@ -9,7 +9,6 @@
 void InitCrank();
 
 bool SignalDetected();
-int GetRotationCount();
 int GetCogCount();
 int GetCogTicks();
 int GetGapTicks();

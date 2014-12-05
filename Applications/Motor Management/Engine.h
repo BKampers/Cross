@@ -1,11 +1,13 @@
-#ifndef __ENGINE_H__
-#define __ENGINE_H__
+#ifndef _ENGINE_H_
+#define _ENGINE_H_
 
-#define COG_TOTAL 60
-#define GAP_COGS   2
 
-#define EFFECTIVE_COG_COUNT (COG_TOTAL - GAP_COGS)
+int GetCogTotal();
+int GetGapCogs();
+int GetEffectiveCogCount();
 
-#define COG_RATIO (COG_TOTAL / GAP_COGS)
+int GetIgnitionReferenceCog();
+int GetDeadPointCount();
 
-#endif /* __ENGINE_H__ */
+
+#endif /* _ENGINE_H_ */

@@ -21,7 +21,7 @@
 
 #define IGNITION_ANGLE_BASE 60
 
-#define DEGREES_PER_COG (360 / COG_TOTAL)
+#define DEGREES_PER_COG (360.0f / GetCogTotal())
 
 
 /*
@@ -67,14 +67,52 @@ int ignitionTicks = 0;
 void StartIgnition()
 {
     LedsOn(IGNITION_LED);
-	   ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
-	   ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
+    ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
+    ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 }
 
 
 void StopIgnition()
 {
     LedsOff(IGNITION_LED);
+}
+
+
+int ValidCog(int number)
+{
+    int total = GetCogTotal();
+    int effective = GetEffectiveCogCount();
+    number %= total;
+    if (number == 0)
+    {
+        return 1;
+    }
+    else if (number <= effective)
+    {
+        return number;
+    }
+    else if (total - number < number - effective)
+    {
+        return 1;
+    }
+    else
+    {
+        return effective;
+    }
+}
+
+
+Status InitStartCogs()
+{
+    Status status = OK;
+    int count = GetDeadPointCount();
+    int interval = GetCogTotal() / GetDeadPointCount();
+    int i;
+    for (i = 0; (i < count) && (status == OK); ++i)
+    {
+        status = SetCogCountCallback(&StartIgnition, ValidCog(GetIgnitionReferenceCog() + interval * i));
+    }
+    return status;
 }
 
 
@@ -108,20 +146,25 @@ void RegisterIgnitionTypes()
 
 Status InitIgnition()
 {
+    Status status;
     TIMER_SETTINGS timerSettings;
+    
     GetIgnitionTimerSettings(&timerSettings);
     ignitionTicks = timerSettings.counter;
-    SetCogCountCallback(&StartIgnition, /*cog number*/20);
-    SetCogCountCallback(&StartIgnition, /*cog number*/50);
-    SetIgnitionAngle(0);
-    InitPeriodTimer(&StopIgnition);
-    Status status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
+    
+    status = InitStartCogs();
     if (status == OK)
     {
-        ignitionTable->precision = 1.0f;
-        ignitionTable->minimum = 0.0f;
-        ignitionTable->maximum = 59.0f;
-        ignitionTable->decimals = 0;
+        SetIgnitionAngle(0);
+        InitPeriodTimer(&StopIgnition);
+        status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
+        if (status == OK)
+        {
+            ignitionTable->precision = 1.0f;
+            ignitionTable->minimum = 0.0f;
+            ignitionTable->maximum = 59.0f;
+            ignitionTable->decimals = 0;
+        }
     }
     return status;
 }

@@ -48,7 +48,7 @@ Channel* channels[] = { NULL, NULL };
 Status threadStatus = UNINITIALIZED;
 int clientSocketId = -1; /* any negative value means uninitialized */
 int bytesReceived = 0;
-bool running = FALSE;
+bool socketTaskRunning = FALSE;
 
 
 void HandleReceivedCharacter(char ch, Channel* channel)
@@ -76,7 +76,7 @@ void HandleReceivedCharacter(char ch, Channel* channel)
 }
 
 
-void* ThreadMain(void* threadArgs)
+void* SocketTask(void* threadArgs)
 {    
     int serverSocketId; /* Socket descriptor for server */
     struct sockaddr_in serverAddress; /* Local address */
@@ -215,18 +215,18 @@ void InitChannel(int channelId)
     if (channelId == DEFAULT_CHANNEL)
     {
         Channel* channel = channels[channelId];
-        if (! running)
+        if (! socketTaskRunning)
         {
-            running = TRUE;
+            socketTaskRunning = TRUE;
             pthread_t threadID;
-            int error = pthread_create(&threadID, NULL, ThreadMain, (void*) channel);
+            int error = pthread_create(&threadID, NULL, SocketTask, (void*) channel);
             if (error == 0)
             {
-                printf("=== Server thread created ===\n");
+                printf("=== Socket thread created ===\n");
             }
             else
             {
-                printf("=== Thread error %d ===\n", error);
+                printf("=== Socket thread creation failed (error = %d) ===\n", error);
             }
         }
     }

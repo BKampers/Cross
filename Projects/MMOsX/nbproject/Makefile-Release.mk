@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/_ext/1445225562/Engine.o \
 	${OBJECTDIR}/_ext/445223610/Crank.o \
 	${OBJECTDIR}/_ext/445223610/Ignition.o \
 	${OBJECTDIR}/_ext/445223610/Injection.o \
@@ -78,6 +79,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/_ext/1445225562/Engine.o: ../../API/Engine.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1445225562
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1445225562/Engine.o ../../API/Engine.c
 
 ${OBJECTDIR}/_ext/445223610/Crank.o: ../../Applications/Motor\ Management/Crank.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
