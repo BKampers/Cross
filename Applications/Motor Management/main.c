@@ -176,7 +176,7 @@ int main(void)
             if (status != ignitionStatus)
             {
                 SendTextNotification(IGNITION, status);
-                status = ignitionStatus;
+                ignitionStatus = status;
             }
 
             status = UpdateInjection();
@@ -184,7 +184,7 @@ int main(void)
             if (status != injectionStatus)
             {
                 SendTextNotification(INJECTION, status);
-                status = injectionStatus;
+                injectionStatus = status;
             }
 
             if ((ignitionStatus == OK) && (injectionStatus == OK))
