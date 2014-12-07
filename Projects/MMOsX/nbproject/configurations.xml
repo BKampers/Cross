@@ -58,7 +58,7 @@
                      displayName="Motor Management"
                      projectFiles="true">
         <itemPath>../../Applications/Motor Management/Crank.c</itemPath>
-        <itemPath>../../API/Engine.c</itemPath>
+        <itemPath>../../Applications/Motor Management/Engine.c</itemPath>
         <itemPath>../../Applications/Motor Management/Ignition.c</itemPath>
         <itemPath>../../Applications/Motor Management/Injection.c</itemPath>
         <itemPath>../../Applications/Motor Management/MeasurementTable.c</itemPath>
@@ -115,8 +115,6 @@
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Engine.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
@@ -138,6 +136,11 @@
       <item path="../../Applications/Motor Management/Crank.h"
             ex="false"
             tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Engine.c"
+            ex="false"
+            tool="0"
             flavor2="0">
       </item>
       <item path="../../Applications/Motor Management/Engine.h"
@@ -287,8 +290,6 @@
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Engine.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
@@ -310,6 +311,11 @@
       <item path="../../Applications/Motor Management/Crank.h"
             ex="false"
             tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/Engine.c"
+            ex="false"
+            tool="0"
             flavor2="0">
       </item>
       <item path="../../Applications/Motor Management/Engine.h"
