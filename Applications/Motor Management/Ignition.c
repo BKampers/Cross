@@ -78,44 +78,6 @@ void StopIgnition()
 }
 
 
-int ValidCog(int number)
-{
-    int total = GetCogTotal();
-    int effective = GetEffectiveCogCount();
-    number %= total;
-    if (number == 0)
-    {
-        return 1;
-    }
-    else if (number <= effective)
-    {
-        return number;
-    }
-    else if (total - number < number - effective)
-    {
-        return 1;
-    }
-    else
-    {
-        return effective;
-    }
-}
-
-
-Status InitStartCogs()
-{
-    Status status = OK;
-    int count = GetDeadPointCount();
-    int interval = GetCogTotal() / GetDeadPointCount();
-    int i;
-    for (i = 0; (i < count) && (status == OK); ++i)
-    {
-        status = SetCogCountCallback(&StartIgnition, ValidCog(GetIgnitionReferenceCog() + interval * i));
-    }
-    return status;
-}
-
-
 Status SetIgnitionAngle(int angle)
 {
     if ((0 <= angle) && (angle < IGNITION_ANGLE_BASE))
@@ -152,7 +114,7 @@ Status InitIgnition()
     GetIgnitionTimerSettings(&timerSettings);
     ignitionTicks = timerSettings.counter;
     
-    status = InitStartCogs();
+    status = InitIgnitionStartCogs();
     if (status == OK)
     {
         SetIgnitionAngle(0);
@@ -225,4 +187,17 @@ Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings)
 int GetIgnitionTicks()
 {
     return (int) ignitionTicks;
+}
+
+
+Status InitIgnitionStartCogs()
+{
+    Status status = OK;
+    int count = GetDeadPointCount();
+    int i;
+    for (i = 0; (i < count) && (status == OK); ++i)
+    {
+        status = SetCogCountCallback(&StartIgnition, GetDeadPointCog(i));
+    }
+    return status;
 }

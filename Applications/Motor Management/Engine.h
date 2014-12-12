@@ -1,13 +1,23 @@
 #ifndef _ENGINE_H_
 #define _ENGINE_H_
 
+#include "ApiStatus.h"
+
+
+void RegisterEngineType();
+Status InitEngine();
 
 int GetCogTotal();
-int GetGapCogs();
+int GetGapSize();
 int GetEffectiveCogCount();
 
-int GetIgnitionReferenceCog();
+int GetDeadPointOffset();
 int GetDeadPointCount();
+int GetDeadPointCog(int index);
 
+int GetCylinderCount();
+
+Status SetGogwheelProperties(int cogTotal, int gapSize, int offset);
+Status SetCylinderCount(int count);
 
 #endif /* _ENGINE_H_ */

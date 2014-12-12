@@ -12,6 +12,7 @@
 #include "Communication.h"
 #include "JsonMessage.h"
 
+#include "Engine.h"
 #include "Crank.h"
 #include "Ignition.h"
 #include "Injection.h"
@@ -49,6 +50,14 @@ const char* COLUMN = "Column";
 const char* ROW = "Row";
 const char* DECIMALS = "Decimals";
 const char* FORMAT = "Format";
+
+const char* ENGINE = "Engine";
+const char* COGWHEEL = "Cogwheel";
+const char* COG_TOTAL = "CogTotal";
+const char* GAP_SIZE = "GapSize";
+const char* OFFSET = "Offset";
+const char* DEAD_POINTS = "DeadPoints";
+const char* CYLINDER_COUNT = "CylinderCount";
 
 const char* FLASH_ELEMENTS = "FlashElements";
 const char* FLASH_MEM = "Flash";
@@ -279,6 +288,32 @@ void SendMeasurementTableNames()
 }
 
 
+void SendEngineProperties()
+{
+    int i;
+    sprintf(
+        response,
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %d, \"%s\": { \"%s\": %d,\"%s\": %d,\"%s\": %d }, \"%s\": [",
+        RESPONSE, REQUEST,
+        SUBJECT, ENGINE,
+        CYLINDER_COUNT, GetCylinderCount(),
+        COGWHEEL, COG_TOTAL, GetCogTotal(), GAP_SIZE, GetGapSize(), OFFSET, GetDeadPointOffset(),
+        DEAD_POINTS);
+    WriteString(response);
+    for (i = 0; i < GetDeadPointCount(); ++i)
+    {
+        if (i > 0)
+        {
+            WriteString(",");
+        }
+        sprintf(response, "%d", GetDeadPointCog(i));
+        WriteString(response);
+    }
+    sprintf(response, "] }");
+    WriteString(response);
+}
+
+
 void SendFlashMemory(const char* jsonString)
 {
     Status status = OK;
@@ -410,6 +445,41 @@ void ModifyIgnitionTimer(const char* jsonString)
 }
 
 
+void ModifyCogwheel(const char* jsonString)
+{
+    int cogTotal, gapSize, offset;
+    Status status = GetIntValue(jsonString, COG_TOTAL, &cogTotal);
+    if (status == OK)
+    {
+        status = GetIntValue(jsonString, GAP_SIZE, &gapSize);
+        if (status == OK)
+        {
+            status = GetIntValue(jsonString, OFFSET, &offset);
+            if (status == OK)
+            {
+                if (status == OK)
+                {
+                    status = SetGogwheelProperties(cogTotal, gapSize, offset);
+                }
+            }
+        }
+    }
+    SendStatus(MODIFY, COGWHEEL, status);
+}
+
+
+void ModifyCylinderCount(const char* jsonString)
+{
+    int value;
+    Status status = GetIntValue(jsonString, VALUE, &value);
+    if (status == OK)
+    {
+        status = SetCylinderCount(value);
+    }
+    SendStatus(MODIFY, CYLINDER_COUNT, status);
+}
+
+
 void ModifyFlash(const char* jsonString)
 {
     int reference;
@@ -460,6 +530,10 @@ void HandleRequest(const struct jsonparse_state* subject)
     else if (EqualString(subject, MEASUREMENT_TABLES))
     {
         SendMeasurementTableNames();
+    }
+    else if (EqualString(subject, ENGINE))
+    {
+        SendEngineProperties();
     }
     else
     {
@@ -513,7 +587,17 @@ void HandleModification(const struct jsonparse_state* subject)
     }
     if (! handled)
     {
-        if (strcmp(subjectString, FLASH_MEM) == 0)
+        if (strcmp(subjectString, COGWHEEL) == 0)
+        {
+            ModifyCogwheel(subject->json);
+            handled = TRUE;
+        }
+        else if (strcmp(subjectString, CYLINDER_COUNT) == 0)
+        {
+            ModifyCylinderCount(subject->json);
+            handled= TRUE;
+        }
+        else if (strcmp(subjectString, FLASH_MEM) == 0)
         {
             ModifyFlash(subject->json);
             handled = TRUE;

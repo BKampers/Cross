@@ -15,9 +15,10 @@
 #include "AnalogInput.h"
 #include "Messaging.h"
 
+#include "Engine.h"
+#include "Crank.h"
 #include "MeasurementTable.h"
 #include "Table.h"
-#include "Crank.h"
 #include "Measurements.h"
 
 #include "Ignition.h"
@@ -135,21 +136,28 @@ int main(void)
 
     InitPersistentDataManager();
 
-    InitCrank();
-    InitAnalogInput();
-
     SetLeds(0x00);
 
     RegisterTableTypes();
+    RegisterEngineType();
+    
     memoryStatus = CheckPersistentMemory(&checkPersistentMemoryNotifyCallback);
     ShowStatus("Check memory", memoryStatus);
 
     if (memoryStatus == OK)
     {
-        ignitionStatus = InitIgnition();
-        ShowStatus("Initialize ignition", ignitionStatus);
-        injectionStatus = InitInjection();
-        ShowStatus("Initialize injection", injectionStatus);
+        Status status = InitEngine();
+        ShowStatus("Initialize engine", status);
+        
+        if (status == OK)
+        {
+            InitCrank();
+            InitAnalogInput();
+            ignitionStatus = InitIgnition();
+            ShowStatus("Initialize ignition", ignitionStatus);
+            injectionStatus = InitInjection();
+            ShowStatus("Initialize injection", injectionStatus);
+        }
     }
 
     if (FindMeasurement(RPM, &rpmMeasurement) != OK)

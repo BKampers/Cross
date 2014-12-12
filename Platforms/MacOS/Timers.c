@@ -28,7 +28,7 @@ void* TimerTask(void* threadArgs)
         int cog = timerValue % 60;
         if ((0 < cog) && (cog < 59)) 
         {
-            printf("* HandlePulse(%d)\r\n", timerValue * 0x200);
+            /*printf("* HandlePulse(%d)\r\n", timerValue * 0x200);*/
             HandlePulse(timerValue * 0x200);
         }
     }

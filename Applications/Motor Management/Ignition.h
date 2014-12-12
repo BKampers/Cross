@@ -29,5 +29,7 @@ Status UpdateIgnition();
 
 int GetIgnitionTicks();
 
+Status InitIgnitionStartCogs();
+
 
 #endif /* _IGNITION_H_ */

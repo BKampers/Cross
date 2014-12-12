@@ -3,14 +3,14 @@
  ** Copyright 2014, Bart Kampers
  */
 
-#ifndef __PERSISTENTELEMENTMANAGER_H__
-#define __PERSISTENTELEMENTMANAGER_H__
+#ifndef _PERSISTENTELEMENTMANAGER_H_
+#define _PERSISTENTELEMENTMANAGER_H_
 
 #include "Types.h"
 #include "PersistentMemoryDriver.h"
 
-//#define VARIABLE_SIZE 0
 
+#define INVALID_TYPE_ID 0xFF
 
 typedef byte TypeId;
 typedef uint16_t ElementSize;
