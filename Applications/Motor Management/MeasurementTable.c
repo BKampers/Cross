@@ -44,7 +44,7 @@ Status CalculateIndex(Measurement* measurement, byte bound, byte* index)
             {
                 float range = GetMeasurementRange(measurement);
                 int valueIndex = value / (range / bound);
-                *index = (byte) max(0, min(valueIndex, bound));
+                *index = (byte) max(0, min(valueIndex, bound - 1));
             }
             return status;
         }
