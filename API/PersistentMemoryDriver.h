@@ -5,10 +5,11 @@
 #ifndef __PERSISTENMEMORYDRIVER_H__
 #define __PERSISTENMEMORYDRIVER_H__
 
-
+#include <stdint.h>
 #include "Types.h"
 #include "ApiStatus.h"
 
+typedef uint8_t byte;
 
 #define NULL_REFERENCE ((Reference) 0xFFFF)
 
