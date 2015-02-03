@@ -9,8 +9,6 @@
 #include "Types.h"
 #include "ApiStatus.h"
 
-typedef uint8_t byte;
-
 #define NULL_REFERENCE ((Reference) 0xFFFF)
 
 

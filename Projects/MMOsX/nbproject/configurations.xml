@@ -20,9 +20,6 @@
         <itemPath>../../Json/include/json.h</itemPath>
         <itemPath>../../Json/include/jsonparse.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
-        <itemPath>../../Platforms/MacOS/PersistentMemoryDriver.h</itemPath>
-      </logicalFolder>
       <logicalFolder name="Motor Management"
                      displayName="Motor Management"
                      projectFiles="true">
@@ -124,6 +121,8 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Types.h" ex="false" tool="3" flavor2="0">
@@ -218,6 +217,11 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/PersistentElementManager.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
@@ -245,16 +249,6 @@
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/PersistentElementManager.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"
@@ -299,6 +293,8 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Types.h" ex="false" tool="3" flavor2="0">
@@ -393,6 +389,11 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/PersistentElementManager.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
@@ -420,16 +421,6 @@
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/PersistentElementManager.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/PersistentMemoryDriver.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"

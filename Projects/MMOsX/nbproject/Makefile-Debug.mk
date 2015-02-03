@@ -44,6 +44,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/445223610/Messaging.o \
 	${OBJECTDIR}/_ext/445223610/Table.o \
 	${OBJECTDIR}/_ext/445223610/main.o \
+	${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o \
 	${OBJECTDIR}/_ext/1788660382/JsonMessage.o \
 	${OBJECTDIR}/_ext/1788660382/jsonparse.o \
 	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
@@ -51,7 +52,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
 	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
 	${OBJECTDIR}/_ext/1308665564/LedStub.o \
-	${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o \
 	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
 	${OBJECTDIR}/_ext/1308665564/Timers.o
 
@@ -125,6 +125,11 @@ ${OBJECTDIR}/_ext/445223610/main.o: ../../Applications/Motor\ Management/main.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/main.o ../../Applications/Motor\ Management/main.c
 
+${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o: ../../Generic/PersistentElementManager.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o ../../Generic/PersistentElementManager.c
+
 ${OBJECTDIR}/_ext/1788660382/JsonMessage.o: ../../Json/source/JsonMessage.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1788660382
 	${RM} "$@.d"
@@ -159,11 +164,6 @@ ${OBJECTDIR}/_ext/1308665564/LedStub.o: ../../Platforms/MacOS/LedStub.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/LedStub.o ../../Platforms/MacOS/LedStub.c
-
-${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o: ../../Platforms/MacOS/PersistentElementManager.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
-	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PersistentElementManager.o ../../Platforms/MacOS/PersistentElementManager.c
 
 ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
