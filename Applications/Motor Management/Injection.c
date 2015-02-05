@@ -1,6 +1,6 @@
 /*
 ** Implementation of Injection
-** Copyright 2014, Bart Kampers
+** Copyright 2015, Bart Kampers
 */
 
 #include "Injection.h"
@@ -89,15 +89,19 @@ Status InitInjection()
     Status status = CreateMeasurementTable(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
     if (status == OK)
     {
-        int i;
-        injectionTable->precision = 0.1f;
-        injectionTable->minimum = 0.0f;
-        injectionTable->maximum = 22.0f;
-        injectionTable->decimals = 1;
-        for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
+        status = SetMeasurementTableEnabled(INJECTION, TRUE);
+        if (status == OK)
         {
-            status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
-            
+            int i;
+            injectionTable->precision = 0.1f;
+            injectionTable->minimum = 0.0f;
+            injectionTable->maximum = 22.0f;
+            injectionTable->decimals = 1;
+            for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
+            {
+                status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
+
+            }
         }
     }
     if (status == OK)
@@ -121,7 +125,7 @@ float GetInjectionTime()
 Status UpdateInjection()
 {
     float time;
-    Status status = GetActualTableControllerFieldValue(injectionTable, &time);
+    Status status = GetActualMeasurementTableField(injectionTable, &time);
     if (status == OK)
     {
         int i;
@@ -131,11 +135,16 @@ Status UpdateInjection()
             MeasurementTable* table = corrections[i].table;
             if (table != NULL)
             {
-                float percentage;
-                status = GetActualTableControllerFieldValue(table, &percentage);
-                if (status == OK)
+                bool enabled;
+                status = GetMeasurementTableEnabled(table->name, &enabled);
+                if ((status == OK) && enabled)
                 {
-                    totalCorrectionPercentage += percentage;
+                    float percentage;
+                    status = GetActualMeasurementTableField(table, &percentage);
+                    if (status == OK)
+                    {
+                        totalCorrectionPercentage += percentage;
+                    }
                 }
             }
         }

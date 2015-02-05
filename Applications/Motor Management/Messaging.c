@@ -1,6 +1,6 @@
 /*
 ** JSON messaging for Randd Motor Management system
-** Copyright 2014, Bart Kampers
+** Copyright 2015, Bart Kampers
 */
 
 #include "Messaging.h"
@@ -189,7 +189,7 @@ Status SendTableFields(const MeasurementTable* measurementTable)
         for (c = 0; (c < measurementTable->table.columns) && (status == OK); ++c)
         {
             float field;
-            Status getFieldStatus = GetTableControllerFieldValue(measurementTable, c, r, &field);
+            Status getFieldStatus = GetMeasurementTableField(measurementTable, c, r, &field);
             if (getFieldStatus != OK)
             {
                 status = getFieldStatus;
@@ -251,8 +251,9 @@ void RespondRequest(const struct jsonparse_state* subject)
     }
     if (! responded)
     {
-        MeasurementTable* measurementTable = FindMeasurementTable(subjectString);
-        if (measurementTable != NULL)
+        MeasurementTable* measurementTable;
+        status = FindMeasurementTable(subjectString, &measurementTable);
+        if (status == OK)
         {
             RespondMeasurementTableRequest(subject->json, measurementTable, subjectString);
             responded = TRUE;
@@ -415,7 +416,7 @@ void ModifyTable(const char* jsonString, const char* name)
             status = GetFloatValue(jsonString, VALUE, &value);
             if (status == OK)
             {
-                status = SetTableControllerFieldValue(name, column, row, value);
+                status = SetMeasurementTableField(name, column, row, value);
             }
         }
     }

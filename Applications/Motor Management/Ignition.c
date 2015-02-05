@@ -1,6 +1,6 @@
 /*
 ** Implementation of Ignition
-** Copyright 2014, Bart Kampers
+** Copyright 2015, Bart Kampers
 */
 
 #include "Ignition.h"
@@ -126,6 +126,7 @@ Status InitIgnition()
             ignitionTable->minimum = 0.0f;
             ignitionTable->maximum = 59.0f;
             ignitionTable->decimals = 0;
+            status = SetMeasurementTableEnabled(IGNITION, TRUE);
         }
     }
     return status;
@@ -141,7 +142,7 @@ int GetIgnitionAngle()
 Status UpdateIgnition()
 {
     float angle;
-    Status status = GetActualTableControllerFieldValue(ignitionTable, &angle);
+    Status status = GetActualMeasurementTableField(ignitionTable, &angle);
     if (status == OK)
     {
         status = SetIgnitionAngle((int) angle);

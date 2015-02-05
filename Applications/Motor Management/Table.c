@@ -1,6 +1,6 @@
 /*
 ** Implementation of Table Manager
-** Copyright 2014, Bart Kampers
+** Copyright 2015, Bart Kampers
 */
 
 #include "Table.h"
@@ -67,6 +67,17 @@ Status FindTableReference(const char* name, Reference* reference)
 }
 
 
+Status LoadTable(const char* name, Reference* reference, Table* table)
+{
+    Status status = FindTableReference(name, reference);
+    if (status == OK)
+    {
+        status = GetElement(*reference, sizeof(Table), table);
+    }
+    return status;
+}
+
+
 Status GetTableFieldByReference(Reference reference, int column, int row, TableField* value)
 {
     Table table;
@@ -115,6 +126,7 @@ Status CreateTable(const char* name, byte columns, byte rows, Table* table)
     Status status = OK;
     table->columns = columns;
     table->rows = rows;
+    table->flags = 0x00;
     if (name != NULL)
     {
         ElementSize length = (ElementSize) strlen(name);
@@ -195,6 +207,47 @@ Status GetTableField(const char* name, int column, int row, TableField* value)
     if (status == OK)
     {
         status = GetTableFieldByReference(reference, column, row, value);
+    }
+    return status;
+}
+
+
+Status SetTableFlags(const char* name, byte mask)
+{
+    Reference reference;
+    Table table;
+    Status status = LoadTable(name, &reference, &table);
+    if (status == OK)
+    {
+        table.flags |= mask;
+        status = StoreElement(&table, reference, sizeof(Table));
+    }
+    return status;
+}
+
+
+Status ClearTableFlags(const char* name, byte mask)
+{
+    Reference reference;
+    Table table;
+    Status status = LoadTable(name, &reference, &table);
+    if (status == OK)
+    {
+        table.flags &= (mask ^ 0xFF);
+        status = StoreElement(&table, reference, sizeof(Table));
+    }
+    return status;
+}
+
+
+Status GetTableFlags(const char* name, byte mask, bool* set)
+{
+    Reference reference;
+    Table table;
+    Status status = LoadTable(name, &reference, &table);
+    if (status == OK)
+    {
+        *set = (table.flags & mask) != 0;
     }
     return status;
 }

@@ -1,5 +1,5 @@
 /*
-** Copyright 2014, Bart Kampers
+** Copyright 2015, Bart Kampers
 */
 
 #include "MeasurementTable.h"
@@ -13,14 +13,15 @@
 ** Private
 */
 
-#define UNINITIALIZED_TABLE { NULL_REFERENCE, 0, 0 }
+
+#define ENABLED_MASK 0x01
 
 
 MeasurementTable measurementTables[MAX_MEASUREMENT_TABLES];
 int measurementTableCount = 0;
 
 
-Status InitTableController(MeasurementTable* measurementTable, const char* name, byte columns, byte rows)
+Status InitMeasurementTable(MeasurementTable* measurementTable, const char* name, byte columns, byte rows)
 {
     Status status = FindTable(name, &(measurementTable->table));
     if (status != OK)
@@ -91,7 +92,7 @@ Status CreateMeasurementTable(const char* name, const char* columnMeasurementNam
         Status status;
         *measurementTable = &(measurementTables[measurementTableCount]);
         measurementTableCount++;
-        status = InitTableController(*measurementTable, name, columns, rows);
+        status = InitMeasurementTable(*measurementTable, name, columns, rows);
         if (status == OK)
         {
             if (columnMeasurementName != NULL)
@@ -141,21 +142,22 @@ const char* GetMeasurementTableName(int index)
 }
 
 
-MeasurementTable* FindMeasurementTable(const char* name)
+Status FindMeasurementTable(const char* name, MeasurementTable** table)
 {
     int i;
     for (i = 0; i < measurementTableCount; ++i)
     {
         if (strcmp(name, measurementTables[i].name) == 0)
         {
-            return &(measurementTables[i]);
+            *table = &(measurementTables[i]);
+            return OK;
         }
     }
-    return NULL;
+    return "NoSuchMeasurementTable";
 }
 
 
-Status GetActualTableControllerFieldValue(MeasurementTable* measurementTable, float* fieldValue)
+Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue)
 {
     TableField field;
     Status status = GetActualTableControllerField(measurementTable, &field);
@@ -167,7 +169,7 @@ Status GetActualTableControllerFieldValue(MeasurementTable* measurementTable, fl
 }
 
 
-Status GetTableControllerFieldValue(const MeasurementTable* measurementTable, byte column, byte row, float* fieldValue)
+Status GetMeasurementTableField(const MeasurementTable* measurementTable, byte column, byte row, float* fieldValue)
 {
     TableField field;
     Status status = GetTableField(measurementTable->name, column, row, &field);
@@ -179,16 +181,33 @@ Status GetTableControllerFieldValue(const MeasurementTable* measurementTable, by
 }
 
 
-Status SetTableControllerFieldValue(const char*  name, int column, int row, float value)
+Status SetMeasurementTableField(const char* name, int column, int row, float value)
 {
-    MeasurementTable* measurementTable = FindMeasurementTable(name);
-    if (measurementTable != NULL)
+    MeasurementTable* measurementTable;
+    Status status = FindMeasurementTable(name, &measurementTable);
+    if (status == OK)
     {
         int field = roundf(value / measurementTable->precision);
-        return SetTableField(name, column, row, field);
+        status = SetTableField(name, column, row, field);
+    }
+    return status;
+}
+
+
+Status GetMeasurementTableEnabled(const char* name, bool* enabled)
+{
+    return GetTableFlags(name, ENABLED_MASK, enabled);
+}
+
+
+Status SetMeasurementTableEnabled(const char* name, bool enabled)
+{
+    if (enabled)
+    {
+        return SetTableFlags(name, ENABLED_MASK);
     }
     else
     {
-        return "NoSuchTableController";
+        return ClearTableFlags(name, ENABLED_MASK);
     }
 }

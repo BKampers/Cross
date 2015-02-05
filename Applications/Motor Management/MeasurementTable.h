@@ -30,11 +30,13 @@ Status CreateMeasurementTable(const char* name, const char* columnMeasurementNam
 int GetMeasurementTableCount();
 const char* GetMeasurementTableName(int index);
 
-MeasurementTable* FindMeasurementTable(const char* name);
+Status FindMeasurementTable(const char* name, MeasurementTable** table);
 
-Status GetActualTableControllerFieldValue(MeasurementTable* measurementTable, float* fieldValue);
-Status GetTableControllerFieldValue(const MeasurementTable* measurementTable, byte column, byte row, float* fieldValue);
+Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue);
+Status GetMeasurementTableField(const MeasurementTable* measurementTable, byte column, byte row, float* fieldValue);
+Status SetMeasurementTableField(const char* name, int column, int row, float value);
 
-Status SetTableControllerFieldValue(const char*  name, int column, int row, float value);
+Status GetMeasurementTableEnabled(const char* name, bool* enabled);
+Status SetMeasurementTableEnabled(const char* name, bool enabled);
 
 #endif /* _MEASUREMENTTABLE_H_ */
