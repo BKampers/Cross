@@ -44,6 +44,7 @@ const char* MAXIMUM = "Maximum";
 const char* MEASUREMENT_TABLES = "MeasurementTables";
 const char* NAMES = "Names";
 
+const char* ENABLED = "Enabled";
 const char* TABLE = "Table";
 const char* INDEX = "Index";
 const char* COLUMN = "Column";
@@ -218,7 +219,8 @@ void RespondMeasurementTableRequest(const char* jsonString, const MeasurementTab
     Status status = OK;
     bool sendTable = Contains(jsonString, PROPERTIES, TABLE);
     bool sendIndex = Contains(jsonString, PROPERTIES, INDEX);
-    bool sendDefault = ! sendTable && ! sendIndex;
+    bool sendEnabled = Contains(jsonString, PROPERTIES, ENABLED);
+    bool sendDefault = ! sendTable && ! sendIndex && ! sendEnabled;
     sprintf(
         response,
         "{ \"%s\": \"%s\", \"%s\": \"%s\"",
@@ -232,6 +234,13 @@ void RespondMeasurementTableRequest(const char* jsonString, const MeasurementTab
     if (sendIndex || sendDefault)
     {
         SendIndexes(measurementTable->columnIndex, measurementTable->rowIndex);
+    }
+    if (sendEnabled || sendDefault)
+    {
+        bool enabled;
+        GetMeasurementTableEnabled(name, &enabled);
+        sprintf(response, ", \"%s\": %s", ENABLED, (enabled ? TRUE_LITERAL : FALSE_LITERAL));
+        WriteString(response);
     }
     sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
     WriteString(response);
@@ -407,20 +416,28 @@ void ModifyTable(const char* jsonString, const char* name)
 {
     int row, column;
     float value;
-    Status status = GetIntValue(jsonString, ROW, &row);
-    if (status == OK)
+    bool enabled;
+    Status fieldStatus = OK;
+    Status enableStatus = OK;
+    Status parseStatus = GetIntValue(jsonString, ROW, &row);
+    if (parseStatus == OK)
     {
-        status = GetIntValue(jsonString, COLUMN, &column);
-        if (status == OK)
+        fieldStatus = GetIntValue(jsonString, COLUMN, &column);
+        if (fieldStatus == OK)
         {
-            status = GetFloatValue(jsonString, VALUE, &value);
-            if (status == OK)
+            fieldStatus = GetFloatValue(jsonString, VALUE, &value);
+            if (fieldStatus == OK)
             {
-                status = SetMeasurementTableField(name, column, row, value);
+                fieldStatus = SetMeasurementTableField(name, column, row, value);
             }
         }
     }
-    SendStatus(MODIFY, name, status);
+    parseStatus = GetBoolValue(jsonString, ENABLED, &enabled);
+    if (parseStatus == OK)
+    {
+        enableStatus = SetMeasurementTableEnabled(name, enabled);
+    }
+    SendStatus(MODIFY, name, (fieldStatus != OK) ? fieldStatus : enableStatus);
 }
 
 
