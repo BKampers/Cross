@@ -41,6 +41,7 @@ const char* SIMULATION = "Simulation";
 const char* MINIMUM = "Minimum";
 const char* MAXIMUM = "Maximum";
 
+const char* MEASUREMENTS = "Measurements";
 const char* MEASUREMENT_TABLES = "MeasurementTables";
 const char* NAMES = "Names";
 
@@ -278,23 +279,51 @@ void RespondRequest(const struct jsonparse_state* subject)
 }
 
 
+void SendMeasurementNames()
+{
+    sprintf(
+        response,
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [\r\n",
+        RESPONSE, REQUEST,
+        SUBJECT, MEASUREMENTS,
+        NAMES);
+    WriteString(response);
+    sprintf(response, "  \"%s\",\r\n", RPM);
+    WriteString(response);
+    sprintf(response, "  \"%s\",\r\n", LOAD);
+    WriteString(response);
+    sprintf(response, "  \"%s\",\r\n", WATER_TEMPERATURE);
+    WriteString(response);
+    sprintf(response, "  \"%s\",\r\n", AIR_TEMPERATURE);
+    WriteString(response);
+    sprintf(response, "  \"%s\",\r\n", BATTERY_VOLTAGE);
+    WriteString(response);
+    sprintf(response, "  \"%s\"]\r\n}\r\n", MAP_SENSOR);
+    WriteString(response);
+}
+
+
 void SendMeasurementTableNames()
 {
     int i;
     int count = GetMeasurementTableCount();
     sprintf(
         response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [\r\n",
+        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [",
         RESPONSE, REQUEST,
         SUBJECT, MEASUREMENT_TABLES,
         NAMES);
     WriteString(response);
     for (i = 0; i < count; ++i)
     {
-        sprintf(response, "  \"%s\",\r\n", GetMeasurementTableName(i));
+        if (i > 0)
+        {
+            WriteString(",");
+        }
+        sprintf(response, "\r\n  \"%s\"", GetMeasurementTableName(i));
         WriteString(response);
     }
-    WriteString("] }\r\n");
+    WriteString("]\r\n}\r\n");
 }
 
 
@@ -544,6 +573,10 @@ void HandleRequest(const struct jsonparse_state* subject)
     else if (EqualString(subject, FLASH_ELEMENTS))
     {
         SendFlashElements();
+    }
+    else if (EqualString(subject, MEASUREMENTS))
+    {
+        SendMeasurementNames();
     }
     else if (EqualString(subject, MEASUREMENT_TABLES))
     {
