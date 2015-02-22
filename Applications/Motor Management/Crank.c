@@ -5,7 +5,7 @@
 ** Counts cogs for each revolution.
 ** Computes RPM.
 **
-** Copyright 2014, Bart Kampers
+** Author: Bart Kampers
 */
 
 #include "Crank.h"
@@ -136,8 +136,7 @@ float GetRpm()
     if (ticks > 0)
     {
         float spr = ticks / 60000.0f;
-        float rps = 1.0f / spr;
-        return rps * 60.0f;
+        return 60.0f / spr;
     }
     else
     {

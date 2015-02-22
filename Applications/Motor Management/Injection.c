@@ -1,6 +1,6 @@
 /*
 ** Implementation of Injection
-** Copyright 2015, Bart Kampers
+** Author: Bart Kampers
 */
 
 #include "Injection.h"
@@ -14,6 +14,7 @@
 #include "HardwareSettings.h"
 #include "Communication.h"
 #include "Crank.h"
+#include "InjectionTimer.h"
 #include "AnalogInput.h"
 
 
@@ -53,9 +54,10 @@ float injectionTime = 0.0f;
 
 Status SendInjectionTime()
 {
-    char message[64];
-    sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    return WriteChannel(INJECTION_CHANNEL, message);
+    return SetInjectionTime(injectionTime);
+    //char message[64];
+    //sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
+    //return WriteChannel(INJECTION_CHANNEL, message);
 }
 
 
@@ -106,7 +108,8 @@ Status InitInjection()
     }
     if (status == OK)
     {
-        status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+        //status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+        status = InitInjectionTimer();
         if (status == OK)
         {
             status = SendInjectionTime();

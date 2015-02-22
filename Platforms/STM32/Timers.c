@@ -7,6 +7,11 @@
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_tim.h"
 
+/* Timer prescaler and period to provide cycles times of 0 .. 22 ms */
+uint16_t prescaler = 24;
+uint16_t period = 0xFFFF;
+
+
 /*
 ** Private
 */
@@ -15,6 +20,7 @@
 
 void (*HandleIrq2) () = NULL;
 void (*HandleIrq3) (int capture) = NULL;
+void (*HandleIrq4) (int event) = NULL;
 
 
 /*
@@ -45,6 +51,94 @@ void InitPeriodTimer(void (*InterruptService) ())
 }
 
 
+void InitCompareTimer(void (*InterruptService) (int events))
+{
+    HandleIrq4 = InterruptService;
+
+    NVIC_InitTypeDef NVIC_InitStructure;
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+
+    /* Enable timer irq */
+    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* Configure timer */
+    TIM_TimeBaseStructure.TIM_Prescaler = prescaler - 1;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseStructure.TIM_Period = period;
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+
+    /* Start timer */
+    TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+    TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
+    TIM_Cmd(TIM4, ENABLE);
+}
+
+
+//Status SetCompareTimerPrescaler(int scale)
+//{
+//    if (prescaler != scale)
+//    {
+//        if (VALID_UINT16(scale))
+//        {
+//            TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);
+//            TIM_Cmd(TIM4, DISABLE);
+//            TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+//            prescaler = (uint16_t) scale;
+//            initTimer();
+//        }
+//        else
+//        {
+//            return "InvalidPrescaler";
+//        }
+//    }
+//    return OK;
+//}
+//
+//
+//int GetCompareTimerPrescaler()
+//{
+//    return prescaler;
+//}
+//
+//
+//Status SetCompareTimerPeriod(int ticks)
+//{
+//    if (period != ticks)
+//    {
+//        if (VALID_UINT16(ticks))
+//        {
+//            TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);
+//            TIM_Cmd(TIM4, DISABLE);
+//            TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+//            period = (uint16_t) ticks;
+//            if (injectionTicks > period)
+//            {
+//                injectionTicks = period;
+//            }
+//            initTimer();
+//        }
+//        else
+//        {
+//            return "InvalidPeriod";
+//        }
+//    }
+//    return OK;
+//}
+//
+//
+int GetCompareTimerPeriod()
+{
+    return period;
+}
+//
+//
 void InitExternalPulseTimer(void (*InterruptService) (int capture))
 {
     HandleIrq3 = InterruptService;
@@ -137,5 +231,26 @@ void TIM3_IRQHandler(void)
     if (HandleIrq3 != NULL)
     {
         HandleIrq3(TIM_GetCapture2(TIM3));
+    }
+}
+
+
+void TIM4_IRQHandler(void)
+{
+    int event = 0;
+    uint16_t timerInterrupt = TIM_IT_Update;
+    while (timerInterrupt <= TIM_IT_CC4)
+    {
+        if (TIM_GetITStatus(TIM4, timerInterrupt) != RESET)
+        {
+            event |= timerInterrupt;
+            TIM_ITConfig(TIM4, timerInterrupt, DISABLE);
+            TIM_ClearITPendingBit(TIM4, timerInterrupt);
+        }
+        timerInterrupt <<= 1;
+    }
+    if (HandleIrq4 != NULL)
+    {
+        HandleIrq4(event);
     }
 }
