@@ -12,5 +12,7 @@ float GetInjectionTime();
 
 Status UpdateInjection();
 
+//void StartInjection();
+
 
 #endif /* _INJECTION_H_ */

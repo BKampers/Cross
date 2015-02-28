@@ -1,6 +1,6 @@
 /*
 ** Implementation of Ignition
-** Copyright 2015, Bart Kampers
+** Author: Bart Kampers
 */
 
 #include "Ignition.h"
@@ -64,14 +64,6 @@ float angleTimeRatio;
 int ignitionTicks = 0;
 
 
-void StartIgnition()
-{
-    LedsOn(IGNITION_LED);
-    ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
-    ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
-}
-
-
 void StopIgnition()
 {
     LedsOff(IGNITION_LED);
@@ -114,38 +106,17 @@ Status InitIgnition()
     GetIgnitionTimerSettings(&timerSettings);
     ignitionTicks = timerSettings.counter;
     
-    status = InitIgnitionStartCogs();
+    SetIgnitionAngle(0);
+    InitPeriodTimer(&StopIgnition);
+
+    status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
     {
-        SetIgnitionAngle(0);
-        InitPeriodTimer(&StopIgnition);
-        status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
-        if (status == OK)
-        {
-            ignitionTable->precision = 1.0f;
-            ignitionTable->minimum = 0.0f;
-            ignitionTable->maximum = 59.0f;
-            ignitionTable->decimals = 0;
-            status = SetMeasurementTableEnabled(IGNITION, TRUE);
-        }
-    }
-    return status;
-}
-
-
-int GetIgnitionAngle()
-{
-    return ignitionAngle;
-}
-
-
-Status UpdateIgnition()
-{
-    float angle;
-    Status status = GetActualMeasurementTableField(ignitionTable, &angle);
-    if (status == OK)
-    {
-        status = SetIgnitionAngle((int) angle);
+        ignitionTable->precision = 1.0f;
+        ignitionTable->minimum = 0.0f;
+        ignitionTable->maximum = 59.0f;
+        ignitionTable->decimals = 0;
+        status = SetMeasurementTableEnabled(IGNITION, TRUE);
     }
     return status;
 }
@@ -185,20 +156,33 @@ Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings)
 }
 
 
+int GetIgnitionAngle()
+{
+    return ignitionAngle;
+}
+
+
 int GetIgnitionTicks()
 {
     return (int) ignitionTicks;
 }
 
 
-Status InitIgnitionStartCogs()
+Status UpdateIgnition()
 {
-    Status status = OK;
-    int count = GetDeadPointCount();
-    int i;
-    for (i = 0; (i < count) && (status == OK); ++i)
+    float angle;
+    Status status = GetActualMeasurementTableField(ignitionTable, &angle);
+    if (status == OK)
     {
-        status = SetCogCountCallback(&StartIgnition, GetDeadPointCog(i));
+        status = SetIgnitionAngle((int) angle);
     }
     return status;
+}
+
+
+void StartIgnition()
+{
+    LedsOn(IGNITION_LED);
+    ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
+    ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 }

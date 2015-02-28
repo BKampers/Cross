@@ -145,7 +145,7 @@ float GetRpm()
 }
 
 
-Status SetCogCountCallback(void (*callback) (), int cogNumber)
+Status SetCogCountCallback(CogCountCallback callback, int cogNumber)
 {
     if ((0 < cogNumber) && (cogNumber <= GetEffectiveCogCount()))
     {
@@ -155,5 +155,19 @@ Status SetCogCountCallback(void (*callback) (), int cogNumber)
     else
     {
         return INVALID_COG_NUMBER;
+    }
+}
+
+
+void RemoveCogCountCallback(CogCountCallback callback)
+{
+    int count = GetEffectiveCogCount();
+    int i;
+    for (i = 0; i < count; ++i)
+    {
+        if (cogCountCallbacks[i] == callback)
+        {
+            cogCountCallbacks[i] = NULL;
+        }
     }
 }

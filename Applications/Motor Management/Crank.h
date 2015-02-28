@@ -5,6 +5,7 @@
 
 #include "Types.h"
 
+typedef void (*CogCountCallback) (int cogNumber);
 
 void InitCrank();
 
@@ -15,6 +16,7 @@ int GetGapTicks();
 
 float GetRpm();
 
-Status SetCogCountCallback(void (*callback) (), int cogNumber);
+Status SetCogCountCallback(CogCountCallback callback, int cogNumber);
+void RemoveCogCountCallback(CogCountCallback callback);
 
 #endif /* _CRANK_H_ */

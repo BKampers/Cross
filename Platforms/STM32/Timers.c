@@ -81,64 +81,13 @@ void InitCompareTimer(void (*InterruptService) (int events))
 }
 
 
-//Status SetCompareTimerPrescaler(int scale)
-//{
-//    if (prescaler != scale)
-//    {
-//        if (VALID_UINT16(scale))
-//        {
-//            TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);
-//            TIM_Cmd(TIM4, DISABLE);
-//            TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-//            prescaler = (uint16_t) scale;
-//            initTimer();
-//        }
-//        else
-//        {
-//            return "InvalidPrescaler";
-//        }
-//    }
-//    return OK;
-//}
-//
-//
-//int GetCompareTimerPrescaler()
-//{
-//    return prescaler;
-//}
-//
-//
-//Status SetCompareTimerPeriod(int ticks)
-//{
-//    if (period != ticks)
-//    {
-//        if (VALID_UINT16(ticks))
-//        {
-//            TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);
-//            TIM_Cmd(TIM4, DISABLE);
-//            TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-//            period = (uint16_t) ticks;
-//            if (injectionTicks > period)
-//            {
-//                injectionTicks = period;
-//            }
-//            initTimer();
-//        }
-//        else
-//        {
-//            return "InvalidPeriod";
-//        }
-//    }
-//    return OK;
-//}
-//
-//
+
 int GetCompareTimerPeriod()
 {
     return period;
 }
-//
-//
+
+
 void InitExternalPulseTimer(void (*InterruptService) (int capture))
 {
     HandleIrq3 = InterruptService;

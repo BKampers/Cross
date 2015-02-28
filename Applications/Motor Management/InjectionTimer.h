@@ -5,6 +5,8 @@
 
 Status InitInjectionTimer();
 
+Status SetInjectorCog(int injectorIndex, int cogNumber);
+
 Status StartInjection(int injectorId);
 
 Status SetPrescaler(int scale);

@@ -23,13 +23,11 @@ void GetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 
 int GetIgnitionAngle();
+int GetIgnitionTicks();
 
 Status UpdateIgnition();
 
-
-int GetIgnitionTicks();
-
-Status InitIgnitionStartCogs();
+void StartIgnition();
 
 
 #endif /* _IGNITION_H_ */

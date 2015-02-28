@@ -4,7 +4,9 @@
 #include <math.h>
 
 #include "PersistentElementManager.h"
+#include "crank.h"
 #include "Ignition.h"
+#include "InjectionTimer.h"
 
 /*
 ** Private 
@@ -54,9 +56,35 @@ int ValidCog(int number)
 }
 
 
+void DeadPointCallback(int cogNumber)
+{
+    StartIgnition();
+    StartInjection(cogNumber);
+}
+
+
+Status InitDeadPointCallbacks()
+{
+    Status status = OK;
+    int count = GetDeadPointCount();
+    int i;
+    RemoveCogCountCallback(&DeadPointCallback);
+    for (i = 0; (i < count) && (status == OK); ++i)
+    {
+        int cogNumber = GetDeadPointCog(i);
+        status = SetCogCountCallback(&DeadPointCallback, cogNumber);
+        if (status == OK)
+        {
+            status = SetInjectorCog(i, cogNumber);
+        }
+    }
+    return status;
+}
+
+
 Status StoreEngine()
 {
-    Status status = InitIgnitionStartCogs();
+    Status status = InitDeadPointCallbacks();
     if (status == OK)
     {
         Reference reference;
@@ -99,6 +127,10 @@ Status InitEngine()
         {
             status = StoreElement(&engine, reference, sizeof(engine));
         }
+    }
+    if (status == OK)
+    {
+        status = InitDeadPointCallbacks();
     }
     return status;
 }
