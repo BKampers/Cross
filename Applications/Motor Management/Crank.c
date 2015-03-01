@@ -18,6 +18,7 @@
 #include "Timers.h"
 
 
+
 /*
 ** Private
 */
@@ -26,12 +27,10 @@
 #define MICROS_PER_TICK 10.24f
 
 
-typedef void (*Callback) ();
-
-char* INVALID_COG_NUMBER = "Invalid cog number";
+char* INVALID_COG_NUMBER = "InvalidCogNumber";
 
 
-Callback* cogCountCallbacks = NULL;
+CogCountCallback* cogCountCallbacks = NULL;
 
 int cogCount = 0;
 int cogTicks = 0;
@@ -46,7 +45,7 @@ void InitCrankCallbacks()
 {
     int i;
     int count = GetEffectiveCogCount();
-    cogCountCallbacks = malloc(sizeof(Callback) * count);
+    cogCountCallbacks = malloc(sizeof(CogCountCallback) * count);
     for (i = 0; i < count; ++i)
     {
         cogCountCallbacks[i] = NULL;

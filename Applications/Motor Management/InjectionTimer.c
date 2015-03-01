@@ -1,3 +1,9 @@
+/*
+** Service for 4 injectors
+** to be started at cog number and stopped after provided injection time.
+** Author: Bart Kampers
+*/
+
 #include "Injection.h"
 
 #include <stdlib.h>
@@ -10,8 +16,6 @@
 #include "Types.h"
 
 #include "Timers.h"
-
-#include "Messaging.h"
 
 
 #define INJECTOR_COUNT (sizeof(injectors) / sizeof(Injector))

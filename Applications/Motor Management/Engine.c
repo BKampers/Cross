@@ -1,3 +1,8 @@
+/*
+ ** Engine properties
+ ** Author: Bart Kampers
+ */
+
 #include "Engine.h"
 
 #include <stdint.h>
@@ -7,6 +12,7 @@
 #include "crank.h"
 #include "Ignition.h"
 #include "InjectionTimer.h"
+
 
 /*
 ** Private 
@@ -128,6 +134,7 @@ Status InitEngine()
             status = StoreElement(&engine, reference, sizeof(engine));
         }
     }
+    InitCrank();
     if (status == OK)
     {
         status = InitDeadPointCallbacks();

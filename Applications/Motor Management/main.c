@@ -1,6 +1,6 @@
 /*
 ** Randd Motor Management System
-** Copyright 2014, Bart Kampers
+** Author: Bart Kampers
 */
 
 #include <stdio.h>
@@ -16,7 +16,6 @@
 #include "Messaging.h"
 
 #include "Engine.h"
-#include "Crank.h"
 #include "MeasurementTable.h"
 #include "Table.h"
 #include "Measurements.h"
@@ -151,7 +150,6 @@ int main(void)
         
         if (status == OK)
         {
-            InitCrank();
             InitAnalogInput();
             ignitionStatus = InitIgnition();
             ShowStatus("Initialize ignition", ignitionStatus);
