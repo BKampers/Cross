@@ -81,10 +81,10 @@ void PulseDetected(int capture)
         }
         if ((0 < cogCount) && (cogCount <= GetEffectiveCogCount()))
         {
-            void (*callback) () = cogCountCallbacks[cogCount-1];
+            CogCountCallback callback = cogCountCallbacks[cogCount-1];
             if (callback != NULL)
             {
-                callback();
+                callback(cogCount);
             }
         }
         previousDelta = delta;

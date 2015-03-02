@@ -1,5 +1,5 @@
 /*
-** Service for 4 injectors
+** Service for 4 injectors on PB8, PB9, PB10 and PB11
 ** to be started at cog number and stopped after provided injection time.
 ** Author: Bart Kampers
 */
@@ -67,11 +67,6 @@ Injector* FindInjector(int cogNumber)
 void EndInjection(int events)
 {
     Injector* injector = injectors;
-    if ((events & TIMER_UPDATE) != 0)
-    {
-        BitAction pin = (BitAction) GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_8);
-        GPIO_WriteBit(GPIOB, GPIO_Pin_8, ! pin);
-    }
     while (injector <= &(injectors[INJECTOR_COUNT - 1]))
     {
         if ((events & injector->timerInterrupt) != 0)
