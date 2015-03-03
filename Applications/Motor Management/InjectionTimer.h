@@ -15,7 +15,7 @@ int GetPrescaler();
 Status SetPeriod(int ticks);
 int GetPeriod();
 
-Status SetInjectionTime(float time);
+Status SetInjectionTimer(float time);
 Status SetInjectionTicks(int ticks);
 int GetInjectionTicks();
 

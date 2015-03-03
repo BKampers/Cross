@@ -141,7 +141,7 @@ int GetInjectionTicks()
 }
 
 
-Status SetInjectionTime(float time)
+Status SetInjectionTimer(float time)
 {
     float ticks = TICKS_PER_MILLI * time;
     if (VALID_UINT16(ticks))

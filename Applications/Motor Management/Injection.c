@@ -26,6 +26,10 @@
 #define CHANNEL_BUFFER_SIZE 64
 
 
+#define UART_INJECTION  0x01
+#define TIMER_INJECTION 0x02
+
+
 typedef struct
 {
     const char* measurementName;
@@ -46,18 +50,35 @@ CorrectionConfiguration corrections[] =
 
 char CORRECTION_POSTFIX[] = "Correction";
 
-
 MeasurementTable* injectionTable;
 
 float injectionTime = 0.0f;
 
+byte injectionMode = TIMER_INJECTION;
 
-Status SendInjectionTime()
+
+Status UpdateInjectionTimeUart()
 {
-    return SetInjectionTime(injectionTime);
-    //char message[64];
-    //sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    //return WriteChannel(INJECTION_CHANNEL, message);
+    char message[64];
+    sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
+    return WriteChannel(INJECTION_CHANNEL, message);
+
+}
+
+
+Status UpdateInjectionTime()
+{
+    Status uartStatus = OK;
+    Status timerStatus = OK;
+    if ((injectionMode & UART_INJECTION) != 0)
+    {
+        uartStatus = UpdateInjectionTimeUart();
+    }
+    if ((injectionMode & TIMER_INJECTION) != 0)
+    {
+        timerStatus = SetInjectionTimer(injectionTime);
+    }
+    return (uartStatus != OK) ? uartStatus : timerStatus;
 }
 
 
@@ -102,18 +123,30 @@ Status InitInjection()
             for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
             {
                 status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
-
             }
         }
     }
     if (status == OK)
     {
-        //status = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
-        status = InitInjectionTimer();
-        if (status == OK)
+        Status uartStatus = OK;
+        Status timerStatus = OK;
+        if ((injectionMode & UART_INJECTION) != 0)
         {
-            status = SendInjectionTime();
+            uartStatus = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+            if (uartStatus == OK)
+            {
+                uartStatus = UpdateInjectionTimeUart();
+            }
         }
+        if ((injectionMode & TIMER_INJECTION) != 0)
+        {
+            timerStatus = InitInjectionTimer();
+            if (timerStatus == OK)
+            {
+                timerStatus = SetInjectionTimer(injectionTime);
+            }
+        }
+        status = (uartStatus != OK) ? uartStatus : timerStatus;
     }
     return status;
 }
@@ -155,7 +188,7 @@ Status UpdateInjection()
         if (time != injectionTime)
         {
             injectionTime = time;
-            status = SendInjectionTime();
+            status = UpdateInjectionTime();
         }
     }
     return status;

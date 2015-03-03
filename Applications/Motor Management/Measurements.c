@@ -30,7 +30,7 @@ Status GetBatteryVoltageValue(float* value);
 Status GetMapSensorValue(float* value);
 Status GetLambdaValue(float* value);
 Status GetAux1Value(float* value);
-Status GetMapAux2Value(float* value);
+Status GetAux2Value(float* value);
 
 
 Measurement measurements[] =
@@ -101,7 +101,7 @@ Status GetAux1Value(float* value)
 }
 
 
-Status GetMapAux2Value(float* value)
+Status GetAux2Value(float* value)
 {
     return GetAnalogMeasurement(7, value);
 }
