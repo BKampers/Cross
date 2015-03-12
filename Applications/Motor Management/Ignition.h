@@ -27,7 +27,7 @@ int GetIgnitionTicks();
 
 Status UpdateIgnition();
 
-void StartIgnition();
+void StartIgnition(int cogNumber);
 
 
 #endif /* _IGNITION_H_ */

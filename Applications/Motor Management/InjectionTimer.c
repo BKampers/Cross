@@ -17,6 +17,9 @@
 
 #include "Timers.h"
 
+#include "HardwareSettings.h"
+#include "Engine.h"
+
 
 #define INJECTOR_COUNT (sizeof(injectors) / sizeof(Injector))
 
@@ -24,10 +27,10 @@
 
 #define VALID_UINT16(number) ((0 <= number) && (number <= 0xFFFF))
 
+
 typedef struct
 {
     void (*SetTimerCompare) (TIM_TypeDef* TIMx, uint16_t compare);
-    int cogNumber;
     uint16_t timerInterrupt;
     uint16_t pinId;
 } Injector;
@@ -35,10 +38,10 @@ typedef struct
 
 Injector injectors[] =
 {
-    { &TIM_SetCompare1, 0, TIMER_CHANNEL_1, GPIO_Pin_8  },
-    { &TIM_SetCompare2, 0, TIMER_CHANNEL_2, GPIO_Pin_9  },
-    { &TIM_SetCompare3, 0, TIMER_CHANNEL_3, GPIO_Pin_10 },
-    { &TIM_SetCompare4, 0, TIMER_CHANNEL_4, GPIO_Pin_11 }
+    { &TIM_SetCompare1, TIMER_CHANNEL_1, INJECTION_1_PIN },
+    { &TIM_SetCompare2, TIMER_CHANNEL_2, INJECTION_2_PIN },
+    { &TIM_SetCompare3, TIMER_CHANNEL_3, INJECTION_3_PIN },
+    { &TIM_SetCompare4, TIMER_CHANNEL_4, INJECTION_4_PIN }
 };
 
 
@@ -48,21 +51,6 @@ uint16_t injectionTicks = 0;
 /*
 ** private
 */
-
-Injector* FindInjector(int cogNumber)
-{
-    int i;
-    for (i = 0; i < INJECTOR_COUNT; ++i)
-    {
-        Injector* injector = &(injectors[i]);
-        if (injector->cogNumber == cogNumber)
-        {
-            return injector;
-        }
-    }
-    return NULL;
-}
-
 
 void EndInjection(int events)
 {
@@ -89,25 +77,12 @@ Status InitInjectionTimer()
 }
 
 
-Status SetInjectorCog(int injectorIndex, int cogNumber)
-{
-    if ((0 <= injectorIndex) && (injectorIndex < INJECTOR_COUNT))
-    {
-        injectors[injectorIndex].cogNumber = cogNumber;
-        return OK;
-    }
-    else
-    {
-        return "InvalidInjectorId";
-    }
-}
-
-
 Status StartInjection(int cogNumber)
 {
-    Injector* injector = FindInjector(cogNumber);
-    if (injector != NULL)
+    int index = GetDeadPointIndex(cogNumber);
+    if ((0 <= index) && (index < INJECTOR_COUNT))
     {
+        Injector* injector = &(injectors[index]);
         GPIO_SetBits(GPIOB, injector->pinId);
         injector->SetTimerCompare(TIM4, TIM_GetCounter(TIM4) + injectionTicks);
         TIM_ClearITPendingBit(TIM4, injector->timerInterrupt);

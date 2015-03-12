@@ -14,6 +14,7 @@ int GetEffectiveCogCount();
 int GetDeadPointOffset();
 int GetDeadPointCount();
 int GetDeadPointCog(int index);
+int GetDeadPointIndex(int cogNumber);
 
 int GetCylinderCount();
 

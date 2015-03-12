@@ -18,7 +18,6 @@
 ** Private 
 */
 
-
 typedef struct
 {
     uint8_t cogTotal;
@@ -33,6 +32,9 @@ typedef struct
     uint8_t cylinderCount;
 } Engine;
 
+
+int deadPointCogs[] = { 0, 0, 0, 0 };
+#define DEAD_POINT_MAX (sizeof(deadPointCogs) / sizeof(int))
 
 Engine engine;
 TypeId engineTypeId = INVALID_TYPE_ID;
@@ -64,7 +66,7 @@ int ValidCog(int number)
 
 void DeadPointCallback(int cogNumber)
 {
-    StartIgnition();
+    StartIgnition(cogNumber);
     StartInjection(cogNumber);
 }
 
@@ -78,11 +80,8 @@ Status InitDeadPointCallbacks()
     for (i = 0; (i < count) && (status == OK); ++i)
     {
         int cogNumber = GetDeadPointCog(i);
+        deadPointCogs[i] = cogNumber;
         status = SetCogCountCallback(&DeadPointCallback, cogNumber);
-        if (status == OK)
-        {
-            status = SetInjectorCog(i, cogNumber);
-        }
     }
     return status;
 }
@@ -178,6 +177,20 @@ int GetDeadPointCount()
         default:
             return 2;
     }
+}
+
+
+int GetDeadPointIndex(int cogNumber)
+{
+    int i;
+    for (i = 0; i < DEAD_POINT_MAX; ++i)
+    {
+        if (deadPointCogs[i] == cogNumber)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 

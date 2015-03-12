@@ -6,6 +6,7 @@
 #include "Ignition.h"
 
 #include <stdlib.h>
+#include "stm32f10x_gpio.h"
 
 #include "MeasurementTable.h"
 
@@ -15,7 +16,6 @@
 #include "AnalogInput.h"
 
 #include "Timers.h"
-#include "Leds.h"
 
 
 
@@ -35,8 +35,29 @@
 ** Private
 */
 
+#define IGNITION_MAX (sizeof(ignitionPinSets) / sizeof(IgnitionPinSet))
+#define PHASE_MAX 2
+
+#define ALL_IGNITION_PINS (GLOBAL_IGNITION_PIN | IGNITION_1_PIN | IGNITION_2_PIN | IGNITION_3_PIN | IGNITION_4_PIN | IGNITION_5_PIN | IGNITION_6_PIN | IGNITION_7_PIN | IGNITION_8_PIN)
+
+typedef struct
+{
+    uint16_t pins[PHASE_MAX];
+} IgnitionPinSet;
+
+
 char INVALID_IGNITION_ANGLE[] = "InvalidIgnitionAngle";
 
+
+IgnitionPinSet ignitionPinSets[] =
+{
+    {{ IGNITION_1_PIN, IGNITION_2_PIN }},
+    {{ IGNITION_3_PIN, IGNITION_4_PIN }},
+    {{ IGNITION_5_PIN, IGNITION_6_PIN }},
+    {{ IGNITION_7_PIN, IGNITION_8_PIN }}
+};
+
+int phase = 0;
 
 TypeId timerSettingsTypeId;
 
@@ -66,7 +87,7 @@ int ignitionTicks = 0;
 
 void StopIgnition()
 {
-    LedsOff(IGNITION_LED);
+    GPIO_ResetBits(GPIOB, ALL_IGNITION_PINS);
 }
 
 
@@ -180,9 +201,14 @@ Status UpdateIgnition()
 }
 
 
-void StartIgnition()
+void StartIgnition(int cogNumber)
 {
-    LedsOn(IGNITION_LED);
+    int deadPointIndex = GetDeadPointIndex(cogNumber);
+    if ((0 <= deadPointIndex) && (deadPointIndex < IGNITION_MAX) && (0 <= phase) && (phase < PHASE_MAX))
+    {
+        uint16_t cylinderPin = ignitionPinSets[deadPointIndex].pins[phase];
+        GPIO_SetBits(GPIOB, GLOBAL_IGNITION_PIN | cylinderPin);
+    }
     ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
     ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 }

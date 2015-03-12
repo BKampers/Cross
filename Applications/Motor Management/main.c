@@ -8,9 +8,9 @@
 #include <string.h>
 
 #include "Communication.h"
-#include "Leds.h"
 #include "Lcd.h"
 #include "PersistentElementManager.h"
+#include "HardwareSettings.h"
 
 #include "AnalogInput.h"
 #include "Messaging.h"
@@ -125,7 +125,7 @@ void ShowStatus(char* name, Status status)
 int main(void)
 {
     communicationStatus = OpenCommunicationChannel(DEFAULT_CHANNEL, INPUT_BUFFER_SIZE);
-    InitLeds();
+    InitOutputPins();
     InitLcd();
 
     SendTextNotification("System", SYSTEM_NAME);
@@ -134,8 +134,6 @@ int main(void)
     UpdateLcd();
 
     InitPersistentDataManager();
-
-    SetLeds(0x00);
 
     RegisterTableTypes();
     RegisterEngineType();
