@@ -16,6 +16,7 @@
 #define INJECTION_4_PIN GPIO_Pin_11
 
 #define GLOBAL_IGNITION_PIN GPIO_Pin_12
+#define TEMP_PHASE_PIN GPIO_Pin_13
 
 
 void InitOutputPins();
