@@ -35,29 +35,19 @@
 ** Private
 */
 
-#define IGNITION_MAX (sizeof(ignitionPinSets) / sizeof(IgnitionPinSet))
-#define PHASE_MAX 2
-
 #define ALL_IGNITION_PINS (GLOBAL_IGNITION_PIN | IGNITION_1_PIN | IGNITION_2_PIN | IGNITION_3_PIN | IGNITION_4_PIN | IGNITION_5_PIN | IGNITION_6_PIN | IGNITION_7_PIN | IGNITION_8_PIN)
-
-typedef struct
-{
-    uint16_t pins[PHASE_MAX];
-} IgnitionPinSet;
-
 
 char INVALID_IGNITION_ANGLE[] = "InvalidIgnitionAngle";
 
 
-IgnitionPinSet ignitionPinSets[] =
+uint16_t ignitionPins[DEAD_POINT_MAX][PHASE_MAX] =
 {
-    {{ IGNITION_1_PIN, IGNITION_2_PIN }},
-    {{ IGNITION_3_PIN, IGNITION_4_PIN }},
-    {{ IGNITION_5_PIN, IGNITION_6_PIN }},
-    {{ IGNITION_7_PIN, IGNITION_8_PIN }}
+    { IGNITION_1_PIN, IGNITION_2_PIN },
+    { IGNITION_3_PIN, IGNITION_4_PIN },
+    { IGNITION_5_PIN, IGNITION_6_PIN },
+    { IGNITION_7_PIN, IGNITION_8_PIN }
 };
 
-int phase = 0;
 
 TypeId timerSettingsTypeId;
 
@@ -203,12 +193,16 @@ Status UpdateIgnition()
 
 void StartIgnition(int cogNumber)
 {
-    int deadPointIndex = GetDeadPointIndex(cogNumber);
-    if ((0 <= deadPointIndex) && (deadPointIndex < IGNITION_MAX) && (0 <= phase) && (phase < PHASE_MAX))
+    int phase = GetPhase();
+    if ((0 <= phase) && (phase < PHASE_MAX))
     {
-        uint16_t cylinderPin = ignitionPinSets[deadPointIndex].pins[phase];
-        GPIO_SetBits(GPIOB, GLOBAL_IGNITION_PIN | cylinderPin);
+        int deadPointIndex = GetDeadPointIndex(cogNumber);
+        if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
+        {
+            uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
+            GPIO_SetBits(GPIOB, GLOBAL_IGNITION_PIN | cylinderPin);
+        }
+        ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
+        ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
     }
-    ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
-    ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 }

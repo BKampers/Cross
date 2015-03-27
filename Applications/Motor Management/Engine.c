@@ -33,8 +33,8 @@ typedef struct
 } Engine;
 
 
-int deadPointCogs[] = { 0, 0, 0, 0 };
-#define DEAD_POINT_MAX (sizeof(deadPointCogs) / sizeof(int))
+int deadPointCogs[DEAD_POINT_MAX] = { 0, 0, 0, 0 };
+
 
 Engine engine;
 TypeId engineTypeId = INVALID_TYPE_ID;

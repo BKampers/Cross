@@ -1,6 +1,9 @@
 #ifndef _HARDWARESETTINGS_H_
 #define _HARDWARESETTINGS_H_
 
+#include "stm32f10x_gpio.h"
+
+
 #define IGNITION_1_PIN GPIO_Pin_0
 #define IGNITION_2_PIN GPIO_Pin_1
 #define IGNITION_3_PIN GPIO_Pin_2

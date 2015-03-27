@@ -4,6 +4,10 @@
 #include "ApiStatus.h"
 
 
+#define DEAD_POINT_MAX 4
+#define PHASE_MAX 2
+
+
 void RegisterEngineType();
 Status InitEngine();
 

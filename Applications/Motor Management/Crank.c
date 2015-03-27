@@ -34,6 +34,8 @@ char* INVALID_COG_NUMBER = "InvalidCogNumber";
 
 CogCountCallback* cogCountCallbacks = NULL;
 
+int phase = -1;
+
 int cogCount = 0;
 int cogTicks = 0;
 int gapTicks = 0;
@@ -47,6 +49,7 @@ void PhaseShift()
 {
     uint8_t state = GPIO_ReadInputDataBit(GPIOB, TEMP_PHASE_PIN);
     GPIO_WriteBit(GPIOB, TEMP_PHASE_PIN, (state == Bit_RESET) ? Bit_SET : Bit_RESET);
+    phase = 1;
 }
 
 
@@ -76,6 +79,10 @@ void PulseDetected(int capture)
         {
             gapTicks = delta;
             cogCount = 1;
+            if (phase == 1)
+            {
+                phase = 0;
+            }
         }
         else
         {
@@ -118,6 +125,12 @@ void InitCrank()
 bool SignalDetected()
 {
     return captured;
+}
+
+
+int GetPhase()
+{
+    return phase;
 }
 
 

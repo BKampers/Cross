@@ -10,6 +10,8 @@ typedef void (*CogCountCallback) (int cogNumber);
 void InitCrank();
 
 bool SignalDetected();
+int GetPhase();
+
 int GetCogCount();
 int GetCogTicks();
 int GetGapTicks();
