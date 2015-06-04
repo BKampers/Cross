@@ -75,7 +75,7 @@ int ignitionTicks = 0;
 
 void StopIgnition()
 {
-    ResetBits(ALL_IGNITION_PINS);
+    ResetOutputPins(ALL_IGNITION_PINS);
 }
 
 
@@ -198,7 +198,7 @@ void StartIgnition(int cogNumber)
         if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
         {
             uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
-            SetBits(GLOBAL_IGNITION_PIN | cylinderPin);
+            SetOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
         }
         ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
         ignitionTimeStatus = StartPeriodTimer(ignitionTicks);

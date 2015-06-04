@@ -89,13 +89,13 @@
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f10x_hd.c" path="cmsis_boot/startup/startup_stm32f10x_hd.c" type="1"/>
     <File name="stm_lib/src/misc.c" path="stm_lib/src/misc.c" type="1"/>
-    <File name="Cross/STM32/PersistentMemoryDriver.h" path="../../Platforms/STM32/PersistentMemoryDriver.h" type="1"/>
     <File name="Cross/API/Types.h" path="../../API/Types.h" type="1"/>
     <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_flash.h" path="stm_lib/inc/stm32f10x_flash.h" type="1"/>
-    <File name="syscalls/syscalls.c" path="syscalls/syscalls.c" type="1"/>
     <File name="Cross/STM32" path="" type="2"/>
+    <File name="syscalls/syscalls.c" path="syscalls/syscalls.c" type="1"/>
+    <File name="Cross/STM32/Pins.c" path="../../Platforms/STM32/Pins.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_dma.h" path="stm_lib/inc/stm32f10x_dma.h" type="1"/>
     <File name="stm_lib/src/stm32f10x_adc.c" path="stm_lib/src/stm32f10x_adc.c" type="1"/>
     <File name="Cross/API/Lcd.h" path="../../API/Lcd.h" type="1"/>
@@ -105,28 +105,28 @@
     <File name="Cross/API/AnalogInput.h" path="../../API/AnalogInput.h" type="1"/>
     <File name="Cross" path="" type="2"/>
     <File name="stm_lib/src/stm32f10x_gpio.c" path="stm_lib/src/stm32f10x_gpio.c" type="1"/>
-    <File name="stm_lib/inc/stm32f10x_gpio.h" path="stm_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>
+    <File name="stm_lib/inc/stm32f10x_gpio.h" path="stm_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Cross/API/ApiStatus.h" path="../../API/ApiStatus.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_usart.h" path="stm_lib/inc/stm32f10x_usart.h" type="1"/>
     <File name="Cross/STM32/GPIO_LCD1602.c" path="../../Platforms/STM32/GPIO_LCD1602.c" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
     <File name="stm_lib/inc/misc.h" path="stm_lib/inc/misc.h" type="1"/>
-    <File name="Cross/API/Leds.h" path="../../API/Leds.h" type="1"/>
-    <File name="Cross/Json/include/JsonMessage.h" path="../../Json/include/JsonMessage.h" type="1"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
-    <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
+    <File name="Cross/Json/include/JsonMessage.h" path="../../Json/include/JsonMessage.h" type="1"/>
     <File name="Cross/API/Communication.h" path="../../API/Communication.h" type="1"/>
+    <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
     <File name="Cross/Json/source/JsonMessage.c" path="../../Json/source/JsonMessage.c" type="1"/>
     <File name="stm_lib/src/stm32f10x_rcc.c" path="stm_lib/src/stm32f10x_rcc.c" type="1"/>
     <File name="Cross/STM32/test" path="" type="2"/>
     <File name="Cross/STM32/ApiStatus.c" path="../../Platforms/STM32/ApiStatus.c" type="1"/>
     <File name="Cross/Json/include/contiki-conf.h" path="../../Json/include/contiki-conf.h" type="1"/>
+    <File name="Cross/API/Pins.h" path="../../API/Pins.h" type="1"/>
     <File name="Cross/Json/source" path="" type="2"/>
     <File name="stm_lib/src/stm32f10x_dma.c" path="stm_lib/src/stm32f10x_dma.c" type="1"/>
     <File name="stm_lib/src" path="" type="2"/>
-    <File name="cmsis" path="" type="2"/>
     <File name="Cross/Json/include" path="" type="2"/>
+    <File name="cmsis" path="" type="2"/>
     <File name="stm_lib" path="" type="2"/>
     <File name="stm_lib/src/stm32f10x_flash.c" path="stm_lib/src/stm32f10x_flash.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_adc.h" path="stm_lib/inc/stm32f10x_adc.h" type="1"/>
@@ -135,10 +135,8 @@
     <File name="syscalls" path="" type="2"/>
     <File name="Cross/STM32/UartJson.c" path="../../Platforms/STM32/UartJson.c" type="1"/>
     <File name="Cross/API/PersistentElementManager.h" path="../../API/PersistentElementManager.h" type="1"/>
-    <File name="Cross/STM32/PersistentElementManager.c" path="../../Platforms/STM32/PersistentElementManager.c" type="1"/>
     <File name="Cross/STM32/test/main.c" path="../../Platforms/STM32/test/main.c" type="1"/>
     <File name="stm_lib/inc" path="" type="2"/>
     <File name="Cross/API" path="" type="2"/>
-    <File name="Cross/STM32/Leds.c" path="../../Platforms/STM32/Leds.c" type="1"/>
   </Files>
 </Project>

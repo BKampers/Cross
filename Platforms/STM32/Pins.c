@@ -1,3 +1,5 @@
+#include "Pins.h"
+
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
 
@@ -13,25 +15,19 @@ void InitOutputPins()
 }
 
 
-void SetBits(uint16_t pins)
+void SetOutputPins(uint16_t pins)
 {
     GPIO_SetBits(GPIOB, pins);
 }
 
 
-void ResetBits(uint16_t pins)
+void ResetOutputPins(uint16_t pins)
 {
     GPIO_ResetBits(GPIOB, pins);
 }
 
 
-void WritePin(uint16_t pin, uint8_t state)
+bool IsOutputPinSet(uint16_t pin)
 {
-    GPIO_WriteBit(GPIOB, pin, (state == 0) ? Bit_RESET : Bit_SET);
-}
-
-
-uint8_t ReadPin(uint16_t pin)
-{
-    return GPIO_ReadInputDataBit(GPIOB, pin);
+    return GPIO_ReadOutputDataBit(GPIOB, pin);//(GPIOB->ODR & pin) != 0;
 }

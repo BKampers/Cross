@@ -48,8 +48,14 @@ bool captured = FALSE;
 
 void PhaseShift()
 {
-    uint8_t state = ReadPin(TEMP_PHASE_PIN);
-    WritePin(TEMP_PHASE_PIN, (state == 0) ? 1 : 0);
+    if (IsOutputPinSet(TEMP_PHASE_PIN))
+    {
+        ResetOutputPins(TEMP_PHASE_PIN);
+    }
+    else
+    {
+        SetOutputPins(TEMP_PHASE_PIN);
+    }
     phase = 1;
 }
 
