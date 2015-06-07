@@ -14,10 +14,11 @@
 
 
 void InitPeriodTimer(void (*InterruptService) ());
-void InitCompareTimer(void (*InterruptService) (int events));
+void InitCompareTimer(void (*InterruptService) (int channel));
 void InitExternalPulseTimer(void (*InterruptService) (int capture));
 
 Status StartPeriodTimer(int ticks);
+Status StartCompareTimer(int channel, int ticks);
 
 int GetCompareTimerPeriod();
 

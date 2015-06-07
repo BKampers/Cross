@@ -1,5 +1,5 @@
 /*
-** Service for 4 injectors on PB8, PB9, PB10 and PB11
+** Service for 4 injectors
 ** to be started at cog number and stopped after provided injection time.
 ** Author: Bart Kampers
 */
@@ -8,13 +8,9 @@
 
 #include <stdlib.h>
 
-#include "misc.h"
-#include "stm32f10x_tim.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_rcc.h"
-
 #include "Types.h"
 
+#include "Pins.h"
 #include "Timers.h"
 
 #include "HardwareSettings.h"
@@ -30,18 +26,17 @@
 
 typedef struct
 {
-    void (*SetTimerCompare) (TIM_TypeDef* TIMx, uint16_t compare);
-    uint16_t timerInterrupt;
     uint16_t pinId;
+    uint16_t channel;
 } Injector;
 
 
 Injector injectors[] =
 {
-    { &TIM_SetCompare1, TIMER_CHANNEL_1, INJECTION_1_PIN },
-    { &TIM_SetCompare2, TIMER_CHANNEL_2, INJECTION_2_PIN },
-    { &TIM_SetCompare3, TIMER_CHANNEL_3, INJECTION_3_PIN },
-    { &TIM_SetCompare4, TIMER_CHANNEL_4, INJECTION_4_PIN }
+    { INJECTION_1_PIN, TIMER_CHANNEL_1 },
+    { INJECTION_2_PIN, TIMER_CHANNEL_2 },
+    { INJECTION_3_PIN, TIMER_CHANNEL_3 },
+    { INJECTION_4_PIN, TIMER_CHANNEL_4 }
 };
 
 
@@ -52,14 +47,14 @@ uint16_t injectionTicks = 0;
 ** private
 */
 
-void EndInjection(int events)
+void EndInjection(int channel)
 {
     Injector* injector = injectors;
     while (injector <= &(injectors[INJECTOR_COUNT - 1]))
     {
-        if ((events & injector->timerInterrupt) != 0)
+        if ((channel & injector->channel) != 0)
         {
-            GPIO_ResetBits(GPIOB, injector->pinId);
+            ResetOutputPins(injector->pinId);
         }
         injector++;
     }
@@ -83,11 +78,8 @@ Status StartInjection(int cogNumber)
     if ((0 <= index) && (index < INJECTOR_COUNT))
     {
         Injector* injector = &(injectors[index]);
-        GPIO_SetBits(GPIOB, injector->pinId);
-        injector->SetTimerCompare(TIM4, TIM_GetCounter(TIM4) + injectionTicks);
-        TIM_ClearITPendingBit(TIM4, injector->timerInterrupt);
-        TIM_ITConfig(TIM4, injector->timerInterrupt, ENABLE);
-        return OK;
+        SetOutputPins(injector->pinId);
+        return StartCompareTimer(injector->channel, injectionTicks);
     }
     else
     {
