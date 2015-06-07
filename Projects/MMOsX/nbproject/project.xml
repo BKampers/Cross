@@ -15,6 +15,7 @@
                 <sourceRootElem>../../Json/include</sourceRootElem>
                 <sourceRootElem>../../Platforms/MacOS</sourceRootElem>
                 <sourceRootElem>../../Json/source</sourceRootElem>
+                <sourceRootElem>../../Generic</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

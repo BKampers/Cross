@@ -65,6 +65,12 @@ void InitPeriodTimer(void (*InterruptService) ())
 }
 
 
+void InitCompareTimer(void (*InterruptService) (int channel))
+{
+    //TODO
+}
+
+
 void InitExternalPulseTimer(void (*InterruptService) (int capture))
 {
     HandlePulse = InterruptService;
@@ -76,4 +82,16 @@ Status StartPeriodTimer(int ticks)
 {
     //TODO
     return OK;
+}
+
+
+Status StartCompareTimer(int channel, int ticks)
+{
+    return OK;
+}
+
+
+int GetCompareTimerPeriod()
+{
+    return 0xFFFF;
 }

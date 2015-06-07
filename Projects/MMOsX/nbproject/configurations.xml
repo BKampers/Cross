@@ -8,9 +8,10 @@
         <itemPath>../../API/AnalogInput.h</itemPath>
         <itemPath>../../API/ApiStatus.h</itemPath>
         <itemPath>../../API/Communication.h</itemPath>
+        <itemPath>../../API/ExternalInterrupt.h</itemPath>
         <itemPath>../../API/Lcd.h</itemPath>
-        <itemPath>../../API/Leds.h</itemPath>
         <itemPath>../../API/PersistentElementManager.h</itemPath>
+        <itemPath>../../API/Pins.h</itemPath>
         <itemPath>../../API/Timers.h</itemPath>
         <itemPath>../../API/Types.h</itemPath>
       </logicalFolder>
@@ -28,6 +29,7 @@
         <itemPath>../../Applications/Motor Management/HardwareSettings.h</itemPath>
         <itemPath>../../Applications/Motor Management/Ignition.h</itemPath>
         <itemPath>../../Applications/Motor Management/Injection.h</itemPath>
+        <itemPath>../../Applications/Motor Management/InjectionTimer.h</itemPath>
         <itemPath>../../Applications/Motor Management/MeasurementTable.h</itemPath>
         <itemPath>../../Applications/Motor Management/Measurements.h</itemPath>
         <itemPath>../../Applications/Motor Management/Messaging.h</itemPath>
@@ -41,13 +43,15 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
+        <itemPath>../../Generic/PersistentElementManager.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
         <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
         <itemPath>../../Platforms/MacOS/ApiStatus.c</itemPath>
+        <itemPath>../../Platforms/MacOS/ExternalInterrupt.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
         <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
-        <itemPath>../../Platforms/MacOS/LedStub.c</itemPath>
-        <itemPath>../../Platforms/MacOS/PersistentElementManager.c</itemPath>
         <itemPath>../../Platforms/MacOS/SocketCommunication.c</itemPath>
         <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
       </logicalFolder>
@@ -58,6 +62,7 @@
         <itemPath>../../Applications/Motor Management/Engine.c</itemPath>
         <itemPath>../../Applications/Motor Management/Ignition.c</itemPath>
         <itemPath>../../Applications/Motor Management/Injection.c</itemPath>
+        <itemPath>../../Applications/Motor Management/InjectionTimer.c</itemPath>
         <itemPath>../../Applications/Motor Management/MeasurementTable.c</itemPath>
         <itemPath>../../Applications/Motor Management/Measurements.c</itemPath>
         <itemPath>../../Applications/Motor Management/Messaging.c</itemPath>
@@ -87,6 +92,7 @@
     <Elem>../../Json/include</Elem>
     <Elem>../../Platforms/MacOS</Elem>
     <Elem>../../Json/source</Elem>
+    <Elem>../../Generic</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -112,16 +118,16 @@
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/ExternalInterrupt.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/Pins.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -168,6 +174,16 @@
             flavor2="0">
       </item>
       <item path="../../Applications/Motor Management/Injection.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/InjectionTimer.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/InjectionTimer.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -241,6 +257,11 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/ExternalInterrupt.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/FiledMemory.c"
             ex="false"
             tool="0"
@@ -248,7 +269,7 @@
       </item>
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
+      <item path="../../Platforms/MacOS/PinStub.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"
@@ -284,16 +305,16 @@
       </item>
       <item path="../../API/Communication.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/ExternalInterrupt.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/Leds.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
+      <item path="../../API/Pins.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -340,6 +361,16 @@
             flavor2="0">
       </item>
       <item path="../../Applications/Motor Management/Injection.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/InjectionTimer.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Applications/Motor Management/InjectionTimer.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -413,6 +444,11 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/ExternalInterrupt.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/FiledMemory.c"
             ex="false"
             tool="0"
@@ -420,7 +456,7 @@
       </item>
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../../Platforms/MacOS/LedStub.c" ex="false" tool="0" flavor2="0">
+      <item path="../../Platforms/MacOS/PinStub.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"

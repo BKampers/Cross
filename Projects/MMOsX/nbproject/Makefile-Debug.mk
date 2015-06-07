@@ -39,6 +39,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/445223610/Engine.o \
 	${OBJECTDIR}/_ext/445223610/Ignition.o \
 	${OBJECTDIR}/_ext/445223610/Injection.o \
+	${OBJECTDIR}/_ext/445223610/InjectionTimer.o \
 	${OBJECTDIR}/_ext/445223610/MeasurementTable.o \
 	${OBJECTDIR}/_ext/445223610/Measurements.o \
 	${OBJECTDIR}/_ext/445223610/Messaging.o \
@@ -49,9 +50,10 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1788660382/jsonparse.o \
 	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
 	${OBJECTDIR}/_ext/1308665564/ApiStatus.o \
+	${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
 	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
-	${OBJECTDIR}/_ext/1308665564/LedStub.o \
+	${OBJECTDIR}/_ext/1308665564/PinStub.o \
 	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
 	${OBJECTDIR}/_ext/1308665564/Timers.o
 
@@ -99,6 +101,11 @@ ${OBJECTDIR}/_ext/445223610/Injection.o: ../../Applications/Motor\ Management/In
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Injection.o ../../Applications/Motor\ Management/Injection.c
+
+${OBJECTDIR}/_ext/445223610/InjectionTimer.o: ../../Applications/Motor\ Management/InjectionTimer.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/InjectionTimer.o ../../Applications/Motor\ Management/InjectionTimer.c
 
 ${OBJECTDIR}/_ext/445223610/MeasurementTable.o: ../../Applications/Motor\ Management/MeasurementTable.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
@@ -150,6 +157,11 @@ ${OBJECTDIR}/_ext/1308665564/ApiStatus.o: ../../Platforms/MacOS/ApiStatus.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ApiStatus.o ../../Platforms/MacOS/ApiStatus.c
 
+${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o: ../../Platforms/MacOS/ExternalInterrupt.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o ../../Platforms/MacOS/ExternalInterrupt.c
+
 ${OBJECTDIR}/_ext/1308665564/FiledMemory.o: ../../Platforms/MacOS/FiledMemory.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
@@ -160,10 +172,10 @@ ${OBJECTDIR}/_ext/1308665564/LcdStub.o: ../../Platforms/MacOS/LcdStub.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/LcdStub.o ../../Platforms/MacOS/LcdStub.c
 
-${OBJECTDIR}/_ext/1308665564/LedStub.o: ../../Platforms/MacOS/LedStub.c 
+${OBJECTDIR}/_ext/1308665564/PinStub.o: ../../Platforms/MacOS/PinStub.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/LedStub.o ../../Platforms/MacOS/LedStub.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PinStub.o ../../Platforms/MacOS/PinStub.c
 
 ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
