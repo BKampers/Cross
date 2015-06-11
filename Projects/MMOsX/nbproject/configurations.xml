@@ -286,6 +286,8 @@
       </item>
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/PinStub.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"
             tool="0"
@@ -470,6 +472,8 @@
             flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/LcdStub.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/PinStub.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"

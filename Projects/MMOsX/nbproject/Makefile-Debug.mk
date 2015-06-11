@@ -53,6 +53,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
 	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
+	${OBJECTDIR}/_ext/1308665564/PinStub.o \
 	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
 	${OBJECTDIR}/_ext/1308665564/Timers.o
 
@@ -170,6 +171,11 @@ ${OBJECTDIR}/_ext/1308665564/LcdStub.o: ../../Platforms/MacOS/LcdStub.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/LcdStub.o ../../Platforms/MacOS/LcdStub.c
+
+${OBJECTDIR}/_ext/1308665564/PinStub.o: ../../Platforms/MacOS/PinStub.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PinStub.o ../../Platforms/MacOS/PinStub.c
 
 ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
