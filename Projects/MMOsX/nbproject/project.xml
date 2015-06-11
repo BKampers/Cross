@@ -15,6 +15,13 @@
                 <sourceRootElem>../../Json/include</sourceRootElem>
                 <sourceRootElem>../../Platforms/MacOS</sourceRootElem>
                 <sourceRootElem>../../Json/source</sourceRootElem>
+                <sourceRootElem>../../Generic</sourceRootElem>
+                <sourceRootElem>../../API</sourceRootElem>
+                <sourceRootElem>../../Applications/Motor Management</sourceRootElem>
+                <sourceRootElem>../../Json/include</sourceRootElem>
+                <sourceRootElem>../../Platforms/MacOS</sourceRootElem>
+                <sourceRootElem>../../Json/source</sourceRootElem>
+                <sourceRootElem>../../Generic</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

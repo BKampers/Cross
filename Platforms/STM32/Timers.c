@@ -51,7 +51,7 @@ void InitPeriodTimer(void (*InterruptService) ())
 }
 
 
-void InitCompareTimer(void (*InterruptService) (int events))
+void InitCompareTimer(void (*InterruptService) (int channel))
 {
     HandleIrq4 = InterruptService;
 
@@ -156,6 +156,36 @@ Status StartPeriodTimer(int ticks)
     {
         return "InvalidTimerPeriod";
     }
+}
+
+
+Status StartCompareTimer(int channel, int ticks)
+{
+    Status status = OK;
+    switch (channel)
+    {
+        case TIMER_CHANNEL_1:
+            TIM_SetCompare1(TIM4, TIM_GetCounter(TIM4) + ticks);
+            break;
+        case TIMER_CHANNEL_2:
+            TIM_SetCompare2(TIM4, TIM_GetCounter(TIM4) + ticks);
+            break;
+        case TIMER_CHANNEL_3:
+            TIM_SetCompare3(TIM4, TIM_GetCounter(TIM4) + ticks);
+            break;
+        case TIMER_CHANNEL_4:
+            TIM_SetCompare4(TIM4, TIM_GetCounter(TIM4) + ticks);
+            break;
+        default:
+            status = "InvalidComparatorId";
+            break;
+    }
+    if (status == OK)
+    {
+        TIM_ClearITPendingBit(TIM4, channel);
+        TIM_ITConfig(TIM4, channel, ENABLE);
+    }
+    return status;
 }
 
 

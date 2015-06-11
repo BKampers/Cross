@@ -6,17 +6,15 @@
 #include "Ignition.h"
 
 #include <stdlib.h>
-#include "stm32f10x_gpio.h"
+
+#include "Pins.h"
+#include "Timers.h"
 
 #include "MeasurementTable.h"
-
 #include "HardwareSettings.h"
 #include "Engine.h"
 #include "Crank.h"
 #include "AnalogInput.h"
-
-#include "Timers.h"
-
 
 
 #define IGNITION_ANGLE_BASE 60
@@ -77,7 +75,7 @@ int ignitionTicks = 0;
 
 void StopIgnition()
 {
-    GPIO_ResetBits(GPIOB, ALL_IGNITION_PINS);
+    ResetOutputPins(ALL_IGNITION_PINS);
 }
 
 
@@ -200,7 +198,7 @@ void StartIgnition(int cogNumber)
         if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
         {
             uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
-            GPIO_SetBits(GPIOB, GLOBAL_IGNITION_PIN | cylinderPin);
+            SetOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
         }
         ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
         ignitionTimeStatus = StartPeriodTimer(ignitionTicks);

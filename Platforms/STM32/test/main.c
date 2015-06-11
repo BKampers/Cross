@@ -1,9 +1,10 @@
+#include <stdio.h>
 #include <string.h>
 
 #include "ApiStatus.h"
 #include "Communication.h"
 #include "Lcd.h"
-#include "Leds.h"
+#include "Pins.h"
 
 
 char message[255];
@@ -12,9 +13,9 @@ uint8_t leds = 0;
 
 int main(void)
 {
-    InitLeds();
+    InitOutputPins();
     InitLcd();
-    SetLeds(0x80);
+    SetOutputPins(0x8000);
 
     Status status = OpenCommunicationChannel(0, 0xFF);
     if (status == OK)
@@ -58,24 +59,35 @@ int main(void)
             status = ReadString(message);
             if ((status == OK) && (strlen(message) > 0))
             {
-                SetLeds(0x01);
+                int pin, w = 0;
+                SetOutputPins(0x0100);
+                ResetOutputPins(0x8000);
                 PutLcdLine(0, message);
-                UpdateLcd();
                 status = WriteString(message);
-                SetLeds((status == OK) ? 0x05 : 0x11);
+                SetOutputPins((status == OK) ? 0x200 : 0x800);
                 status = WriteString("\r\n");
-                SetLeds((status == OK) ? 0x05 : 0x21);
+                SetOutputPins((status == OK) ? 0x400 : 0x800);
+                for (pin = 0x0100; pin <= 0x8000; pin = pin << 1)
+                {
+                    if (IsOutputPinSet(pin))
+                    {
+                        w |= pin;
+                    }
+                }
+                sprintf(message, "{\"w\":\"0x%04x\"}", w);
+                PutLcdLine(1, message);
+                UpdateLcd();
             }
             status = ReadChannel(1, message);
             if ((status == OK) && (strlen(message) > 0))
             {
-                SetLeds(2);
+                SetOutputPins(0x0200);
                 PutLcdLine(1, message);
                 UpdateLcd();
                 status = WriteChannel(1, message);
-                SetLeds((status == OK) ? 0x06 : 0x12);
+                SetOutputPins((status == OK) ? 0x200 : 0x800);
                 status = WriteChannel(1, "\r\n");
-                SetLeds((status == OK) ? 0x06 : 0x22);
+                SetOutputPins((status == OK) ? 0x400 : 0x800);
             }
         }
     }

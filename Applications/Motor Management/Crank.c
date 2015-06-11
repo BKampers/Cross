@@ -14,9 +14,10 @@
 
 #include "Types.h"
 
-#include "stm32f10x_gpio.h"
 #include "HardwareSettings.h"
 #include "Engine.h"
+
+#include "Pins.h"
 #include "Timers.h"
 #include "ExternalInterrupt.h"
 
@@ -47,8 +48,14 @@ bool captured = FALSE;
 
 void PhaseShift()
 {
-    uint8_t state = GPIO_ReadInputDataBit(GPIOB, TEMP_PHASE_PIN);
-    GPIO_WriteBit(GPIOB, TEMP_PHASE_PIN, (state == Bit_RESET) ? Bit_SET : Bit_RESET);
+    if (IsOutputPinSet(TEMP_PHASE_PIN))
+    {
+        ResetOutputPins(TEMP_PHASE_PIN);
+    }
+    else
+    {
+        SetOutputPins(TEMP_PHASE_PIN);
+    }
     phase = 1;
 }
 

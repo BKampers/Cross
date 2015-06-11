@@ -10,7 +10,7 @@
 #include "Communication.h"
 #include "Lcd.h"
 #include "PersistentElementManager.h"
-#include "HardwareSettings.h"
+#include "Pins.h"
 
 #include "AnalogInput.h"
 #include "Messaging.h"
