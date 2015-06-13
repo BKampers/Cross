@@ -52,6 +52,7 @@
         <itemPath>../../Platforms/MacOS/ExternalInterrupt.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
         <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
+        <itemPath>../../Platforms/MacOS/PinStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/SocketCommunication.c</itemPath>
         <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
       </logicalFolder>

@@ -99,6 +99,15 @@ char* AllocString(const char* jsonString, const char* name)
 }
 
 
+void SendEot()
+{
+    char eot[2];
+    eot[0] = '~';
+    eot[1] = 0;
+    WriteString(eot);
+}
+
+
 void SendErrorResponse(const char* message, const char* error)
 {
     sprintf(
@@ -107,6 +116,7 @@ void SendErrorResponse(const char* message, const char* error)
         RESPONSE, message,
         ERR, error);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -119,6 +129,7 @@ void SendUnknownSubjectResponse(const char* message, const char* subject)
         SUBJECT, subject,
         ERR, "Unknown subject");
     WriteString(response);
+    SendEot();
 }
 
 
@@ -131,6 +142,7 @@ void SendStatus(const char* message, const char* subject, const Status status)
         SUBJECT, subject,
         STATUS, status);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -150,6 +162,7 @@ void SendMeasurementValue(const char* name, const Measurement* measurement)
         MAXIMUM, measurement->maximum,
         STATUS, status);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -245,6 +258,7 @@ void RespondMeasurementTableRequest(const char* jsonString, const MeasurementTab
     }
     sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -324,6 +338,7 @@ void SendMeasurementTableNames()
         WriteString(response);
     }
     WriteString("]\r\n}\r\n");
+    SendEot();
 }
 
 
@@ -350,6 +365,7 @@ void SendEngineProperties()
     }
     sprintf(response, "] }");
     WriteString(response);
+    SendEot();
 }
 
 
@@ -390,6 +406,7 @@ void SendFlashMemory(const char* jsonString)
     }
     sprintf(response, " ], \"%s\": \"%s\" }\r\n", STATUS, status);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -720,6 +737,7 @@ void SendTextNotification(const char* name, const char* value)
 {
     sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : \"%s\" }\r\n", MESSAGE, NOTIFICATION, name, value);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -727,6 +745,7 @@ void SendIntegerNotification(const char* name, int value)
 {
     sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : %d }\r\n", MESSAGE, NOTIFICATION, name, value);
     WriteString(response);
+    SendEot();
 }
 
 
@@ -734,6 +753,7 @@ void SendRealNotification(const char* name, double value)
 {
     sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : %f }\r\n", MESSAGE, NOTIFICATION, name, value);
     WriteString(response);
+    SendEot();
 }
 
 
