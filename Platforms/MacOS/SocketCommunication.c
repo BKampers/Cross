@@ -74,7 +74,7 @@ void* SocketTask(void* threadArgs)
     struct sockaddr_in serverAddress; /* Local address */
     struct sockaddr_in clientAddress; /* Client address */
     socklen_t clientAddressLength = sizeof(clientAddress); /* Length of client address data structure */
-    printf("=== ThreadMain: port %d ===\n", ((Channel*) threadArgs)->port);
+    printf("=== SocketTask: port %d ===\n", ((Channel*) threadArgs)->port);
 
     /* Create socket for incoming connections */
     serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_IP);

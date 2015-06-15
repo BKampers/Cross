@@ -10,7 +10,8 @@
 #include <string.h>
 
 #include "Communication.h"
-#include "JsonMessage.h"
+#include "JsonComposer.h"
+#include "JsonParser.h"
 
 #include "Engine.h"
 #include "Crank.h"
@@ -71,32 +72,8 @@ const char* ELEMENTS = "Elements";
 
 const char* IGNITION_TIMER = "IgnitionTimer";
 
-
-char response[255];		
-
-
-char* AllocStateString(const struct jsonparse_state* parseState)
-{
-    char* value = malloc(parseState->vlen + 1);
-    strncpy(value, parseState->json + parseState->vstart, parseState->vlen);
-    value[parseState->vlen] = '\0';
-    return value;
-}
-
-
-char* AllocString(const char* jsonString, const char* name)
-{
-    struct jsonparse_state parseState;
-    Status status = FindPair(jsonString, name, &parseState);
-    if (status == OK)
-    {
-        return AllocStateString(&parseState);
-    }
-    else
-    {
-        return NULL;
-    }
-}
+char* INVALID_MESSAGE = "Invalid message";
+char* INVALID_SUBJECT = "Invalid subject";
 
 
 void SendEot()
@@ -110,38 +87,39 @@ void SendEot()
 
 void SendErrorResponse(const char* message, const char* error)
 {
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\" }\r\n",
-        RESPONSE, message,
-        ERR, error);
-    WriteString(response);
+    JsonNode response;
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, message);
+    PutStringMember(&response, ERR, error);
+    WriteString(response.source);
+    free(response.source);
     SendEot();
+    
 }
 
 
 void SendUnknownSubjectResponse(const char* message, const char* subject)
 {
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }\r\n",
-        RESPONSE, message,
-        SUBJECT, subject,
-        ERR, "Unknown subject");
-    WriteString(response);
+    JsonNode response;
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, message);
+    PutStringMember(&response, SUBJECT, subject);
+    PutStringMember(&response, ERR, "Unknown subject");
+    WriteString(response.source);
+    free(response.source);
     SendEot();
 }
 
 
 void SendStatus(const char* message, const char* subject, const Status status)
 {
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\" }\r\n",
-        RESPONSE, message,
-        SUBJECT, subject,
-        STATUS, status);
-    WriteString(response);
+    JsonNode response;
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, message);
+    PutStringMember(&response, SUBJECT, subject);
+    PutStringMember(&response, STATUS, status);
+    WriteString(response.source);
+    free(response.source);
     SendEot();
 }
 
@@ -150,57 +128,50 @@ void SendMeasurementValue(const char* name, const Measurement* measurement)
 {
     float value;
     Status status = GetMeasurementValue(measurement, &value);
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %f, \"%s\": %s, \"%s\": \"%s\", \"%s\": %f, \"%s\": %f, \"%s\": \"%s\" }\r\n",
-        RESPONSE, REQUEST,
-        SUBJECT, name,
-        VALUE, value,
-        SIMULATION, (measurement->simulationValue != NULL) ? TRUE_LITERAL : FALSE_LITERAL,
-        FORMAT, measurement->format,
-        MINIMUM, measurement->minimum,
-        MAXIMUM, measurement->maximum,
-        STATUS, status);
-    WriteString(response);
+    JsonNode response;
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, name);
+    PutRealMember(&response, VALUE, value);
+    PutBooleanMember(&response, SIMULATION, (measurement->simulationValue != NULL));
+    PutStringMember(&response, FORMAT, measurement->format);
+    PutRealMember(&response, MINIMUM, measurement->minimum);
+    PutRealMember(&response, MAXIMUM, measurement->maximum);
+    PutStringMember(&response, STATUS, status);
+    WriteString(response.source);
+    free(response.source);
     SendEot();
 }
 
 
-void SendIndexes(int columnIndex, int rowIndex)
+void PutIndexes(JsonNode* object, int columnIndex, int rowIndex)
 {
-    sprintf(response,
-        ", \"%s\": %d, \"%s\": %d\r\n",
-        COLUMN, columnIndex,
-        ROW, rowIndex);
-    WriteString(response);
+    PutIntegerMember(object, COLUMN, columnIndex);
+    PutIntegerMember(object, ROW, rowIndex);
 }
 
 
-Status SendTableFields(const MeasurementTable* measurementTable)
+Status PutTableFields(JsonNode* object, const MeasurementTable* measurementTable)
 {
     Status status = OK;
+    JsonNode tableArray;
     byte c, r;
     if (measurementTable->columnMeasurement != NULL)
     {
-        sprintf(response, ", \"%s\": \"%s\"", "ColumnMeasurement", measurementTable->columnMeasurement->name);
-        WriteString(response);
+        PutStringMember(object, "ColumnMeasurement", measurementTable->columnMeasurement->name);
     }
     if (measurementTable->rowMeasurement != NULL)
     {
-        sprintf(response, ", \"%s\": \"%s\"", "RowMeasurement", measurementTable->rowMeasurement->name);
-        WriteString(response);
+        PutStringMember(object, "RowMeasurement", measurementTable->rowMeasurement->name);
     }
-    sprintf(
-        response,
-        ", \"%s\": %f, \"%s\": %f, \"%s\": %d, \"%s\":\r\n  [\r\n",
-        MINIMUM, measurementTable->minimum,
-        MAXIMUM, measurementTable->maximum,
-        DECIMALS, measurementTable->decimals,
-        TABLE);
-    WriteString(response);
+    PutRealMember(object, MINIMUM, measurementTable->minimum);
+    PutRealMember(object, MAXIMUM, measurementTable->maximum);
+    PutIntegerMember(object, DECIMALS, measurementTable->decimals);
+    ComposeArray(&tableArray);
     for (r = 0; (r < measurementTable->table.rows) && (status == OK); ++r)
     {
-        WriteString("    [ ");
+        JsonNode rowArray;
+        ComposeArray(&rowArray);
         for (c = 0; (c < measurementTable->table.columns) && (status == OK); ++c)
         {
             float field;
@@ -209,62 +180,60 @@ Status SendTableFields(const MeasurementTable* measurementTable)
             {
                 status = getFieldStatus;
             }
-            if ( c > 0)
-            {
-                WriteString(", ");
-            }
-            sprintf(response, "%f", field);
-            WriteString(response);
+            AddRealElement(&rowArray, field);
         }
-        WriteString(" ]");
-        if (r < measurementTable->table.rows - 1)
-        {
-            WriteString(",");
-        }
-        WriteString("\r\n");
+        AddArrayElement(&tableArray, &rowArray);
+        free(rowArray.source);
     }
-    WriteString("  ]\r\n");
+    PutArrayMember(object, TABLE, &tableArray);
+    free(tableArray.source);
     return status;
 }
 
 
-void RespondMeasurementTableRequest(const char* jsonString, const MeasurementTable* measurementTable, const char* name)
+bool HasString(JsonNode* array, const char* value)
+{
+    int index;
+    JsonStatus jsonStatus = IndexOfString(array, value, &index);
+    return jsonStatus == JSON_OK;
+}
+
+
+void RespondMeasurementTableRequest(const JsonNode* object, const MeasurementTable* measurementTable, const char* name)
 {
     Status status = OK;
-    bool sendTable = Contains(jsonString, PROPERTIES, TABLE);
-    bool sendIndex = Contains(jsonString, PROPERTIES, INDEX);
-    bool sendEnabled = Contains(jsonString, PROPERTIES, ENABLED);
+    JsonNode response, properties;
+    JsonStatus jsonStatus = GetArray(object, PROPERTIES, &properties);
+    bool sendTable = HasString(&properties, TABLE);
+    bool sendIndex = HasString(&properties, INDEX);
+    bool sendEnabled = HasString(&properties, ENABLED);
     bool sendDefault = ! sendTable && ! sendIndex && ! sendEnabled;
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\"",
-        RESPONSE, REQUEST,
-        SUBJECT, name);
-        WriteString(response);
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, name);
     if (sendTable || sendDefault)
     {
-        status = SendTableFields(measurementTable);
+        status = PutTableFields(&response, measurementTable);
     }
     if (sendIndex || sendDefault)
     {
-        SendIndexes(measurementTable->columnIndex, measurementTable->rowIndex);
+        PutIndexes(&response, measurementTable->columnIndex, measurementTable->rowIndex);
     }
     if (sendEnabled || sendDefault)
     {
         bool enabled;
         GetMeasurementTableEnabled(name, &enabled);
-        sprintf(response, ", \"%s\": %s", ENABLED, (enabled ? TRUE_LITERAL : FALSE_LITERAL));
-        WriteString(response);
+        PutBooleanMember(&response, ENABLED, enabled);
     }
-    sprintf(response, ", \"%s\": \"%s\"}\r\n", STATUS, status);
-    WriteString(response);
+    PutStringMember(&response, STATUS, status);
+    WriteString(response.source);
+    free(response.source);
     SendEot();
 }
 
 
-void RespondRequest(const struct jsonparse_state* subject)
+void RespondRequest(const JsonNode* object, const char* subjectString)
 {
-    char* subjectString = AllocStateString(subject);
     bool responded = FALSE;
     Measurement* measurement;
     Status status = FindMeasurement(subjectString, &measurement);
@@ -279,149 +248,134 @@ void RespondRequest(const struct jsonparse_state* subject)
         status = FindMeasurementTable(subjectString, &measurementTable);
         if (status == OK)
         {
-            RespondMeasurementTableRequest(subject->json, measurementTable, subjectString);
+            RespondMeasurementTableRequest(object, measurementTable, subjectString);
             responded = TRUE;
         }
     }
     if (! responded)
     {
-        char* messageString = AllocString(subject->json, MESSAGE);
+        char* messageString;
+        AllocateString(object, MESSAGE, &messageString);
         SendUnknownSubjectResponse(messageString, subjectString);
         free(messageString);
     }
-    free(subjectString);
 }
 
 
 void SendMeasurementNames()
 {
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [\r\n",
-        RESPONSE, REQUEST,
-        SUBJECT, MEASUREMENTS,
-        NAMES);
-    WriteString(response);
-    sprintf(response, "  \"%s\",\r\n", RPM);
-    WriteString(response);
-    sprintf(response, "  \"%s\",\r\n", LOAD);
-    WriteString(response);
-    sprintf(response, "  \"%s\",\r\n", WATER_TEMPERATURE);
-    WriteString(response);
-    sprintf(response, "  \"%s\",\r\n", AIR_TEMPERATURE);
-    WriteString(response);
-    sprintf(response, "  \"%s\",\r\n", BATTERY_VOLTAGE);
-    WriteString(response);
-    sprintf(response, "  \"%s\"]\r\n}\r\n", MAP_SENSOR);
-    WriteString(response);
+    JsonNode response, names;
+    ComposeArray(&names);
+    AddStringElement(&names, RPM);
+    AddStringElement(&names, LOAD);
+    AddStringElement(&names, WATER_TEMPERATURE);
+    AddStringElement(&names, AIR_TEMPERATURE);
+    AddStringElement(&names, BATTERY_VOLTAGE);
+    AddStringElement(&names, MAP_SENSOR);
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, MEASUREMENTS);
+    PutArrayMember(&response, NAMES, &names);
+    WriteString(response.source);
+    free(names.source);
+    free(response.source);
+    SendEot();
 }
 
 
 void SendMeasurementTableNames()
 {
+    JsonNode response, names;
     int i;
     int count = GetMeasurementTableCount();
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [",
-        RESPONSE, REQUEST,
-        SUBJECT, MEASUREMENT_TABLES,
-        NAMES);
-    WriteString(response);
+    ComposeArray(&names);
+    ComposeObject(&response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, MEASUREMENT_TABLES);
     for (i = 0; i < count; ++i)
     {
-        if (i > 0)
-        {
-            WriteString(",");
-        }
-        sprintf(response, "\r\n  \"%s\"", GetMeasurementTableName(i));
-        WriteString(response);
+        AddStringElement(&names, GetMeasurementTableName(i));
     }
-    WriteString("]\r\n}\r\n");
+    PutArrayMember(&response, NAMES, &names);
+    free(names.source);
+    WriteString(response.source);
     SendEot();
+    free(response.source);
 }
 
 
 void SendEngineProperties()
 {
+    JsonNode response, cogwheel, deadPoints;
     int i;
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %d, \"%s\": { \"%s\": %d,\"%s\": %d,\"%s\": %d }, \"%s\": [",
-        RESPONSE, REQUEST,
-        SUBJECT, ENGINE,
-        CYLINDER_COUNT, GetCylinderCount(),
-        COGWHEEL, COG_TOTAL, GetCogTotal(), GAP_SIZE, GetGapSize(), OFFSET, GetDeadPointOffset(),
-        DEAD_POINTS);
-    WriteString(response);
+    ComposeObject(&response);
+    ComposeObject(&cogwheel);
+    PutIntegerMember(&cogwheel, COG_TOTAL, GetCogTotal());
+    PutIntegerMember(&cogwheel, GAP_SIZE, GetGapSize());
+    PutIntegerMember(&cogwheel, OFFSET, GetDeadPointOffset());
+    ComposeArray(&deadPoints);
     for (i = 0; i < GetDeadPointCount(); ++i)
     {
-        if (i > 0)
-        {
-            WriteString(",");
-        }
-        sprintf(response, "%d", GetDeadPointCog(i));
-        WriteString(response);
+        AddIntegerElement(&deadPoints, GetDeadPointCog(i));
     }
-    sprintf(response, "] }");
-    WriteString(response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, ENGINE);
+    PutIntegerMember(&response, CYLINDER_COUNT, GetCylinderCount());
+    PutObjectMember(&response, COGWHEEL, &cogwheel);
+    PutArrayMember(&response, DEAD_POINTS, &deadPoints);
+    free(cogwheel.source);
+    free(deadPoints.source);
+    WriteString(response.source);
     SendEot();
+    free(response.source);
 }
 
 
-void SendFlashMemory(const char* jsonString)
+void SendFlashMemory(const JsonNode* object)
 {
+    JsonNode response;
+    JsonNode memory;
     Status status = OK;
     int reference;
     int count;
     int i;
-
-    if (GetIntValue(jsonString, REFERENCE, &reference) != OK)
+    ComposeObject(&response);
+    if (GetInt(object, REFERENCE, &reference) != JSON_OK)
     {
         reference = 0;
     }
-    if (GetIntValue(jsonString, COUNT, &count) != OK)
+    if (GetInt(object, COUNT, &count) != JSON_OK)
     {
         count = (int) PersistentMemoryLimit();
     }
-
-    sprintf(
-        response,
-        "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": %d, \"%s\": [ ",
-        RESPONSE, REQUEST,
-        SUBJECT, FLASH_MEM,
-        REFERENCE, reference,
-        VALUE);
-    WriteString(response);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, FLASH_MEM);
+    PutIntegerMember(&response, REFERENCE, reference);
+    ComposeArray(&memory);
     for (i = 0; (i < count) && (status == OK); ++i)
     {
-        if (i > 0)
-        {
-            WriteString(", ");
-        }
         char buffer;
         status = ReadPersistentMemory(reference + i, 1, &buffer);
-        sprintf(response, "%d", buffer);
-        WriteString(response);
+        AddIntegerElement(&memory, buffer);
     }
-    sprintf(response, " ], \"%s\": \"%s\" }\r\n", STATUS, status);
-    WriteString(response);
+    PutArrayMember(&response, VALUE, &memory);
+    free(memory.source);
+    PutStringMember(&response, STATUS, status);
+    WriteString(response.source);
     SendEot();
+    free(response.source);
 }
 
 
 void SendFlashElements()
 {
-    bool first = TRUE;
-    int typeId;
-    sprintf(
-    response,
-    "{ \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": [\r\n",
-    RESPONSE, REQUEST,
-    SUBJECT, FLASH_ELEMENTS,
-    ELEMENTS);
-    WriteString(response);
     Status status = OK;
+    JsonNode response, elements, element;
+    int typeId;
+    ComposeObject(&response);
+    ComposeArray(&elements);
+    PutStringMember(&response, RESPONSE, REQUEST);
+    PutStringMember(&response, SUBJECT, FLASH_ELEMENTS);
     for (typeId = 1; typeId <= GetTypeCount(); ++typeId)
     {
         Reference reference;
@@ -432,18 +386,12 @@ void SendFlashElements()
             status = GetSize(reference, &size);
             if (status == OK)
             {
-                if (! first)
-                {
-                    WriteString(",\r\n");
-                }
-                first = FALSE;
-                sprintf(
-                    response,
-                    "  { \"%s\" : \"%d\", \"%s\" : \"%d\", \"%s\" : \"%d\" }",
-                    TYPE_ID, typeId,
-                    REFERENCE, reference,
-                    SIZE, size);
-                WriteString(response);
+                ComposeObject(&element);
+                PutIntegerMember(&element, TYPE_ID, typeId);
+                PutIntegerMember(&element, REFERENCE, reference);
+                PutIntegerMember(&element, SIZE, size);
+                AddObjectElement(&elements, &element);
+                free(element.source);
             }
             status = FindNext(typeId, &reference);
         }
@@ -453,54 +401,54 @@ void SendFlashElements()
         /* first or next not found, not an error */
         status = OK;
     }
-    sprintf(response, "],\r\n \"%s\" : \"%s\" }\r\n", STATUS, status);
-    WriteString(response);
+    PutArrayMember(&response, ELEMENTS, &elements);
+    free(elements.source);
+    PutStringMember(&response, STATUS, status);
+    WriteString(response.source);
+    free(response.source);
+    SendEot();
 }
 
 
-void ModifyTable(const char* jsonString, const char* name)
+void ModifyTable(JsonNode* object, const char* name)
 {
     int row, column;
     float value;
     bool enabled;
     Status fieldStatus = OK;
     Status enableStatus = OK;
-    Status parseStatus = GetIntValue(jsonString, ROW, &row);
-    if (parseStatus == OK)
+    if (GetInt(object, ROW, &row) == JSON_OK)
     {
-        fieldStatus = GetIntValue(jsonString, COLUMN, &column);
-        if (fieldStatus == OK)
+        if (GetInt(object, COLUMN, &column) == JSON_OK)
         {
-            fieldStatus = GetFloatValue(jsonString, VALUE, &value);
-            if (fieldStatus == OK)
+            if (GetFloat(object, VALUE, &value) == JSON_OK)
             {
                 fieldStatus = SetMeasurementTableField(name, column, row, value);
             }
         }
     }
-    parseStatus = GetBoolValue(jsonString, ENABLED, &enabled);
-    if (parseStatus == OK)
+    if (GetBoolean(object, ENABLED, &enabled) == JSON_OK)
     {
         enableStatus = SetMeasurementTableEnabled(name, enabled);
     }
-    SendStatus(MODIFY, name, (fieldStatus != OK) ? fieldStatus : enableStatus);
+    SendStatus(MODIFY, name, (fieldStatus != JSON_OK) ? fieldStatus : enableStatus);
 }
 
 
-void ModifyIgnitionTimer(const char* jsonString)
+void ModifyIgnitionTimer(const JsonNode* object)
 {
     int value;
     TIMER_SETTINGS timerSettings;
     GetIgnitionTimerSettings(&timerSettings);
-    if (GetIntValue(jsonString, "Prescaler", &value) == OK)
+    if (GetInt(object, "Prescaler", &value) == JSON_OK)
     {
         timerSettings.prescaler = (uint16_t) value;
     }
-    if (GetIntValue(jsonString, "Period", &value) == OK)
+    if (GetInt(object, "Period", &value) == JSON_OK)
     {
         timerSettings.period = (uint16_t) value;
     }
-    if (GetIntValue(jsonString, "Counter", &value) == OK)
+    if (GetInt(object, "Counter", &value) == JSON_OK)
     {
         timerSettings.counter = (uint16_t) value;
     }
@@ -509,22 +457,17 @@ void ModifyIgnitionTimer(const char* jsonString)
 }
 
 
-void ModifyCogwheel(const char* jsonString)
+void ModifyCogwheel(JsonNode* object)
 {
     int cogTotal, gapSize, offset;
-    Status status = GetIntValue(jsonString, COG_TOTAL, &cogTotal);
-    if (status == OK)
+    Status status = INVALID_MESSAGE;
+    if (GetInt(object, COG_TOTAL, &cogTotal) == JSON_OK)
     {
-        status = GetIntValue(jsonString, GAP_SIZE, &gapSize);
-        if (status == OK)
+        if (GetInt(object, GAP_SIZE, &gapSize) == JSON_OK)
         {
-            status = GetIntValue(jsonString, OFFSET, &offset);
-            if (status == OK)
+            if (GetInt(object, OFFSET, &offset) == JSON_OK)
             {
-                if (status == OK)
-                {
-                    status = SetGogwheelProperties(cogTotal, gapSize, offset);
-                }
+                status = SetGogwheelProperties(cogTotal, gapSize, offset);
             }
         }
     }
@@ -532,11 +475,11 @@ void ModifyCogwheel(const char* jsonString)
 }
 
 
-void ModifyCylinderCount(const char* jsonString)
+void ModifyCylinderCount(const JsonNode* object)
 {
     int value;
-    Status status = GetIntValue(jsonString, VALUE, &value);
-    if (status == OK)
+    Status status = INVALID_MESSAGE;
+    if (GetInt(object, VALUE, &value) == JSON_OK)
     {
         status = SetCylinderCount(value);
     }
@@ -544,23 +487,19 @@ void ModifyCylinderCount(const char* jsonString)
 }
 
 
-void ModifyFlash(const char* jsonString)
+void ModifyFlash(JsonNode* object)
 {
-    int reference;
-    int value;
-    Status status = GetIntValue(jsonString, REFERENCE, &reference);
-    if (status == OK)
+    int reference, value, count;
+    Status status = INVALID_MESSAGE;
+    if (GetInt(object, REFERENCE, &reference) == JSON_OK)
     {
-        int count;
-        status = GetIntValue(jsonString, COUNT, &count);
-        if (status != OK)
+        if (GetInt(object, COUNT, &count) != JSON_OK)
         {
             count = 1;
         }
         if (count > 0)
         {
-            status = GetIntValue(jsonString, VALUE, &value);
-            if (status == OK)
+            if (GetInt(object, VALUE, &value) == JSON_OK)
             {
                 if ((0x00 <= value) && (value <= 0xFF))
                 {
@@ -581,46 +520,52 @@ void ModifyFlash(const char* jsonString)
 }
 
 
-void HandleRequest(const struct jsonparse_state* subject)
+Status HandleRequest(const JsonNode* object)
 {
-    if (EqualString(subject, FLASH_MEM))
+    char* subject;
+    Status status = (AllocateString(object, SUBJECT, &subject) == JSON_OK) ? OK : INVALID_SUBJECT;
+    if (status == OK)
     {
-        SendFlashMemory(subject->json);
+        if (strcmp(subject, FLASH_MEM) == 0)
+        {
+            SendFlashMemory(object);
+        }
+        else if (strcmp(subject, FLASH_ELEMENTS) == 0)
+        {
+            SendFlashElements();
+        }
+        else if (strcmp(subject, MEASUREMENTS) == 0)
+        {
+            SendMeasurementNames();
+        }
+        else if (strcmp(subject, MEASUREMENT_TABLES) == 0)
+        {
+            SendMeasurementTableNames();
+        }
+        else if (strcmp(subject, ENGINE) == 0)
+        {
+            SendEngineProperties();
+        }
+        else
+        {
+            RespondRequest(object, subject);
+        }
     }
-    else if (EqualString(subject, FLASH_ELEMENTS))
-    {
-        SendFlashElements();
-    }
-    else if (EqualString(subject, MEASUREMENTS))
-    {
-        SendMeasurementNames();
-    }
-    else if (EqualString(subject, MEASUREMENT_TABLES))
-    {
-        SendMeasurementTableNames();
-    }
-    else if (EqualString(subject, ENGINE))
-    {
-        SendEngineProperties();
-    }
-    else
-    {
-        RespondRequest(subject);
-    }
+    free(subject);
+    return status;
 }
 
 
-bool HandleModifySimulation(const char* jsonString, const char* subjectString)
+bool HandleModifySimulation(JsonNode* object, const char* subjectString)
 {
     bool simulation;
-    Status status = GetBoolValue(jsonString, SIMULATION, &simulation);
-    if (status == OK)
+    Status status = INVALID_MESSAGE;
+    if (GetBoolean(object, SIMULATION, &simulation) == JSON_OK)
     {
         if (simulation)
         {
             float simulationValue;
-            status = GetFloatValue(jsonString, VALUE, &simulationValue);
-            if (status == OK)
+            if (GetFloat(object, VALUE, &simulationValue) == JSON_OK)
             {
                 status = SetMeasurementSimulation(subjectString, simulationValue);
             }
@@ -639,50 +584,45 @@ bool HandleModifySimulation(const char* jsonString, const char* subjectString)
 }
 
 
-void HandleModification(const struct jsonparse_state* subject)
+Status HandleModification(JsonNode* object)
 {
-    char* subjectString = AllocStateString(subject);
-    bool handled = FALSE;
-    Table table;
-    if (FindTable(subjectString, &table) == OK)
+    char* subjectString;
+    Status status = (AllocateString(object, SUBJECT, &subjectString) == JSON_OK) ? OK : INVALID_SUBJECT;
+    if (status == OK)
     {
-        ModifyTable(subject->json, subjectString);
-        handled = TRUE;
-    }
-    if (! handled)
-    {
-        handled = HandleModifySimulation(subject->json, subjectString);
-    }
-    if (! handled)
-    {
-        if (strcmp(subjectString, COGWHEEL) == 0)
+        bool handled = FALSE;
+        Table table;
+        if (FindTable(subjectString, &table) == OK)
         {
-            ModifyCogwheel(subject->json);
+            ModifyTable(object, subjectString);
             handled = TRUE;
         }
-        else if (strcmp(subjectString, CYLINDER_COUNT) == 0)
+        if (! handled)
         {
-            ModifyCylinderCount(subject->json);
-            handled= TRUE;
+            handled = HandleModifySimulation(object, subjectString);
         }
-        else if (strcmp(subjectString, FLASH_MEM) == 0)
+        if (! handled)
         {
-            ModifyFlash(subject->json);
-            handled = TRUE;
+            if (strcmp(subjectString, COGWHEEL) == 0)
+            {
+                ModifyCogwheel(object);
+            }
+            else if (strcmp(subjectString, CYLINDER_COUNT) == 0)
+            {
+                ModifyCylinderCount(object);
+            }
+            else if (strcmp(subjectString, FLASH_MEM) == 0)
+            {
+                ModifyFlash(object);
+            }
+            else if (strcmp(subjectString, IGNITION_TIMER) == 0)
+            {
+                ModifyIgnitionTimer(object);
+            }
         }
-        else if (strcmp(subjectString, IGNITION_TIMER) == 0)
-        {
-            ModifyIgnitionTimer(subject->json);
-            handled = TRUE;
-        }
-    }
-    if (! handled)
-    {
-        char* messageString = AllocString(subject->json, MESSAGE);
-        SendUnknownSubjectResponse(messageString, subjectString);
-        free(messageString);
     }
     free(subjectString);
+    return status;
 }
 
 
@@ -698,61 +638,69 @@ void HandleModification(const struct jsonparse_state* subject)
 */
 void HandleMessage(const char* jsonString)
 {
-    struct jsonparse_state message;
-    Status status = FindPair(jsonString, MESSAGE, &message);
-    if (status == OK)
+    JsonNode object;
+    char* message;
+    Status status = OK;
+    Initialize(jsonString, &object);
+    if (AllocateString(&object, MESSAGE, &message) == JSON_OK)
     {
-        struct jsonparse_state subject;
-        status = FindPair(jsonString, SUBJECT, &subject);
-        if (status == OK)
+        if (strcmp(message, REQUEST) == 0)
         {
-            if (EqualString(&message, REQUEST))
-            {
-                HandleRequest(&subject);
-            }
-            else if (EqualString(&message, MODIFY))
-            {
-                HandleModification(&subject);
-            }
-            else
-            {
-                SendErrorNotification("Unknown message");
-            }
+            status = HandleRequest(&object);
+        }
+        else if (strcmp(message, MODIFY) == 0)
+        {
+            status = HandleModification(&object);
         }
         else
         {
-            char* messageString = AllocString(jsonString, MESSAGE);
-            SendErrorResponse(messageString, "No subject");
-            free(messageString);
+            SendErrorNotification("Unknown message");
+        }
+        if (status != OK)
+        {
+            SendErrorResponse(message, status);
         }
     }
     else
     {
         SendErrorNotification("Not a message");
     }
+    free(message);
 }
 
 
 void SendTextNotification(const char* name, const char* value)
 {
-    sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : \"%s\" }\r\n", MESSAGE, NOTIFICATION, name, value);
-    WriteString(response);
+    JsonNode notification;
+    ComposeObject(&notification);
+    PutStringMember(&notification, MESSAGE, NOTIFICATION);
+    PutStringMember(&notification, name, value);
+    WriteString(notification.source);
+    free(notification.source);
     SendEot();
 }
 
 
 void SendIntegerNotification(const char* name, int value)
 {
-    sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : %d }\r\n", MESSAGE, NOTIFICATION, name, value);
-    WriteString(response);
+    JsonNode notification;
+    ComposeObject(&notification);
+    PutStringMember(&notification, MESSAGE, NOTIFICATION);
+    PutIntegerMember(&notification, name, value);
+    WriteString(notification.source);
+    free(notification.source);
     SendEot();
 }
 
 
 void SendRealNotification(const char* name, double value)
 {
-    sprintf(response, "{ \"%s\" : \"%s\", \"%s\" : %f }\r\n", MESSAGE, NOTIFICATION, name, value);
-    WriteString(response);
+    JsonNode notification;
+    ComposeObject(&notification);
+    PutStringMember(&notification, MESSAGE, NOTIFICATION);
+    PutRealMember(&notification, name, value);
+    WriteString(notification.source);
+    free(notification.source);
     SendEot();
 }
 
