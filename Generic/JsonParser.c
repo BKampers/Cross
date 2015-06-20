@@ -11,10 +11,10 @@ const char* WHITE_SPACES = " \f\n\r\t";
 const char* NUMBER_CHARACTERS = ".+-Ee";
 
 
-void ScanNext(char* source, JsonNode* node);
+void ScanNext(const char* source, JsonNode* node);
 
 
-void InitializeNode(JsonNode* node, char* source)
+void InitializeNode(JsonNode* node, const char* source)
 {
     node->source = source;
     node->type = JSON_INVALID;
@@ -345,7 +345,7 @@ void ScanNull(JsonNode* node)
 }
 
 
-void ScanNext(char* source, JsonNode* node)
+void ScanNext(const char* source, JsonNode* node)
 {
     char character;
     InitializeNode(node, source);
@@ -534,7 +534,7 @@ JsonStatus GetNodeAt(const JsonNode* array, int index, JsonType type, JsonNode* 
 ** Interface
 */
 
-void Initialize(char* source, JsonNode* node)
+void Initialize(const char* source, JsonNode* node)
 {
     ScanNext(source, node);
 }
