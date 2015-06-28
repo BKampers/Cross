@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ApiStatus.h"
+
 #include "Communication.h"
-#include "JsonComposer.h"
+#include "JsonWriter.h"
 #include "JsonParser.h"
 
 #include "Engine.h"
@@ -76,170 +78,150 @@ char* INVALID_MESSAGE = "Invalid message";
 char* INVALID_SUBJECT = "Invalid subject";
 
 
-void SendEot()
+Status SendErrorResponse(const char* message, const char* error)
 {
-    char eot[2];
-    eot[0] = '~';
-    eot[1] = 0;
-    WriteString(eot);
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, error))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendErrorResponse(const char* message, const char* error)
+Status SendUnknownSubjectResponse(const char* message, const char* subject)
 {
-    JsonNode response;
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, message);
-    PutStringMember(&response, ERR, error);
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
-    
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, "Unknown subject"))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendUnknownSubjectResponse(const char* message, const char* subject)
+Status SendStatus(const char* message, const char* subject, const Status status)
 {
-    JsonNode response;
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, message);
-    PutStringMember(&response, SUBJECT, subject);
-    PutStringMember(&response, ERR, "Unknown subject");
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendStatus(const char* message, const char* subject, const Status status)
+Status SendMeasurementValue(const char* name, const Measurement* measurement)
 {
-    JsonNode response;
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, message);
-    PutStringMember(&response, SUBJECT, subject);
-    PutStringMember(&response, STATUS, status);
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
-}
-
-
-void SendMeasurementValue(const char* name, const Measurement* measurement)
-{
+    RETURN_WHEN_INVALID
     float value;
     Status status = GetMeasurementValue(measurement, &value);
-    JsonNode response;
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, name);
-    PutRealMember(&response, VALUE, value);
-    PutBooleanMember(&response, SIMULATION, (measurement->simulationValue != NULL));
-    PutStringMember(&response, FORMAT, measurement->format);
-    PutRealMember(&response, MINIMUM, measurement->minimum);
-    PutRealMember(&response, MAXIMUM, measurement->maximum);
-    PutStringMember(&response, STATUS, status);
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, name))
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value))
+    VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, (measurement->simulationValue != NULL)))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, FORMAT, measurement->format))
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurement->minimum))
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurement->maximum))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void PutIndexes(JsonNode* object, int columnIndex, int rowIndex)
+Status PutTableFields(const MeasurementTable* measurementTable)
 {
-    PutIntegerMember(object, COLUMN, columnIndex);
-    PutIntegerMember(object, ROW, rowIndex);
-}
-
-
-Status PutTableFields(JsonNode* object, const MeasurementTable* measurementTable)
-{
-    Status status = OK;
-    JsonNode tableArray;
+    RETURN_WHEN_INVALID
     byte c, r;
     if (measurementTable->columnMeasurement != NULL)
     {
-        PutStringMember(object, "ColumnMeasurement", measurementTable->columnMeasurement->name);
+        VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, "ColumnMeasurement", measurementTable->columnMeasurement->name))
     }
     if (measurementTable->rowMeasurement != NULL)
     {
-        PutStringMember(object, "RowMeasurement", measurementTable->rowMeasurement->name);
+        VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, "RowMeasurement", measurementTable->rowMeasurement->name))
     }
-    PutRealMember(object, MINIMUM, measurementTable->minimum);
-    PutRealMember(object, MAXIMUM, measurementTable->maximum);
-    PutIntegerMember(object, DECIMALS, measurementTable->decimals);
-    ComposeArray(&tableArray);
-    for (r = 0; (r < measurementTable->table.rows) && (status == OK); ++r)
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurementTable->minimum))
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurementTable->maximum))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, DECIMALS, measurementTable->decimals))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, TABLE))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+    for (r = 0; (r < measurementTable->table.rows); ++r)
     {
-        JsonNode rowArray;
-        ComposeArray(&rowArray);
-        for (c = 0; (c < measurementTable->table.columns) && (status == OK); ++c)
+        VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+        for (c = 0; (c < measurementTable->table.columns); ++c)
         {
             float field;
-            Status getFieldStatus = GetMeasurementTableField(measurementTable, c, r, &field);
-            if (getFieldStatus != OK)
-            {
-                status = getFieldStatus;
-            }
-            AddRealElement(&rowArray, field);
+            VALIDATE(GetMeasurementTableField(measurementTable, c, r, &field))
+            VALIDATE(WriteJsonRealElement(DEFAULT_CHANNEL, field))
         }
-        AddArrayElement(&tableArray, &rowArray);
-        free(rowArray.source);
+        VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     }
-    PutArrayMember(object, TABLE, &tableArray);
-    free(tableArray.source);
-    return status;
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
 }
 
 
 bool HasString(JsonNode* array, const char* value)
 {
     int index;
-    JsonStatus jsonStatus = IndexOfString(array, value, &index);
-    return jsonStatus == JSON_OK;
+    return IndexOfString(array, value, &index) == JSON_OK;
 }
 
 
-void RespondMeasurementTableRequest(const JsonNode* object, const MeasurementTable* measurementTable, const char* name)
+Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementTable* measurementTable, const char* name)
 {
-    Status status = OK;
-    JsonNode response, properties;
-    JsonStatus jsonStatus = GetArray(object, PROPERTIES, &properties);
-    bool sendTable = HasString(&properties, TABLE);
-    bool sendIndex = HasString(&properties, INDEX);
-    bool sendEnabled = HasString(&properties, ENABLED);
-    bool sendDefault = ! sendTable && ! sendIndex && ! sendEnabled;
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, name);
+    RETURN_WHEN_INVALID
+    JsonNode properties;
+    bool sendTable, sendIndex, sendEnabled, sendDefault;
+    if (GetArray(object, PROPERTIES, &properties) == JSON_OK)
+    {
+        sendTable = HasString(&properties, TABLE);
+        sendIndex = HasString(&properties, INDEX);
+        sendEnabled = HasString(&properties, ENABLED);
+        sendDefault = ! sendTable && ! sendIndex && ! sendEnabled;
+    }
+    else
+    {
+        sendTable = TRUE;
+        sendIndex = TRUE;
+        sendEnabled = TRUE;
+        sendDefault = TRUE;
+    }
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     if (sendTable || sendDefault)
     {
-        status = PutTableFields(&response, measurementTable);
+        VALIDATE(PutTableFields(measurementTable))
     }
     if (sendIndex || sendDefault)
     {
-        PutIndexes(&response, measurementTable->columnIndex, measurementTable->rowIndex);
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, measurementTable->columnIndex))
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, measurementTable->rowIndex))
     }
     if (sendEnabled || sendDefault)
     {
         bool enabled;
         GetMeasurementTableEnabled(name, &enabled);
-        PutBooleanMember(&response, ENABLED, enabled);
+        VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled))
     }
-    PutStringMember(&response, STATUS, status);
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void RespondRequest(const JsonNode* object, const char* subjectString)
+Status RespondRequest(const JsonNode* object, const char* subjectString)
 {
+    RETURN_WHEN_INVALID
     bool responded = FALSE;
     Measurement* measurement;
     Status status = FindMeasurement(subjectString, &measurement);
     if (status == OK)
     {
-        SendMeasurementValue(subjectString, measurement);
+        VALIDATE(SendMeasurementValue(subjectString, measurement))
         responded = TRUE;
     }
     if (! responded)
@@ -248,7 +230,7 @@ void RespondRequest(const JsonNode* object, const char* subjectString)
         status = FindMeasurementTable(subjectString, &measurementTable);
         if (status == OK)
         {
-            RespondMeasurementTableRequest(object, measurementTable, subjectString);
+            VALIDATE(RespondMeasurementTableRequest(object, measurementTable, subjectString))
             responded = TRUE;
         }
     }
@@ -256,90 +238,87 @@ void RespondRequest(const JsonNode* object, const char* subjectString)
     {
         char* messageString;
         AllocateString(object, MESSAGE, &messageString);
-        SendUnknownSubjectResponse(messageString, subjectString);
+        VALIDATE(SendUnknownSubjectResponse(messageString, subjectString))
         free(messageString);
     }
+    return OK;
 }
 
 
-void SendMeasurementNames()
+Status SendMeasurementNames()
 {
-    JsonNode response, names;
-    ComposeArray(&names);
-    AddStringElement(&names, RPM);
-    AddStringElement(&names, LOAD);
-    AddStringElement(&names, WATER_TEMPERATURE);
-    AddStringElement(&names, AIR_TEMPERATURE);
-    AddStringElement(&names, BATTERY_VOLTAGE);
-    AddStringElement(&names, MAP_SENSOR);
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, MEASUREMENTS);
-    PutArrayMember(&response, NAMES, &names);
-    WriteString(response.source);
-    free(names.source);
-    free(response.source);
-    SendEot();
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, MEASUREMENTS))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, NAMES))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, RPM))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, LOAD))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, WATER_TEMPERATURE))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, AIR_TEMPERATURE))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, BATTERY_VOLTAGE))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, MAP_SENSOR))
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendMeasurementTableNames()
+Status SendMeasurementTableNames()
 {
-    JsonNode response, names;
+    RETURN_WHEN_INVALID
     int i;
     int count = GetMeasurementTableCount();
-    ComposeArray(&names);
-    ComposeObject(&response);
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, MEASUREMENT_TABLES);
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, MEASUREMENT_TABLES))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, NAMES))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
     for (i = 0; i < count; ++i)
     {
-        AddStringElement(&names, GetMeasurementTableName(i));
+        VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, GetMeasurementTableName(i)))
     }
-    PutArrayMember(&response, NAMES, &names);
-    free(names.source);
-    WriteString(response.source);
-    SendEot();
-    free(response.source);
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendEngineProperties()
+Status SendEngineProperties()
 {
-    JsonNode response, cogwheel, deadPoints;
+    RETURN_WHEN_INVALID
     int i;
-    ComposeObject(&response);
-    ComposeObject(&cogwheel);
-    PutIntegerMember(&cogwheel, COG_TOTAL, GetCogTotal());
-    PutIntegerMember(&cogwheel, GAP_SIZE, GetGapSize());
-    PutIntegerMember(&cogwheel, OFFSET, GetDeadPointOffset());
-    ComposeArray(&deadPoints);
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, ENGINE))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, COGWHEEL))
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, GetCogTotal()))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL,  GAP_SIZE, GetGapSize()))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL,  OFFSET, GetDeadPointOffset()))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, DEAD_POINTS))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
     for (i = 0; i < GetDeadPointCount(); ++i)
     {
-        AddIntegerElement(&deadPoints, GetDeadPointCog(i));
+        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, GetDeadPointCog(i)))
     }
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, ENGINE);
-    PutIntegerMember(&response, CYLINDER_COUNT, GetCylinderCount());
-    PutObjectMember(&response, COGWHEEL, &cogwheel);
-    PutArrayMember(&response, DEAD_POINTS, &deadPoints);
-    free(cogwheel.source);
-    free(deadPoints.source);
-    WriteString(response.source);
-    SendEot();
-    free(response.source);
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendFlashMemory(const JsonNode* object)
+Status SendFlashMemory(const JsonNode* object)
 {
-    JsonNode response;
-    JsonNode memory;
+    RETURN_WHEN_INVALID
     Status status = OK;
     int reference;
     int count;
     int i;
-    ComposeObject(&response);
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
     if (GetInt(object, REFERENCE, &reference) != JSON_OK)
     {
         reference = 0;
@@ -348,34 +327,34 @@ void SendFlashMemory(const JsonNode* object)
     {
         count = (int) PersistentMemoryLimit();
     }
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, FLASH_MEM);
-    PutIntegerMember(&response, REFERENCE, reference);
-    ComposeArray(&memory);
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_MEM))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, VALUE));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
     for (i = 0; (i < count) && (status == OK); ++i)
     {
         char buffer;
         status = ReadPersistentMemory(reference + i, 1, &buffer);
-        AddIntegerElement(&memory, buffer);
+        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, buffer))
     }
-    PutArrayMember(&response, VALUE, &memory);
-    free(memory.source);
-    PutStringMember(&response, STATUS, status);
-    WriteString(response.source);
-    SendEot();
-    free(response.source);
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendFlashElements()
+Status SendFlashElements()
 {
+    RETURN_WHEN_INVALID
     Status status = OK;
-    JsonNode response, elements, element;
     int typeId;
-    ComposeObject(&response);
-    ComposeArray(&elements);
-    PutStringMember(&response, RESPONSE, REQUEST);
-    PutStringMember(&response, SUBJECT, FLASH_ELEMENTS);
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_ELEMENTS))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, ELEMENTS))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
     for (typeId = 1; typeId <= GetTypeCount(); ++typeId)
     {
         Reference reference;
@@ -386,27 +365,24 @@ void SendFlashElements()
             status = GetSize(reference, &size);
             if (status == OK)
             {
-                ComposeObject(&element);
-                PutIntegerMember(&element, TYPE_ID, typeId);
-                PutIntegerMember(&element, REFERENCE, reference);
-                PutIntegerMember(&element, SIZE, size);
-                AddObjectElement(&elements, &element);
-                free(element.source);
+                VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+                VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, TYPE_ID, typeId))
+                VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
+                VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, SIZE, size))
+                VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
             }
             status = FindNext(typeId, &reference);
         }
     }
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     if (status == INVALID_ID)
     {
         /* first or next not found, not an error */
         status = OK;
     }
-    PutArrayMember(&response, ELEMENTS, &elements);
-    free(elements.source);
-    PutStringMember(&response, STATUS, status);
-    WriteString(response.source);
-    free(response.source);
-    SendEot();
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
@@ -669,43 +645,40 @@ void HandleMessage(const char* jsonString)
 }
 
 
-void SendTextNotification(const char* name, const char* value)
+Status SendTextNotification(const char* name, const char* value)
 {
-    JsonNode notification;
-    ComposeObject(&notification);
-    PutStringMember(&notification, MESSAGE, NOTIFICATION);
-    PutStringMember(&notification, name, value);
-    WriteString(notification.source);
-    free(notification.source);
-    SendEot();
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, name, value))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendIntegerNotification(const char* name, int value)
+Status SendIntegerNotification(const char* name, int value)
 {
-    JsonNode notification;
-    ComposeObject(&notification);
-    PutStringMember(&notification, MESSAGE, NOTIFICATION);
-    PutIntegerMember(&notification, name, value);
-    WriteString(notification.source);
-    free(notification.source);
-    SendEot();
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, name, value))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendRealNotification(const char* name, double value)
+Status SendRealNotification(const char* name, double value)
 {
-    JsonNode notification;
-    ComposeObject(&notification);
-    PutStringMember(&notification, MESSAGE, NOTIFICATION);
-    PutRealMember(&notification, name, value);
-    WriteString(notification.source);
-    free(notification.source);
-    SendEot();
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, name, value))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
 }
 
 
-void SendErrorNotification(const char* error)
+Status SendErrorNotification(const char* error)
 {
-     SendTextNotification(ERR, error);
+     return SendTextNotification(ERR, error);
 }

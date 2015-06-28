@@ -1,12 +1,14 @@
-#ifndef __MESSAGING_H__
-#define __MESSAGING_H__
+#ifndef _MESSAGING_H_
+#define _MESSAGING_H_
+
+#include "ApiStatus.h"
 
 
 void HandleMessage(const char* jsonString);
 
-void SendTextNotification(const char* name, const char* value);
-void SendIntegerNotification(const char* name, int value);
-void SendRealNotification(const char* name, double value);
-void SendErrorNotification(const char* subject);
+Status SendTextNotification(const char* name, const char* value);
+Status SendIntegerNotification(const char* name, int value);
+Status SendRealNotification(const char* name, double value);
+Status SendErrorNotification(const char* subject);
 
-#endif /* __MESSAGING_H__ */
+#endif /* _MESSAGING_H_ */

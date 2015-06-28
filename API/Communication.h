@@ -19,7 +19,10 @@ Status CloseCommunicationChannel(int channelId);
 Status ReadChannel(int channelId, char* string);
 Status ReadString(char* string);
 
+Status WriteCharacter(int channelId, char character);
 Status WriteChannel(int channelId, char*);
 Status WriteString(char* string);
+
+Status FinishTransmission(int channelId);
 
 #endif /* _COMMUNICATION_H_ */

@@ -1,5 +1,5 @@
-#ifndef __JSON_H__
-#define	__JSON_H__
+#ifndef _JSON_H_
+#define	_JSON_H_
 
 #include <stdlib.h>
 #include "Types.h"
@@ -66,5 +66,5 @@ typedef struct
 } JsonNode;
 
 
-#endif	/* __JSON_H__ */
+#endif	/* _JSON_H_ */
 

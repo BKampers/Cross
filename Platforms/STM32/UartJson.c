@@ -24,6 +24,8 @@
 
 #define CHANNEL_COUNT 2
 
+#define EOT '~'
+
 typedef struct
 {
     char* inputBuffer;
@@ -37,6 +39,27 @@ typedef struct
 char statusMessage[32];
 
 Channel* channels[] = { NULL, NULL };
+
+
+/*
+** Configure USART's nested vectored interrupt controller.
+*/
+void ConfigureUsart(int channelId)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+  /* Enable the USARTx Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = (channelId == 0) ?  USART1_IRQn : USART2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+
+USART_TypeDef* GetUsart(int channelId)
+{
+    return (channelId == 0) ? USART1 : USART2;
+}
 
 
 Status ValidateChannelId(int channelId)
@@ -83,18 +106,10 @@ Status ValidateChannelOpen(int channelId)
 }
 
 
-/*
-** Configure USART's nested vectored interrupt controller.
-*/
-void NVIC_Configuration(int channelId)
+void Write(USART_TypeDef* usart, char character)
 {
-  NVIC_InitTypeDef NVIC_InitStructure;
-  /* Enable the USARTx Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = (channelId == 0) ?  USART1_IRQn : USART2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+    USART_SendData(usart, (uint16_t) character);
+    while (USART_GetFlagStatus(usart, USART_FLAG_TC) == RESET); /* Loop until the end of transmission */
 }
 
 
@@ -118,9 +133,6 @@ void GPIO_Configuration(int channelId)
 }
 
 
-/*
-** Enable USART
-*/
 void InitChannel(int channelId)
 {
     if (channelId == 0)
@@ -134,7 +146,7 @@ void InitChannel(int channelId)
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     }
 
-    NVIC_Configuration(channelId);
+    ConfigureUsart(channelId);
     GPIO_Configuration(channelId);
 
     USART_InitTypeDef USART_InitStructure;
@@ -145,7 +157,7 @@ void InitChannel(int channelId)
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
-    USART_TypeDef* usart = (channelId == 0) ? USART1 : USART2;
+    USART_TypeDef* usart = GetUsart(channelId);
     USART_Init(usart, &USART_InitStructure);
     USART_Cmd(usart, ENABLE);
     /* Enable the usart Receive interrupt: this interrupt is generated when the USARTx receive data register is not empty */
@@ -226,17 +238,27 @@ Status ReadString(char* string)
 }
 
 
+Status WriteCharacter(int channelId, char character)
+{
+    Status status = ValidateChannelOpen(channelId);
+    if (status == OK)
+    {
+        Write(GetUsart(channelId), character);
+    }
+    return status;
+}
+
+
 Status WriteChannel(int channelId, char* string)
 {
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
     {
-        USART_TypeDef* usart = (channelId == 0) ? USART1 : USART2;
+        USART_TypeDef* usart = GetUsart(channelId);
         while (*string != '\0')
         {
-            USART_SendData(usart, (uint16_t) *string);
+            Write(usart, *string);
             ++string;
-            while (USART_GetFlagStatus(usart, USART_FLAG_TC) == RESET); /* Loop until the end of transmission */
         }
     }
     return status;
@@ -249,6 +271,12 @@ Status WriteString(char* string)
 }
 
 
+Status FinishTransmission(int channelId)
+{
+    return WriteCharacter(channelId, EOT);
+}
+
+
 /*
 ** Interrupt handling
 */
@@ -258,22 +286,14 @@ void HandleIrq(USART_TypeDef* usart, Channel* channel)
     if ((channel != NULL) && ((usart->SR & USART_FLAG_RXNE) != (uint16_t) RESET) && (channel->inputIndex < channel->bufferSize))
     {
         char ch = (char) USART_ReceiveData(usart);
-        if (ch == '{')
-        {
-            channel->bracketCount++;
-        }
-        if (channel->bracketCount > 0)
+        if (ch != EOT)
         {
             channel->inputBuffer[channel->inputIndex] = ch;
             channel->inputIndex++;
-            if (ch == '}')
-            {
-                channel->bracketCount--;
-                if (channel->bracketCount == 0)
-                {
-                    channel->inputAvailable = TRUE;
-                }
-            }
+        }
+        else
+        {
+            channel->inputAvailable = TRUE;
         }
     }
 }

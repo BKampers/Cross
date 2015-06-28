@@ -4,8 +4,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "Text.h"
 
+char JSON_NULL_LITERAL[] = "null";
+char JSON_FALSE_LITERAL[] = "false";
+char JSON_TRUE_LITERAL[] = "true";
 
 const char* WHITE_SPACES = " \f\n\r\t";
 const char* NUMBER_CHARACTERS = ".+-Ee";
@@ -25,6 +27,12 @@ void InitializeNode(JsonNode* node, const char* source)
 bool IsWhiteSpace(char character)
 {
     return strchr(WHITE_SPACES, character) != NULL;
+}
+
+
+bool IsUnicodeControl(char character)
+{
+    return (character <= (char) 0x1F) || (((char) 0x7F <= character) && (character <= (char) 0x9F));
 }
 
 
@@ -235,7 +243,7 @@ bool ScanPositiveDigit(JsonNode* node)
 
 bool ScanDigit(JsonNode* node)
 {
-    if (isdigit(*(node->source + node->length)))
+    if (isdigit((int)  *(node->source + node->length)))
     {
         node->length++;
         return TRUE;
@@ -366,7 +374,7 @@ void ScanNext(const char* source, JsonNode* node)
     {
         ScanString(node);
     }
-    else if ((character == '-') || isdigit(character))
+    else if ((character == '-') || isdigit((int) character))
     {
         ScanNumber(node);
     }
