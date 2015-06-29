@@ -132,9 +132,10 @@ Status SendMeasurementValue(const char* name, const Measurement* measurement)
 }
 
 
-Status PutTableFields(const MeasurementTable* measurementTable)
+Status SendTableFields(const MeasurementTable* measurementTable)
 {
     RETURN_WHEN_INVALID
+    Status status = OK;
     byte c, r;
     if (measurementTable->columnMeasurement != NULL)
     {
@@ -149,18 +150,19 @@ Status PutTableFields(const MeasurementTable* measurementTable)
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, DECIMALS, measurementTable->decimals))
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, TABLE))
     VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
-    for (r = 0; (r < measurementTable->table.rows); ++r)
+    for (r = 0; (r < measurementTable->table.rows) && (status == OK); ++r)
     {
         VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
-        for (c = 0; (c < measurementTable->table.columns); ++c)
+        for (c = 0; (c < measurementTable->table.columns) && (status == OK); ++c)
         {
             float field;
-            VALIDATE(GetMeasurementTableField(measurementTable, c, r, &field))
+            status = GetMeasurementTableField(measurementTable, c, r, &field);
             VALIDATE(WriteJsonRealElement(DEFAULT_CHANNEL, field))
         }
         VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     }
-    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    return status;
 }
 
 
@@ -174,6 +176,7 @@ bool HasString(JsonNode* array, const char* value)
 Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementTable* measurementTable, const char* name)
 {
     RETURN_WHEN_INVALID
+    Status status = OK;
     JsonNode properties;
     bool sendTable, sendIndex, sendEnabled, sendDefault;
     if (GetArray(object, PROPERTIES, &properties) == JSON_OK)
@@ -192,22 +195,26 @@ Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementT
     }
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, TABLE))
     if (sendTable || sendDefault)
     {
-        VALIDATE(PutTableFields(measurementTable))
+        status = SendTableFields(measurementTable);
     }
-    if (sendIndex || sendDefault)
+    if ((sendIndex || sendDefault) && (status == OK))
     {
-        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, measurementTable->columnIndex))
-        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, measurementTable->rowIndex))
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, measurementTable->columnIndex);
+        if (status == OK)
+        {
+            status = WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, measurementTable->rowIndex);
+        }
     }
-    if (sendEnabled || sendDefault)
+    if ((sendEnabled || sendDefault) && (status == OK))
     {
         bool enabled;
         GetMeasurementTableEnabled(name, &enabled);
-        VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled))
+        status = WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled);
     }
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
     VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
     return FinishTransmission(DEFAULT_CHANNEL);
 }
@@ -407,7 +414,7 @@ void ModifyTable(JsonNode* object, const char* name)
     {
         enableStatus = SetMeasurementTableEnabled(name, enabled);
     }
-    SendStatus(MODIFY, name, (fieldStatus != JSON_OK) ? fieldStatus : enableStatus);
+    SendStatus(MODIFY, name, (fieldStatus != OK) ? fieldStatus : enableStatus);
 }
 
 

@@ -10,11 +10,12 @@
 ** private
 */
 
-bool elementWritten = FALSE;
+bool valueWritten = FALSE;
 
 
 Status WriteJsonBoolean(int channelId, bool value)
 {
+    valueWritten = TRUE;
     return WriteChannel(channelId, value ? JSON_TRUE_LITERAL : JSON_FALSE_LITERAL);
 }
 
@@ -23,6 +24,7 @@ Status WriteJsonInteger(int channelId, int value)
 {
     char valueString[16];
     sprintf(valueString, "%d", value);
+    valueWritten = TRUE;
     return WriteChannel(channelId, valueString);
 }
 
@@ -31,6 +33,7 @@ Status WriteJsonReal(int channelId, double value)
 {
     char valueString[32];
     sprintf(valueString, "%.15g", value);
+    valueWritten = TRUE;
     return WriteChannel(channelId, valueString);
 }
 
@@ -38,6 +41,7 @@ Status WriteJsonReal(int channelId, double value)
 Status WriteJsonString(int channelId, const char* string)
 {
     RETURN_WHEN_INVALID
+    valueWritten = TRUE;
     VALIDATE(WriteCharacter(channelId, STRING_START))
     VALIDATE(WriteChannel(channelId, string))
     return WriteCharacter(channelId, STRING_END);
@@ -50,14 +54,14 @@ Status WriteJsonString(int channelId, const char* string)
 
 Status WriteJsonObjectStart(int channelId)
 {
-    elementWritten = FALSE;
+    valueWritten = FALSE;
     return WriteCharacter(channelId, OBJECT_START);
 }
 
 
 Status WriteJsonObjectEnd(int channelId)
 {
-    elementWritten = TRUE;
+    valueWritten = TRUE;
     return WriteCharacter(channelId, OBJECT_END);
 }
 
@@ -66,7 +70,9 @@ Status WriteJsonMemberName(int channelId, const char* name)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
-    return WriteJsonString(channelId, name);
+    VALIDATE(WriteJsonString(channelId, name))
+    valueWritten = FALSE;
+    return WriteCharacter(channelId, NAME_VALUE_SEPARATOR);
 }
 
 
@@ -104,14 +110,16 @@ Status WriteJsonStringMember(int channelId, const char* name, const char* value)
 
 Status WriteJsonArrayStart(int channelId)
 {
-    elementWritten = FALSE;
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonSeparator(channelId))
+    valueWritten = FALSE;
     return WriteCharacter(channelId, ARRAY_START);
 }
 
 
 Status WriteJsonArrayEnd(int channelId)
 {
-    elementWritten = TRUE;
+    valueWritten = TRUE;
     return WriteCharacter(channelId, ARRAY_END);
 }
 
@@ -150,7 +158,7 @@ Status WriteJsonStringElement(int channelId, const char* value)
 
 Status WriteJsonSeparator(int channelId)
 {
-    if (elementWritten)
+    if (valueWritten)
     {
         return WriteCharacter(channelId, ELEMENT_SEPARATOR);
     }
