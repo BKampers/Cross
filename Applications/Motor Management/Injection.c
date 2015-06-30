@@ -61,7 +61,7 @@ Status UpdateInjectionTimeUart()
 {
     char message[64];
     sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    return WriteChannel(INJECTION_CHANNEL, message);
+    return WriteString(INJECTION_CHANNEL, message);
 
 }
 

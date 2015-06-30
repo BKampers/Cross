@@ -162,7 +162,7 @@ void InitChannel(int channelId)
     USART_Cmd(usart, ENABLE);
     /* Enable the usart Receive interrupt: this interrupt is generated when the USARTx receive data register is not empty */
     USART_ITConfig(usart, USART_IT_RXNE, ENABLE);
-    WriteChannel(channelId, "\r\n"); /* First character might get lost */
+    WriteString(channelId, "\r\n"); /* First character might get lost */
 }
 
 
@@ -249,7 +249,7 @@ Status WriteCharacter(int channelId, char character)
 }
 
 
-Status WriteChannel(int channelId, char* string)
+Status WriteString(int channelId, const char* string)
 {
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
@@ -262,12 +262,6 @@ Status WriteChannel(int channelId, char* string)
         }
     }
     return status;
-}
-
-
-Status WriteString(char* string)
-{
-    return WriteChannel(DEFAULT_CHANNEL, string);
 }
 
 

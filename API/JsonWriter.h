@@ -4,6 +4,8 @@
 #include "Types.h"
 #include "ApiStatus.h"
 
+Status WriteJsonRootStart(int channelId);
+
 Status WriteJsonObjectStart(int channelId);
 Status WriteJsonObjectEnd(int channelId);
 Status WriteJsonMemberName(int channelId, const char* name);
@@ -18,7 +20,5 @@ Status WriteJsonBooleanElement(int channelId, bool value);
 Status WriteJsonIntegerElement(int channelId, int value);
 Status WriteJsonRealElement(int channelId, double value);
 Status WriteJsonStringElement(int channelId, const char* value);
-
-Status WriteJsonSeparator(int channelId);
 
 #endif /* _JSONWRITER_H_ */

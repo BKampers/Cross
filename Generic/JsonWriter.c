@@ -16,7 +16,7 @@ bool valueWritten = FALSE;
 Status WriteJsonBoolean(int channelId, bool value)
 {
     valueWritten = TRUE;
-    return WriteChannel(channelId, value ? JSON_TRUE_LITERAL : JSON_FALSE_LITERAL);
+    return WriteString(channelId, value ? JSON_TRUE_LITERAL : JSON_FALSE_LITERAL);
 }
 
 
@@ -25,7 +25,7 @@ Status WriteJsonInteger(int channelId, int value)
     char valueString[16];
     sprintf(valueString, "%d", value);
     valueWritten = TRUE;
-    return WriteChannel(channelId, valueString);
+    return WriteString(channelId, valueString);
 }
 
 
@@ -34,7 +34,7 @@ Status WriteJsonReal(int channelId, double value)
     char valueString[32];
     sprintf(valueString, "%.15g", value);
     valueWritten = TRUE;
-    return WriteChannel(channelId, valueString);
+    return WriteString(channelId, valueString);
 }
 
 
@@ -43,8 +43,21 @@ Status WriteJsonString(int channelId, const char* string)
     RETURN_WHEN_INVALID
     valueWritten = TRUE;
     VALIDATE(WriteCharacter(channelId, STRING_START))
-    VALIDATE(WriteChannel(channelId, string))
+    VALIDATE(WriteString(channelId, string))
     return WriteCharacter(channelId, STRING_END);
+}
+
+
+Status WriteJsonSeparator(int channelId)
+{
+    if (valueWritten)
+    {
+        return WriteCharacter(channelId, ELEMENT_SEPARATOR);
+    }
+    else
+    {
+        return OK;
+    }
 }
 
 
@@ -52,8 +65,17 @@ Status WriteJsonString(int channelId, const char* string)
 ** Interface
 */
 
+Status WriteJsonRootStart(int channelId)
+{
+    valueWritten = FALSE;
+    return WriteCharacter(channelId, OBJECT_START);
+}
+
+
 Status WriteJsonObjectStart(int channelId)
 {
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonSeparator(channelId))
     valueWritten = FALSE;
     return WriteCharacter(channelId, OBJECT_START);
 }
@@ -153,17 +175,4 @@ Status WriteJsonStringElement(int channelId, const char* value)
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
     return WriteJsonString(channelId, value);
-}
-
-
-Status WriteJsonSeparator(int channelId)
-{
-    if (valueWritten)
-    {
-        return WriteCharacter(channelId, ELEMENT_SEPARATOR);
-    }
-    else
-    {
-        return OK;
-    }
 }

@@ -81,7 +81,7 @@ char* INVALID_SUBJECT = "Invalid subject";
 Status SendErrorResponse(const char* message, const char* error)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, error))
     VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
@@ -92,7 +92,7 @@ Status SendErrorResponse(const char* message, const char* error)
 Status SendUnknownSubjectResponse(const char* message, const char* subject)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, "Unknown subject"))
@@ -104,7 +104,7 @@ Status SendUnknownSubjectResponse(const char* message, const char* subject)
 Status SendStatus(const char* message, const char* subject, const Status status)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
@@ -118,7 +118,7 @@ Status SendMeasurementValue(const char* name, const Measurement* measurement)
     RETURN_WHEN_INVALID
     float value;
     Status status = GetMeasurementValue(measurement, &value);
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, name))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value))
@@ -193,7 +193,7 @@ Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementT
         sendEnabled = TRUE;
         sendDefault = TRUE;
     }
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, TABLE))
     if (sendTable || sendDefault)
@@ -255,7 +255,7 @@ Status RespondRequest(const JsonNode* object, const char* subjectString)
 Status SendMeasurementNames()
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, MEASUREMENTS))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, NAMES))
@@ -277,7 +277,7 @@ Status SendMeasurementTableNames()
     RETURN_WHEN_INVALID
     int i;
     int count = GetMeasurementTableCount();
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, MEASUREMENT_TABLES))
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, NAMES))
@@ -296,7 +296,7 @@ Status SendEngineProperties()
 {
     RETURN_WHEN_INVALID
     int i;
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, ENGINE))
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()))
@@ -325,7 +325,7 @@ Status SendFlashMemory(const JsonNode* object)
     int reference;
     int count;
     int i;
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     if (GetInt(object, REFERENCE, &reference) != JSON_OK)
     {
         reference = 0;
@@ -357,7 +357,7 @@ Status SendFlashElements()
     RETURN_WHEN_INVALID
     Status status = OK;
     int typeId;
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_ELEMENTS))
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, ELEMENTS))
@@ -655,7 +655,7 @@ void HandleMessage(const char* jsonString)
 Status SendTextNotification(const char* name, const char* value)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, name, value))
     VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
@@ -666,7 +666,7 @@ Status SendTextNotification(const char* name, const char* value)
 Status SendIntegerNotification(const char* name, int value)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, name, value))
     VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
@@ -677,7 +677,7 @@ Status SendIntegerNotification(const char* name, int value)
 Status SendRealNotification(const char* name, double value)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, name, value))
     VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))

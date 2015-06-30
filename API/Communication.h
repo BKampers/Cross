@@ -20,8 +20,7 @@ Status ReadChannel(int channelId, char* string);
 Status ReadString(char* string);
 
 Status WriteCharacter(int channelId, char character);
-Status WriteChannel(int channelId, char*);
-Status WriteString(char* string);
+Status WriteString(int channelId, const char* string);
 
 Status FinishTransmission(int channelId);
 
