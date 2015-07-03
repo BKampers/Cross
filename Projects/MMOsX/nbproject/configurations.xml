@@ -42,10 +42,9 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
-        <itemPath>../../Generic/JsonComposer.c</itemPath>
         <itemPath>../../Generic/JsonParser.c</itemPath>
+        <itemPath>../../Generic/JsonWriter.c</itemPath>
         <itemPath>../../Generic/PersistentElementManager.c</itemPath>
-        <itemPath>../../Generic/Text.c</itemPath>
       </logicalFolder>
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
         <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
@@ -137,8 +136,6 @@
       </item>
       <item path="../../API/Json.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/JsonComposer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
@@ -149,8 +146,6 @@
             flavor2="0">
       </item>
       <item path="../../API/Pins.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../API/Text.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -256,16 +251,14 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="../../Generic/JsonComposer.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonWriter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/PersistentElementManager.c"
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Generic/Text.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/AnalogInput.c"
             ex="false"
@@ -326,8 +319,6 @@
       </item>
       <item path="../../API/Json.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../../API/JsonComposer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
@@ -338,8 +329,6 @@
             flavor2="0">
       </item>
       <item path="../../API/Pins.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../API/Text.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/Timers.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -445,16 +434,14 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="../../Generic/JsonComposer.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonWriter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/PersistentElementManager.c"
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Generic/Text.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/AnalogInput.c"
             ex="false"

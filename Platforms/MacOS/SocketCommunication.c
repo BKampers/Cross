@@ -294,7 +294,14 @@ Status ReadString(char* string)
 }
 
 
-Status WriteChannel(int channelId, char* string)
+Status WriteCharacter(int channelId, char character)
+{
+    char string[2] = {character, '\0'};
+    return WriteString(channelId, string);
+}
+
+
+Status WriteString(int channelId, const char* string)
 {
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
@@ -324,8 +331,7 @@ Status WriteChannel(int channelId, char* string)
 }
 
 
-Status WriteString(char* string)
+Status FinishTransmission(int channelId)
 {
-    printf("\r\n>> %s", string);
-    return WriteChannel(DEFAULT_CHANNEL, string);
+    return WriteCharacter(channelId, EOT);
 }
