@@ -10,12 +10,10 @@
         <itemPath>../../API/Communication.h</itemPath>
         <itemPath>../../API/ExternalInterrupt.h</itemPath>
         <itemPath>../../API/Json.h</itemPath>
-        <itemPath>../../API/JsonComposer.h</itemPath>
         <itemPath>../../API/JsonParser.h</itemPath>
         <itemPath>../../API/Lcd.h</itemPath>
         <itemPath>../../API/PersistentElementManager.h</itemPath>
         <itemPath>../../API/Pins.h</itemPath>
-        <itemPath>../../API/Text.h</itemPath>
         <itemPath>../../API/Timers.h</itemPath>
         <itemPath>../../API/Types.h</itemPath>
       </logicalFolder>

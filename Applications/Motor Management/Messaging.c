@@ -195,7 +195,7 @@ Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementT
     }
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, TABLE))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, measurementTable->name))
     if (sendTable || sendDefault)
     {
         status = SendTableFields(measurementTable);
@@ -341,9 +341,9 @@ Status SendFlashMemory(const JsonNode* object)
     VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
     for (i = 0; (i < count) && (status == OK); ++i)
     {
-        char buffer;
+        byte buffer;
         status = ReadPersistentMemory(reference + i, 1, &buffer);
-        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, buffer))
+        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, ((int) buffer) & 0xFF))
     }
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
@@ -472,11 +472,27 @@ void ModifyCylinderCount(const JsonNode* object)
 
 void ModifyFlash(JsonNode* object)
 {
-    int reference, value, count;
+    int reference;
     Status status = INVALID_MESSAGE;
     if (GetInt(object, REFERENCE, &reference) == JSON_OK)
     {
-        if (GetInt(object, COUNT, &count) != JSON_OK)
+        JsonNode values;
+        int count, value;
+        if ((GetArray(object, VALUE, &values) == JSON_OK) && (GetCount(&values, &count) == JSON_OK))
+        {
+            byte* buffer = malloc(count * sizeof(byte));
+            int index;
+            for (index = 0; index < count; ++index)
+            {
+                if (GetIntAt(&values, index, &value) == JSON_OK)
+                {
+                    buffer[index] = (byte) value;
+                }
+            }
+            status = WritePersistentMemory(reference, count, buffer);
+            free(buffer);
+        }
+        else if (GetInt(object, COUNT, &count) != JSON_OK)
         {
             count = 1;
         }

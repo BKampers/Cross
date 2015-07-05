@@ -721,6 +721,43 @@ JsonStatus GetArray(const JsonNode* object, const char* name, JsonNode* value)
 }
 
 
+JsonStatus GetCount(const JsonNode* array, int* count)
+{
+    if ((array != NULL) && (array->type == JSON_ARRAY))
+    {
+        *count = 0;
+        char* elementSource = array->source + 1;
+        bool ready = FALSE;
+        while (! ready)
+        {
+            JsonNode next;
+            ScanNext(elementSource, &next);
+            if (next.type == JSON_ARRAY_END)
+            {
+                return JSON_OK;
+            }
+            else if (next.type == JSON_ELEMENT_SEPARATOR)
+            {
+            }
+            else if (IsValue(&next))
+            {
+                (*count)++;
+            }
+            else
+            {
+                return JSON_PARSE_ERROR;
+            }
+            elementSource = next.source + next.length;
+        }
+        return JSON_INVALID_PARAMETER;
+    }
+    else
+    {
+        return JSON_ARRAY_EXPECTED;
+    }    
+}
+
+
 JsonStatus GetDoubleAt(const JsonNode* array, int index, double* element)
 {
     JsonNode node;

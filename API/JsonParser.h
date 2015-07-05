@@ -1,5 +1,5 @@
-#ifndef __JSONPARSER_H__
-#define	__JSONPARSER_H__
+#ifndef _JSONPARSER_H_
+#define	_JSONPARSER_H_
 
 #include <stdlib.h>
 
@@ -16,6 +16,8 @@ JsonStatus GetBoolean(const JsonNode* object, const char* name, bool* value);
 JsonStatus GetObject(const JsonNode* object, const char* name, JsonNode* value);
 JsonStatus GetArray(const JsonNode* object, const char* name, JsonNode* value);
 
+
+JsonStatus GetCount(const JsonNode* array, int* count);
 JsonStatus GetDoubletAt(const JsonNode* array, int index, double* element);
 JsonStatus GetFloatAt(const JsonNode* array, int index, float* element);
 JsonStatus GetIntAt(const JsonNode* array, int index, int* element);
@@ -23,5 +25,5 @@ JsonStatus GetObjectAt(const JsonNode* array, int index, JsonNode* element);
 JsonStatus GetArrayAt(const JsonNode* array, int index, JsonNode* element);
 JsonStatus IndexOfString(const JsonNode* array, const char* value, int* index);
 
-#endif	/* __JSONPARSER_H__ */
+#endif	/* _JSONPARSER_H_ */
 
