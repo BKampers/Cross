@@ -45,6 +45,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/445223610/Messaging.o \
 	${OBJECTDIR}/_ext/445223610/Table.o \
 	${OBJECTDIR}/_ext/445223610/main.o \
+	${OBJECTDIR}/_ext/1917134825/Communication.o \
+	${OBJECTDIR}/_ext/1917134825/Json.o \
 	${OBJECTDIR}/_ext/1917134825/JsonParser.o \
 	${OBJECTDIR}/_ext/1917134825/JsonWriter.o \
 	${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o \
@@ -131,6 +133,16 @@ ${OBJECTDIR}/_ext/445223610/main.o: ../../Applications/Motor\ Management/main.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/main.o ../../Applications/Motor\ Management/main.c
+
+${OBJECTDIR}/_ext/1917134825/Communication.o: ../../Generic/Communication.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/Communication.o ../../Generic/Communication.c
+
+${OBJECTDIR}/_ext/1917134825/Json.o: ../../Generic/Json.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/Json.o ../../Generic/Json.c
 
 ${OBJECTDIR}/_ext/1917134825/JsonParser.o: ../../Generic/JsonParser.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825

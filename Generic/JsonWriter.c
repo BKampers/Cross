@@ -38,7 +38,60 @@ Status WriteJsonReal(int channelId, double value)
 }
 
 
-Status WriteJsonString(int channelId, const char* string)
+Status WriteUnicode(int channelId, char character)
+{
+    char unicode[7];
+    sprintf(unicode, "\\u%04x", character);
+    return WriteString(channelId, unicode);
+}
+
+
+Status WriteControlCharacter(int channelId, char character)
+{
+    switch (character)
+    {
+        case '\b':
+            return WriteString(channelId, "\\b");
+        case '\f':
+            return WriteString(channelId, "\\f");
+        case '\r':
+            return WriteString(channelId, "\\r");
+        case '\n':
+            return WriteString(channelId, "\\n");
+        case '\t':
+            return WriteString(channelId, "\\t");
+        default:
+            return WriteUnicode(channelId, character);
+    }
+}
+
+
+Status WriteStringContent(int channelId, const char* string)
+{
+    RETURN_WHEN_INVALID
+    size_t length = strlen(string);
+    size_t i = 0;
+    while (i < length)
+    {
+        char character = string[i];
+        if (IsUnicodeControl(character))
+        {
+            VALIDATE(WriteControlCharacter(channelId, character))
+        }
+        else if (character == '\"')
+        {
+            VALIDATE(WriteString(channelId, "\\\""))
+        }
+        else
+        {
+            VALIDATE(WriteCharacter(channelId, character))
+        }
+        i++;
+    }
+    return OK;
+}
+
+Status WriteQuotedString(int channelId, const char* string)
 {
     RETURN_WHEN_INVALID
     valueWritten = TRUE;
@@ -92,7 +145,7 @@ Status WriteJsonMemberName(int channelId, const char* name)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
-    VALIDATE(WriteJsonString(channelId, name))
+    VALIDATE(WriteQuotedString(channelId, name))
     valueWritten = FALSE;
     return WriteCharacter(channelId, NAME_VALUE_SEPARATOR);
 }
@@ -126,7 +179,7 @@ Status WriteJsonStringMember(int channelId, const char* name, const char* value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonMemberName(channelId, name))
-    return WriteJsonString(channelId, value);
+    return WriteQuotedString(channelId, value);
 }
 
 
@@ -174,5 +227,5 @@ Status WriteJsonStringElement(int channelId, const char* value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
-    return WriteJsonString(channelId, value);
+    return WriteQuotedString(channelId, value);
 }

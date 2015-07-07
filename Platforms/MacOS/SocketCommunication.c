@@ -25,8 +25,6 @@
 #define MAXPENDING 5 /* Maximum outstanding connection requests */
 #define RCVBUFSIZE 256
 
-#define EOT '~'
-
 
 char* CONNECTED = "Connected";
 
@@ -55,7 +53,7 @@ void HandleReceivedCharacter(char ch, Channel* channel)
 {
     if ((channel != NULL) && ! channel->inputAvailable)
     {
-        if (ch == EOT)
+        if (ch == TRANSMISSION_END)
         {
             channel->inputAvailable = TRUE;
         }
@@ -328,10 +326,4 @@ Status WriteString(int channelId, const char* string)
         }
     }
     return status;
-}
-
-
-Status FinishTransmission(int channelId)
-{
-    return WriteCharacter(channelId, EOT);
 }

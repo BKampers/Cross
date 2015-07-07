@@ -11,6 +11,7 @@
 
 
 #define DEFAULT_CHANNEL 0
+#define TRANSMISSION_END '\n'
 
 
 Status OpenCommunicationChannel(int channelId, uint8_t bufferSize);

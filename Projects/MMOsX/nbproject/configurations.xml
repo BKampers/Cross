@@ -11,6 +11,7 @@
         <itemPath>../../API/ExternalInterrupt.h</itemPath>
         <itemPath>../../API/Json.h</itemPath>
         <itemPath>../../API/JsonParser.h</itemPath>
+        <itemPath>../../API/JsonWriter.h</itemPath>
         <itemPath>../../API/Lcd.h</itemPath>
         <itemPath>../../API/PersistentElementManager.h</itemPath>
         <itemPath>../../API/Pins.h</itemPath>
@@ -40,6 +41,8 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
+        <itemPath>../../Generic/Communication.c</itemPath>
+        <itemPath>../../Generic/Json.c</itemPath>
         <itemPath>../../Generic/JsonParser.c</itemPath>
         <itemPath>../../Generic/JsonWriter.c</itemPath>
         <itemPath>../../Generic/PersistentElementManager.c</itemPath>
@@ -136,6 +139,8 @@
       </item>
       <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../../API/JsonWriter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
@@ -248,6 +253,10 @@
             ex="false"
             tool="0"
             flavor2="0">
+      </item>
+      <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -319,6 +328,8 @@
       </item>
       <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../../API/JsonWriter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
@@ -431,6 +442,10 @@
             ex="false"
             tool="0"
             flavor2="0">
+      </item>
+      <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
       </item>

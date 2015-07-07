@@ -5,12 +5,7 @@
 #include <ctype.h>
 
 
-char JSON_NULL_LITERAL[] = "null";
-char JSON_FALSE_LITERAL[] = "false";
-char JSON_TRUE_LITERAL[] = "true";
-
 const char* WHITE_SPACES = " \f\n\r\t";
-const char* NUMBER_CHARACTERS = ".+-Ee";
 
 
 void ScanNext(const char* source, JsonNode* node);
@@ -27,12 +22,6 @@ void InitializeNode(JsonNode* node, const char* source)
 bool IsWhiteSpace(char character)
 {
     return strchr(WHITE_SPACES, character) != NULL;
-}
-
-
-bool IsUnicodeControl(char character)
-{
-    return (character <= (char) 0x1F) || (((char) 0x7F <= character) && (character <= (char) 0x9F));
 }
 
 
@@ -725,25 +714,22 @@ JsonStatus GetCount(const JsonNode* array, int* count)
 {
     if ((array != NULL) && (array->type == JSON_ARRAY))
     {
-        *count = 0;
+        char* end = array->source + array->length;
         char* elementSource = array->source + 1;
-        bool ready = FALSE;
-        while (! ready)
+        *count = 0;
+        while (elementSource < end)
         {
             JsonNode next;
             ScanNext(elementSource, &next);
-            if (next.type == JSON_ARRAY_END)
-            {
-                return JSON_OK;
-            }
-            else if (next.type == JSON_ELEMENT_SEPARATOR)
-            {
-            }
-            else if (IsValue(&next))
+            if (IsValue(&next))
             {
                 (*count)++;
             }
-            else
+            else if (next.type == JSON_ARRAY_END)
+            {
+                return JSON_OK;
+            }
+            else if (next.type != JSON_ELEMENT_SEPARATOR)
             {
                 return JSON_PARSE_ERROR;
             }

@@ -67,5 +67,8 @@ typedef struct
 } JsonNode;
 
 
+bool IsUnicodeControl(char character);
+
+
 #endif	/* _JSON_H_ */
 
