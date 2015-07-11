@@ -24,8 +24,6 @@
 
 #define CHANNEL_COUNT 2
 
-#define EOT '~'
-
 typedef struct
 {
     char* inputBuffer;
@@ -265,12 +263,6 @@ Status WriteString(int channelId, const char* string)
 }
 
 
-Status FinishTransmission(int channelId)
-{
-    return WriteCharacter(channelId, EOT);
-}
-
-
 /*
 ** Interrupt handling
 */
@@ -280,7 +272,7 @@ void HandleIrq(USART_TypeDef* usart, Channel* channel)
     if ((channel != NULL) && ((usart->SR & USART_FLAG_RXNE) != (uint16_t) RESET) && (channel->inputIndex < channel->bufferSize))
     {
         char ch = (char) USART_ReceiveData(usart);
-        if (ch != EOT)
+        if (ch != TRANSMISSION_END)
         {
             channel->inputBuffer[channel->inputIndex] = ch;
             channel->inputIndex++;

@@ -1,6 +1,7 @@
 #include "JsonWriter.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "Json.h"
 #include "Communication.h"
@@ -81,6 +82,10 @@ Status WriteStringContent(int channelId, const char* string)
         else if (character == '\"')
         {
             VALIDATE(WriteString(channelId, "\\\""))
+        }
+        else if (character == '\\')
+        {
+            VALIDATE(WriteString(channelId, "\\\\"))
         }
         else
         {
