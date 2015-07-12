@@ -32,7 +32,7 @@ Status ReadType(Reference* reference, TypeId* id, ElementSize* size)
         }
         else if (*id != EMPTY)
         {
-            status = ReadPersistentMemory(*reference, sizeof(ElementSize), (byte*) size);
+            status = ReadPersistentMemory(*reference, sizeof(ElementSize), (void*) size);
             *reference += sizeof(ElementSize);
         }
     }

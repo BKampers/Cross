@@ -1,6 +1,5 @@
 /*
 ** Implementation of the Communication interface driver recognizing JSON objects
-** Copyright 2014, Bart Kampers
 */
 
 
@@ -34,7 +33,6 @@ typedef struct
     char* inputBuffer;
     uint8_t bufferSize;
     uint8_t inputIndex;
-    uint8_t bracketCount;
     bool inputAvailable;
     uint16_t port;
 }  Channel;
@@ -53,24 +51,16 @@ bool socketTaskRunning = FALSE;
 
 void HandleReceivedCharacter(char ch, Channel* channel)
 {
-    if (channel != NULL)
+    if ((channel != NULL) && ! channel->inputAvailable)
     {
-        if (ch == '{')
+        if (ch == TRANSMISSION_END)
         {
-            channel->bracketCount++;
+            channel->inputAvailable = TRUE;
         }
-        if (channel->bracketCount > 0)
+        else if ((ch != '\r') && (ch != '\n'))
         {
             channel->inputBuffer[channel->inputIndex] = ch;
             channel->inputIndex++;
-            if (ch == '}')
-            {
-                channel->bracketCount--;
-                if (channel->bracketCount == 0)
-                {
-                    channel->inputAvailable = TRUE;
-                }
-            }
         }
     }
 }
@@ -82,7 +72,7 @@ void* SocketTask(void* threadArgs)
     struct sockaddr_in serverAddress; /* Local address */
     struct sockaddr_in clientAddress; /* Client address */
     socklen_t clientAddressLength = sizeof(clientAddress); /* Length of client address data structure */
-    printf("=== ThreadMain: port %d ===\n", ((Channel*) threadArgs)->port);
+    printf("=== SocketTask: port %d ===\n", ((Channel*) threadArgs)->port);
 
     /* Create socket for incoming connections */
     serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -251,7 +241,6 @@ Status OpenCommunicationChannel(int channelId, uint8_t bufferSize)
         channels[channelId]->inputBuffer = malloc(bufferSize);
         channels[channelId]->bufferSize = bufferSize;
         channels[channelId]->inputIndex = 0;
-        channels[channelId]->bracketCount = 0;
         channels[channelId]->inputAvailable = FALSE;
         channels[channelId]->port = DEFAULT_PORT + channelId;
         InitChannel(channelId);
@@ -284,8 +273,9 @@ Status ReadChannel(int channelId, char* string)
         {
             strncpy(string, channel->inputBuffer, channel->inputIndex);
             string[channel->inputIndex] = '\0';
-            channel->inputAvailable = FALSE;
+            printf("\r\n<< %s", string);
             channel->inputIndex = 0;
+            channel->inputAvailable = FALSE;
         }
         else
         {
@@ -302,7 +292,14 @@ Status ReadString(char* string)
 }
 
 
-Status WriteChannel(int channelId, char* string)
+Status WriteCharacter(int channelId, char character)
+{
+    char string[2] = {character, '\0'};
+    return WriteString(channelId, string);
+}
+
+
+Status WriteString(int channelId, const char* string)
 {
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
@@ -311,8 +308,8 @@ Status WriteChannel(int channelId, char* string)
         {
             if (clientSocketId >= 0)
             {
-                int length = strlen(string);
-                int sent = send(clientSocketId, string, length, 0);
+                size_t length = strlen(string);
+                size_t sent = send(clientSocketId, string, length, 0);
                 if (sent != length)
                 {
                     status = "SendFailure";
@@ -329,10 +326,4 @@ Status WriteChannel(int channelId, char* string)
         }
     }
     return status;
-}
-
-
-Status WriteString(char* string)
-{
-    return WriteChannel(DEFAULT_CHANNEL, string);
 }

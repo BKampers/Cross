@@ -1,7 +1,13 @@
-#ifndef __APISTATUS_H__
-#define __APISTATUS_H__
+#ifndef _APISTATUS_H_
+#define _APISTATUS_H_
+
+
+#define RETURN_WHEN_INVALID Status _status;
+#define VALIDATE(EXPRESSION) _status = (EXPRESSION); if (_status != OK) { return _status; }
+
 
 typedef char* Status;
+
 
 extern char UNINITIALIZED[];
 extern char OK[];
@@ -18,4 +24,4 @@ int max(int a, int b);
 int minf(float a, float b);
 int maxf(float a, float b);
 
-#endif /* __APISTATUS_H__ */
+#endif /* _APISTATUS_H_ */

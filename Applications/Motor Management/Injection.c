@@ -6,13 +6,13 @@
 #include "Injection.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "MeasurementTable.h"
 
 #include "HardwareSettings.h"
 #include "Communication.h"
+#include "JsonWriter.h"
 #include "Crank.h"
 #include "InjectionTimer.h"
 #include "AnalogInput.h"
@@ -59,10 +59,11 @@ byte injectionMode = TIMER_INJECTION;
 
 Status UpdateInjectionTimeUart()
 {
-    char message[64];
-    sprintf(message, "{ \"InjectionTime\" : %f }\r\n", injectionTime);
-    return WriteChannel(INJECTION_CHANNEL, message);
-
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonRootStart(INJECTION_CHANNEL))
+    VALIDATE(WriteJsonRealMember(INJECTION_CHANNEL, "InjectionTime", injectionTime))
+    VALIDATE(WriteJsonObjectEnd(INJECTION_CHANNEL))
+    return FinishTransmission(INJECTION_CHANNEL);
 }
 
 

@@ -9,17 +9,14 @@
         <itemPath>../../API/ApiStatus.h</itemPath>
         <itemPath>../../API/Communication.h</itemPath>
         <itemPath>../../API/ExternalInterrupt.h</itemPath>
+        <itemPath>../../API/Json.h</itemPath>
+        <itemPath>../../API/JsonParser.h</itemPath>
+        <itemPath>../../API/JsonWriter.h</itemPath>
         <itemPath>../../API/Lcd.h</itemPath>
         <itemPath>../../API/PersistentElementManager.h</itemPath>
         <itemPath>../../API/Pins.h</itemPath>
         <itemPath>../../API/Timers.h</itemPath>
         <itemPath>../../API/Types.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="include" displayName="include" projectFiles="true">
-        <itemPath>../../Json/include/JsonMessage.h</itemPath>
-        <itemPath>../../Json/include/contiki-conf.h</itemPath>
-        <itemPath>../../Json/include/json.h</itemPath>
-        <itemPath>../../Json/include/jsonparse.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Motor Management"
                      displayName="Motor Management"
@@ -44,6 +41,10 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
+        <itemPath>../../Generic/Communication.c</itemPath>
+        <itemPath>../../Generic/Json.c</itemPath>
+        <itemPath>../../Generic/JsonParser.c</itemPath>
+        <itemPath>../../Generic/JsonWriter.c</itemPath>
         <itemPath>../../Generic/PersistentElementManager.c</itemPath>
       </logicalFolder>
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
@@ -52,6 +53,7 @@
         <itemPath>../../Platforms/MacOS/ExternalInterrupt.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
         <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
+        <itemPath>../../Platforms/MacOS/PinStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/SocketCommunication.c</itemPath>
         <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
       </logicalFolder>
@@ -68,10 +70,6 @@
         <itemPath>../../Applications/Motor Management/Messaging.c</itemPath>
         <itemPath>../../Applications/Motor Management/Table.c</itemPath>
         <itemPath>../../Applications/Motor Management/main.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="source" displayName="source" projectFiles="true">
-        <itemPath>../../Json/source/JsonMessage.c</itemPath>
-        <itemPath>../../Json/source/jsonparse.c</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -137,6 +135,12 @@
       </item>
       <item path="../../API/ExternalInterrupt.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../../API/Json.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/JsonWriter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
@@ -250,22 +254,18 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonWriter.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Generic/PersistentElementManager.c"
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/json.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/jsonparse.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/source/JsonMessage.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../../Json/source/jsonparse.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/AnalogInput.c"
             ex="false"
@@ -324,6 +324,12 @@
       </item>
       <item path="../../API/ExternalInterrupt.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../../API/Json.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/JsonParser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/JsonWriter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../API/Lcd.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../API/PersistentElementManager.h"
@@ -437,22 +443,18 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonParser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Generic/JsonWriter.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Generic/PersistentElementManager.c"
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Json/include/JsonMessage.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/contiki-conf.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/json.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/include/jsonparse.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../../Json/source/JsonMessage.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../../Json/source/jsonparse.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/AnalogInput.c"
             ex="false"
