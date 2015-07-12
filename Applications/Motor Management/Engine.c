@@ -76,7 +76,7 @@ Status InitDeadPointCallbacks()
     Status status = OK;
     int count = GetDeadPointCount();
     int i;
-    RemoveCogCountCallback(&DeadPointCallback);
+    InitCrankCallbacks();
     for (i = 0; (i < count) && (status == OK); ++i)
     {
         int cogNumber = GetDeadPointCog(i);

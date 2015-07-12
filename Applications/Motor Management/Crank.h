@@ -8,6 +8,7 @@
 typedef void (*CogCountCallback) (int cogNumber);
 
 void InitCrank();
+void InitCrankCallbacks();
 
 bool SignalDetected();
 int GetPhase();
@@ -19,6 +20,5 @@ int GetGapTicks();
 float GetRpm();
 
 Status SetCogCountCallback(CogCountCallback callback, int cogNumber);
-void RemoveCogCountCallback(CogCountCallback callback);
 
 #endif /* _CRANK_H_ */

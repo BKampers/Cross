@@ -60,19 +60,6 @@ void PhaseShift()
 }
 
 
-void InitCrankCallbacks()
-{
-    int i;
-    int count = GetEffectiveCogCount();
-    cogCountCallbacks = malloc(sizeof(CogCountCallback) * count);
-    for (i = 0; i < count; ++i)
-    {
-        cogCountCallbacks[i] = NULL;
-    }
-    InitExternalInterrupt(&PhaseShift);
-}
-
-
 void PulseDetected(int capture)
 {
     if (captured)
@@ -125,7 +112,24 @@ void PulseDetected(int capture)
 void InitCrank()
 {
     InitCrankCallbacks();
+    InitExternalInterrupt(&PhaseShift);
     InitExternalPulseTimer(&PulseDetected);
+}
+
+
+void InitCrankCallbacks()
+{
+    int i;
+    int count = GetEffectiveCogCount();
+    if (cogCountCallbacks != NULL)
+    {
+        free(cogCountCallbacks);
+    }
+    cogCountCallbacks = malloc(sizeof(CogCountCallback) * count);
+    for (i = 0; i < count; ++i)
+    {
+        cogCountCallbacks[i] = NULL;
+    }
 }
 
 
@@ -184,19 +188,5 @@ Status SetCogCountCallback(CogCountCallback callback, int cogNumber)
     else
     {
         return INVALID_COG_NUMBER;
-    }
-}
-
-
-void RemoveCogCountCallback(CogCountCallback callback)
-{
-    int count = GetEffectiveCogCount();
-    int i;
-    for (i = 0; i < count; ++i)
-    {
-        if (cogCountCallbacks[i] == callback)
-        {
-            cogCountCallbacks[i] = NULL;
-        }
     }
 }
