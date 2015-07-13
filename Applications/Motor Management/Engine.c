@@ -12,7 +12,6 @@
 #include "Crank.h"
 #include "Ignition.h"
 #include "InjectionTimer.h"
-#include "Measurements.h"
 
 
 /*
@@ -45,16 +44,7 @@ TypeId engineTypeId = INVALID_TYPE_ID;
 
 bool EngineIsRunning()
 {
-    Measurement* rpmMeasurement;
-    if (FindMeasurement(RPM, &rpmMeasurement) == OK)
-    {
-        float rpm;
-        if (GetMeasurementValue(rpmMeasurement, &rpm) == OK)
-        {
-            return 50.0f < rpm;
-        }
-    }
-    return FALSE;
+    return 50.0f < GetRpm();
 }
 
 
