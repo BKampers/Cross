@@ -9,9 +9,10 @@
 #include <math.h>
 
 #include "PersistentElementManager.h"
-#include "crank.h"
+#include "Crank.h"
 #include "Ignition.h"
 #include "InjectionTimer.h"
+#include "Measurements.h"
 
 
 /*
@@ -33,11 +34,28 @@ typedef struct
 } Engine;
 
 
+char* ENGINE_IS_RUNNING = "EngineIsRunning";
+
 int deadPointCogs[DEAD_POINT_MAX] = { 0, 0, 0, 0 };
 
 
 Engine engine;
 TypeId engineTypeId = INVALID_TYPE_ID;
+
+
+bool EngineIsRunning()
+{
+    Measurement* rpmMeasurement;
+    if (FindMeasurement(RPM, &rpmMeasurement) == OK)
+    {
+        float rpm;
+        if (GetMeasurementValue(rpmMeasurement, &rpm) == OK)
+        {
+            return 50.0f < rpm;
+        }
+    }
+    return FALSE;
+}
 
 
 int ValidCog(int number)
@@ -208,29 +226,43 @@ int GetCylinderCount()
 
 Status SetGogwheelProperties(int cogTotal, int gapSize, int offset)
 {
-    if ((2 <= cogTotal) && (cogTotal <= 250) && (1 <= gapSize) && (gapSize < cogTotal) && (1 <= offset) && (offset < cogTotal - gapSize))
+    if (! EngineIsRunning())
     {
-        engine.cogwheel.cogTotal = (uint8_t) cogTotal;
-        engine.cogwheel.gapSize = (uint8_t) gapSize;
-        engine.cogwheel.offset = (uint8_t) offset;
-        return StoreEngine();
+        if ((3 <= cogTotal) && (cogTotal <= 255) && (1 <= gapSize) && (gapSize <= cogTotal - 2) && (1 <= offset) && (offset < cogTotal - gapSize))
+        {
+            engine.cogwheel.cogTotal = (uint8_t) cogTotal;
+            engine.cogwheel.gapSize = (uint8_t) gapSize;
+            engine.cogwheel.offset = (uint8_t) offset;
+            return StoreEngine();
+        }
+        else
+        {
+            return "InvalidCogwheelProperties";
+        }
     }
     else
     {
-        return "InvalidCogwheelProperties";
+        return ENGINE_IS_RUNNING;
     }
 }
 
 
 Status SetCylinderCount(int count)
 {
-    if ((count == 4) || (count == 6) || (count == 8))
+    if (! EngineIsRunning())
     {
-        engine.cylinderCount = (uint8_t) count;
-        return StoreEngine();
+        if ((count == 4) || (count == 6) || (count == 8))
+        {
+            engine.cylinderCount = (uint8_t) count;
+            return StoreEngine();
+        }
+        else
+        {
+            return "InvalidCylinderCount";
+        }
     }
     else
     {
-        return "InvalidCylinderCount";
+        return ENGINE_IS_RUNNING;
     }
 }
