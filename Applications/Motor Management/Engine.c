@@ -33,19 +33,13 @@ typedef struct
 } Engine;
 
 
-char* ENGINE_IS_RUNNING = "EngineIsRunning";
+char ENGINE_IS_RUNNING[] = "EngineIsRunning";
 
 int deadPointCogs[DEAD_POINT_MAX] = { 0, 0, 0, 0 };
 
 
 Engine engine;
 TypeId engineTypeId = INVALID_TYPE_ID;
-
-
-bool EngineIsRunning()
-{
-    return 50.0f < GetRpm();
-}
 
 
 int ValidCog(int number)

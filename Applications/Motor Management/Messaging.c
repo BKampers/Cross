@@ -292,6 +292,18 @@ Status SendMeasurementTableNames()
 }
 
 
+Status SendEngineIsRunning()
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, ENGINE_IS_RUNNING))
+    VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, VALUE, EngineIsRunning()))
+    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
+    return FinishTransmission(DEFAULT_CHANNEL);
+}
+
+
 Status SendEngineProperties()
 {
     RETURN_WHEN_INVALID
@@ -525,7 +537,10 @@ Status HandleRequest(const JsonNode* object)
     Status status = (AllocateString(object, SUBJECT, &subject) == JSON_OK) ? OK : INVALID_SUBJECT;
     if (status == OK)
     {
-        if (strcmp(subject, FLASH_MEM) == 0)
+        if (strcmp(subject, ENGINE_IS_RUNNING) == 0) {
+            SendEngineIsRunning();
+        }
+        else if (strcmp(subject, FLASH_MEM) == 0)
         {
             SendFlashMemory(object);
         }

@@ -12,8 +12,6 @@
 
 #include <stdlib.h>
 
-#include "Types.h"
-
 #include "HardwareSettings.h"
 #include "Engine.h"
 
@@ -133,12 +131,6 @@ void InitCrankCallbacks()
 }
 
 
-bool SignalDetected()
-{
-    return captured;
-}
-
-
 int GetPhase()
 {
     return phase;
@@ -175,6 +167,12 @@ float GetRpm()
     {
         return 0.0f;
     }
+}
+
+
+bool EngineIsRunning()
+{
+    return 50.0f < GetRpm();
 }
 
 
