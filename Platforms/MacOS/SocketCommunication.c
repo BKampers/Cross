@@ -11,149 +11,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <pthread.h> 
-#include <sys/socket.h>
-#include <arpa/inet.h> 
-#include <errno.h>
+#include "SocketHandler.h"
 
 
 /*
 ** private 
 */
 
-#define DEFAULT_PORT 44252
-#define MAXPENDING 5 /* Maximum outstanding connection requests */
-#define RCVBUFSIZE 256
-
-
-char* CONNECTED = "Connected";
-
-typedef struct
-{
-    char* inputBuffer;
-    uint8_t bufferSize;
-    uint8_t inputIndex;
-    bool inputAvailable;
-    uint16_t port;
-}  Channel;
-
-
 char statusMessage[32];
 
 Channel* channels[] = { NULL, NULL };
 #define CHANNEL_COUNT (sizeof(channels) / sizeof(Channel*))
 
-Status threadStatus = UNINITIALIZED;
-int clientSocketId = -1; /* any negative value means uninitialized */
 int bytesReceived = 0;
 bool socketTaskRunning = FALSE;
-
-
-void HandleReceivedCharacter(char ch, Channel* channel)
-{
-    if ((channel != NULL) && ! channel->inputAvailable)
-    {
-        if (ch == TRANSMISSION_END)
-        {
-            channel->inputAvailable = TRUE;
-        }
-        else if ((ch != '\r') && (ch != '\n'))
-        {
-            channel->inputBuffer[channel->inputIndex] = ch;
-            channel->inputIndex++;
-        }
-    }
-}
-
-
-void* SocketTask(void* threadArgs)
-{    
-    int serverSocketId; /* Socket descriptor for server */
-    struct sockaddr_in serverAddress; /* Local address */
-    struct sockaddr_in clientAddress; /* Client address */
-    socklen_t clientAddressLength = sizeof(clientAddress); /* Length of client address data structure */
-    printf("=== SocketTask: port %d ===\n", ((Channel*) threadArgs)->port);
-
-    /* Create socket for incoming connections */
-    serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
-    if (serverSocketId >= 0)
-    {      
-        /* Construct local address structure */
-        memset(&serverAddress, 0, sizeof(serverAddress)); /* Zero out structure */
-        serverAddress.sin_family = AF_INET; /* Internet address family */
-        serverAddress.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
-        serverAddress.sin_port = htons(((Channel*) threadArgs)->port);
-
-        /* Bind to the local address */
-        int result = bind(serverSocketId, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
-        if (result == 0)
-        {
-            threadStatus = "Binded";
-            printf("%s\r\n", threadStatus);
-            for (;;) /* Run forever */
-            {
-                /* Mark the socket so it will listen for incoming connections */
-                result = listen(serverSocketId, MAXPENDING);
-                if (result == 0)
-                {
-                    threadStatus = "Listening";
-                    /* Wait for a client to connect */
-                    clientSocketId = accept(serverSocketId, (struct sockaddr *) &clientAddress, &clientAddressLength);
-                    printf("%s: clientSocketId = %d\r\n", threadStatus, clientSocketId);
-                    if (clientSocketId >= 0)
-                    {
-                        threadStatus = CONNECTED;
-                        while (threadStatus == CONNECTED)
-                        {
-                            char ch;
-                            int received = recv(clientSocketId, &ch, sizeof(ch), 0);
-                            if (received > 0)
-                            {
-                                HandleReceivedCharacter(ch, (Channel*) threadArgs);
-                            }
-                            else
-                            {
-                                if (received == 0)
-                                {
-                                    threadStatus = "Disconnected";
-                                    printf("%s\r\n", threadStatus);
-                                }
-                                else
-                                {
-                                    threadStatus = "ReceiveFailed";
-                                    printf("%s: %d, %d\r\n", threadStatus, errno, received);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        threadStatus = "AcceptFailed";
-                        printf("%s: %d\r\n", threadStatus, errno);
-                    }
-                }
-                else
-                {
-                    threadStatus = "ListenFailed";
-                    printf("%s: %d\r\n", threadStatus, errno);
-                }
-            }
-        }
-        else
-        {
-            threadStatus = "BIND_ADDRESS_FAILED";
-            printf("%s: %d \r\n", threadStatus, errno);
-        }
-    }
-    else 
-    {
-        threadStatus = "CREATE_SOCKET_FAILED";
-        printf("%s: %d \r\n", threadStatus, errno);
-    }
-    
-    printf("=== Unexpected thread end: %s ===\n", threadStatus);
-    return NULL;
-}
 
 
 Status ValidateChannelId(int channelId)
@@ -208,16 +79,7 @@ void InitChannel(int channelId)
         if (! socketTaskRunning)
         {
             socketTaskRunning = TRUE;
-            pthread_t threadID;
-            int error = pthread_create(&threadID, NULL, SocketTask, (void*) channel);
-            if (error == 0)
-            {
-                printf("=== Socket thread created ===\n");
-            }
-            else
-            {
-                printf("=== Socket thread creation failed (error = %d) ===\n", error);
-            }
+            InitSocketChannel(channel);
         }
     }
 }
@@ -225,6 +87,10 @@ void InitChannel(int channelId)
 
 void DeinitChannel(int channelId)
 {
+    if (channels[channelId] != NULL)
+    {
+        DeinitSocketChannel(channels[channelId]);
+    }
 }
 
 
@@ -238,10 +104,7 @@ Status OpenCommunicationChannel(int channelId, uint8_t bufferSize)
     if (status == OK)
     {
         channels[channelId] = malloc(sizeof(Channel));
-        channels[channelId]->inputBuffer = malloc(bufferSize);
         channels[channelId]->bufferSize = bufferSize;
-        channels[channelId]->inputIndex = 0;
-        channels[channelId]->inputAvailable = FALSE;
         channels[channelId]->port = DEFAULT_PORT + channelId;
         InitChannel(channelId);
     }
@@ -255,7 +118,6 @@ Status CloseCommunicationChannel(int channelId)
     if (status == OK)
     {
         DeinitChannel(channelId);
-        free(channels[channelId]->inputBuffer);
         free(channels[channelId]);
         channels[channelId] = NULL;
     }
@@ -268,19 +130,7 @@ Status ReadChannel(int channelId, char* string)
     Status status = ValidateChannelOpen(channelId);
     if (status == OK)
     {
-        Channel* channel = channels[channelId];
-        if (channel->inputAvailable)
-        {
-            strncpy(string, channel->inputBuffer, channel->inputIndex);
-            string[channel->inputIndex] = '\0';
-            printf("\r\n<< %s", string);
-            channel->inputIndex = 0;
-            channel->inputAvailable = FALSE;
-        }
-        else
-        {
-            string[0] = '\0';
-        }
+        ReadSocketChannel(channels[channelId], string);
     }
     return status;
 }
@@ -306,10 +156,11 @@ Status WriteString(int channelId, const char* string)
     {
         if (channelId == DEFAULT_CHANNEL)
         {
-            if (clientSocketId >= 0)
+            Channel* channel = channels[channelId];
+            if (channel->clientSocketId >= 0)
             {
                 size_t length = strlen(string);
-                size_t sent = send(clientSocketId, string, length, 0);
+                size_t sent = send(channel->clientSocketId, string, length, 0);
                 if (sent != length)
                 {
                     status = "SendFailure";

@@ -8,9 +8,14 @@
 #include "Types.h"
 
 
+void InitControl();
+
+
 /*
 ** Private
 */
+
+int externalTicks = 0x20000;
 
 
 void (*HandlePulse) (int capture) = NULL;
@@ -28,8 +33,7 @@ void* TimerTask(void* threadArgs)
         int cog = timerValue % 60;
         if ((0 < cog) && (cog < 59)) 
         {
-            /*printf("* HandlePulse(%d)\r\n", timerValue * 0x200);*/
-            HandlePulse(timerValue * 0x200);
+            HandlePulse(timerValue * externalTicks);
         }
     }
     return NULL;
@@ -55,6 +59,12 @@ void StartTimerThread()
 }
 
 
+void SetExternalTicks(int ticks)
+{
+    externalTicks = ticks;
+}
+
+
 /*
 ** Interface
 */
@@ -73,6 +83,7 @@ void InitCompareTimer(void (*InterruptService) (int channel))
 
 void InitExternalPulseTimer(void (*InterruptService) (int capture))
 {
+    InitControl();
     HandlePulse = InterruptService;
     StartTimerThread();
 }

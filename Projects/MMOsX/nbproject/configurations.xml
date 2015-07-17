@@ -18,6 +18,9 @@
         <itemPath>../../API/Timers.h</itemPath>
         <itemPath>../../API/Types.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f1" displayName="MacOS" projectFiles="true">
+        <itemPath>../../Platforms/MacOS/SocketHandler.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="Motor Management"
                      displayName="Motor Management"
                      projectFiles="true">
@@ -50,11 +53,13 @@
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
         <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
         <itemPath>../../Platforms/MacOS/ApiStatus.c</itemPath>
+        <itemPath>../../Platforms/MacOS/Control.c</itemPath>
         <itemPath>../../Platforms/MacOS/ExternalInterrupt.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
         <itemPath>../../Platforms/MacOS/LcdStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/PinStub.c</itemPath>
         <itemPath>../../Platforms/MacOS/SocketCommunication.c</itemPath>
+        <itemPath>../../Platforms/MacOS/SocketHandler.c</itemPath>
         <itemPath>../../Platforms/MacOS/Timers.c</itemPath>
       </logicalFolder>
       <logicalFolder name="Motor Management"
@@ -274,6 +279,8 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/ExternalInterrupt.c"
             ex="false"
             tool="0"
@@ -291,6 +298,16 @@
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"
             tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketHandler.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketHandler.h"
+            ex="false"
+            tool="3"
             flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">
@@ -463,6 +480,8 @@
       </item>
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/ExternalInterrupt.c"
             ex="false"
             tool="0"
@@ -480,6 +499,16 @@
       <item path="../../Platforms/MacOS/SocketCommunication.c"
             ex="false"
             tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketHandler.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/SocketHandler.h"
+            ex="false"
+            tool="3"
             flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Timers.c" ex="false" tool="0" flavor2="0">
