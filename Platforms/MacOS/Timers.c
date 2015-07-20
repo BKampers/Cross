@@ -59,6 +59,12 @@ void StartTimerThread()
 }
 
 
+int GetExternalTicks()
+{
+    return externalTicks;
+}
+
+
 void SetExternalTicks(int ticks)
 {
     externalTicks = ticks;

@@ -1,5 +1,5 @@
 #include <pthread.h>
-
+#include <unistd.h>
 
 #include "ApiStatus.h"
 
@@ -9,6 +9,7 @@
 #include "Timers.h"
 
 
+int GetExternalTicks();
 void SetExternalTicks(int ticks);
 
 /*
@@ -17,6 +18,7 @@ void SetExternalTicks(int ticks);
 
 #define INPUT_BUFFER_SIZE 64
 
+char buffer[INPUT_BUFFER_SIZE];
 Channel channel;
 
 
@@ -30,13 +32,18 @@ void* ControlTask(void* threadArgs)
             JsonStatus status;
             int ticks;
             
-            Initialize(channel.inputBuffer, &node);
+            ReadSocketChannel(&channel, buffer);
+            Initialize(buffer, &node);
             status = GetInt(&node, "ExternalTicks", &ticks);
             if (status == JSON_OK)
             {
                 SetExternalTicks(ticks);
             }
-        }        
+        }
+        else
+        {
+            sleep(1);
+        }
     }
 }
 
