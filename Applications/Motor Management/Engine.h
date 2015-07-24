@@ -8,6 +8,9 @@
 #define PHASE_MAX 2
 
 
+extern char ENGINE_IS_RUNNING[];
+
+
 void RegisterEngineType();
 Status InitEngine();
 

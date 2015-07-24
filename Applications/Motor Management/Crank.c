@@ -12,8 +12,6 @@
 
 #include <stdlib.h>
 
-#include "Types.h"
-
 #include "HardwareSettings.h"
 #include "Engine.h"
 
@@ -25,9 +23,6 @@
 /*
 ** Private
 */
-
-
-#define MICROS_PER_TICK 10.24f
 
 
 char* INVALID_COG_NUMBER = "InvalidCogNumber";
@@ -57,19 +52,6 @@ void PhaseShift()
         SetOutputPins(TEMP_PHASE_PIN);
     }
     phase = 1;
-}
-
-
-void InitCrankCallbacks()
-{
-    int i;
-    int count = GetEffectiveCogCount();
-    cogCountCallbacks = malloc(sizeof(CogCountCallback) * count);
-    for (i = 0; i < count; ++i)
-    {
-        cogCountCallbacks[i] = NULL;
-    }
-    InitExternalInterrupt(&PhaseShift);
 }
 
 
@@ -125,13 +107,24 @@ void PulseDetected(int capture)
 void InitCrank()
 {
     InitCrankCallbacks();
+    InitExternalInterrupt(&PhaseShift);
     InitExternalPulseTimer(&PulseDetected);
 }
 
 
-bool SignalDetected()
+void InitCrankCallbacks()
 {
-    return captured;
+    int i;
+    int count = GetEffectiveCogCount();
+    if (cogCountCallbacks != NULL)
+    {
+        free(cogCountCallbacks);
+    }
+    cogCountCallbacks = malloc(sizeof(CogCountCallback) * count);
+    for (i = 0; i < count; ++i)
+    {
+        cogCountCallbacks[i] = NULL;
+    }
 }
 
 
@@ -174,6 +167,12 @@ float GetRpm()
 }
 
 
+bool EngineIsRunning()
+{
+    return 50.0f < GetRpm();
+}
+
+
 Status SetCogCountCallback(CogCountCallback callback, int cogNumber)
 {
     if ((0 < cogNumber) && (cogNumber <= GetEffectiveCogCount()))
@@ -184,19 +183,5 @@ Status SetCogCountCallback(CogCountCallback callback, int cogNumber)
     else
     {
         return INVALID_COG_NUMBER;
-    }
-}
-
-
-void RemoveCogCountCallback(CogCountCallback callback)
-{
-    int count = GetEffectiveCogCount();
-    int i;
-    for (i = 0; i < count; ++i)
-    {
-        if (cogCountCallbacks[i] == callback)
-        {
-            cogCountCallbacks[i] = NULL;
-        }
     }
 }
