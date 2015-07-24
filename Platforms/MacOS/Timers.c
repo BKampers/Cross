@@ -13,9 +13,6 @@
 ** Private
 */
 
-int externalTicks = 0x20000;
-
-
 void (*HandlePulse) (int capture) = NULL;
 
 int timerValue = 0;
@@ -52,18 +49,6 @@ void StartTimerThread()
             printf("=== Timer thread creation failed (error = %d) ===\n", error);
         }
     }
-}
-
-
-int GetExternalTicks()
-{
-    return externalTicks;
-}
-
-
-void SetExternalTicks(int ticks)
-{
-    externalTicks = ticks;
 }
 
 

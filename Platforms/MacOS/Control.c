@@ -42,11 +42,6 @@ void* ControlTask(void* threadArgs)
             {
                 pulseNanos = nanos;
             }
-            status = GetInt(&node, "ExternalTicks", &ticks);
-            if (status == JSON_OK)
-            {
-                SetExternalTicks(ticks);
-            }
         }
         else
         {
