@@ -1,7 +1,7 @@
+#include "Control.h"
+
 #include <pthread.h>
 #include <unistd.h>
-
-#include "ApiStatus.h"
 
 #include "SocketHandler.h"
 #include "JsonParser.h"
@@ -21,6 +21,9 @@ void SetExternalTicks(int ticks);
 char buffer[INPUT_BUFFER_SIZE];
 Channel channel;
 
+long pulseNanos = 1000000;
+int cog = 1;
+
 
 void* ControlTask(void* threadArgs)
 {
@@ -30,10 +33,15 @@ void* ControlTask(void* threadArgs)
         {
             JsonNode node;
             JsonStatus status;
-            int ticks;
+            int nanos, ticks;
             
             ReadSocketChannel(&channel, buffer);
             Initialize(buffer, &node);
+            status = GetInt(&node, "PulseNanos", &nanos);
+            if (status == JSON_OK)
+            {
+                pulseNanos = nanos;
+            }
             status = GetInt(&node, "ExternalTicks", &ticks);
             if (status == JSON_OK)
             {
@@ -68,4 +76,20 @@ Status InitControl()
         }
     }
     return status;
+}
+
+
+void GetPulseWidth(struct timespec* pulseWidth)
+{
+    pulseWidth->tv_sec = 0;
+    if (cog <= 58)
+    {
+        pulseWidth->tv_nsec = pulseNanos;
+        cog++;
+    }
+    else
+    {
+        pulseWidth->tv_nsec = pulseNanos * 3;
+        cog = 1;
+    }
 }

@@ -2,13 +2,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <pthread.h> 
+#include <unistd.h>
 
 #include "Types.h"
-
-
-void InitControl();
+#include "Control.h"
 
 
 /*
@@ -28,13 +26,11 @@ void* TimerTask(void* threadArgs)
 {
     while (timerTaskRunning)
     {
-        sleep(1);
-        timerValue = (timerValue + 1) % 0x80;
-        int cog = timerValue % 60;
-        if ((0 < cog) && (cog < 59)) 
-        {
-            HandlePulse(timerValue * externalTicks);
-        }
+        struct timespec pulseWidth;
+        GetPulseWidth(&pulseWidth);
+        nanosleep(&pulseWidth, NULL);
+        timerValue = (timerValue + pulseWidth.tv_nsec / 278) % 0x10000;
+        HandlePulse(timerValue);
     }
     return NULL;
 }

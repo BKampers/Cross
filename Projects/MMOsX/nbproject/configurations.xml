@@ -19,6 +19,7 @@
         <itemPath>../../API/Types.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="MacOS" projectFiles="true">
+        <itemPath>../../Platforms/MacOS/Control.h</itemPath>
         <itemPath>../../Platforms/MacOS/SocketHandler.h</itemPath>
       </logicalFolder>
       <logicalFolder name="Motor Management"
@@ -281,6 +282,8 @@
       </item>
       <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="../../Platforms/MacOS/Control.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../Platforms/MacOS/ExternalInterrupt.c"
             ex="false"
             tool="0"
@@ -481,6 +484,8 @@
       <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../../Platforms/MacOS/Control.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/ExternalInterrupt.c"
             ex="false"

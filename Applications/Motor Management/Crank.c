@@ -25,9 +25,6 @@
 */
 
 
-#define MICROS_PER_TICK 10.24f
-
-
 char* INVALID_COG_NUMBER = "InvalidCogNumber";
 
 
