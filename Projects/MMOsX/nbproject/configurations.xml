@@ -37,10 +37,6 @@
         <itemPath>../../Applications/Motor Management/Table.h</itemPath>
       </logicalFolder>
     </logicalFolder>
-    <logicalFolder name="ResourceFiles"
-                   displayName="Resource Files"
-                   projectFiles="true">
-    </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
@@ -78,22 +74,6 @@
         <itemPath>../../Applications/Motor Management/main.c</itemPath>
       </logicalFolder>
     </logicalFolder>
-    <logicalFolder name="TestFiles"
-                   displayName="Test Files"
-                   projectFiles="false"
-                   kind="TEST_LOGICAL_FOLDER">
-    </logicalFolder>
-    <logicalFolder name="ExternalFiles"
-                   displayName="Important Files"
-                   projectFiles="false"
-                   kind="IMPORTANT_FILES_FOLDER">
-      <itemPath>Makefile</itemPath>
-    </logicalFolder>
-    <logicalFolder name="TestFiles"
-                   displayName="Test Files"
-                   projectFiles="false"
-                   kind="TEST_LOGICAL_FOLDER">
-    </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false"
@@ -102,6 +82,18 @@
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
+    <Elem>../../API</Elem>
+    <Elem>../../Applications/Motor Management</Elem>
+    <Elem>../../Json/include</Elem>
+    <Elem>../../Platforms/MacOS</Elem>
+    <Elem>../../Json/source</Elem>
+    <Elem>../../Generic</Elem>
+    <Elem>../../API</Elem>
+    <Elem>../../Applications/Motor Management</Elem>
+    <Elem>../../Json/include</Elem>
+    <Elem>../../Platforms/MacOS</Elem>
+    <Elem>../../Json/source</Elem>
+    <Elem>../../Generic</Elem>
     <Elem>../../API</Elem>
     <Elem>../../Applications/Motor Management</Elem>
     <Elem>../../Json/include</Elem>
