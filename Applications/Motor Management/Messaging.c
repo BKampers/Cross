@@ -84,8 +84,7 @@ Status SendErrorResponse(const char* message, const char* error)
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, error))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -96,8 +95,7 @@ Status SendUnknownSubjectResponse(const char* message, const char* subject)
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, ERR, "Unknown subject"))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -108,8 +106,7 @@ Status SendStatus(const char* message, const char* subject, const Status status)
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, message))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, subject))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -127,8 +124,7 @@ Status SendMeasurementValue(const char* name, const Measurement* measurement)
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurement->minimum))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurement->maximum))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -215,8 +211,7 @@ Status RespondMeasurementTableRequest(const JsonNode* object, const MeasurementT
         status = WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled);
     }
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -267,8 +262,7 @@ Status SendMeasurementNames()
     VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, BATTERY_VOLTAGE))
     VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, MAP_SENSOR))
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -287,8 +281,7 @@ Status SendMeasurementTableNames()
         VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, GetMeasurementTableName(i)))
     }
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -299,8 +292,7 @@ Status SendEngineIsRunning()
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, ENGINE_IS_RUNNING))
     VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, VALUE, EngineIsRunning()))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -325,8 +317,7 @@ Status SendEngineProperties()
         VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, GetDeadPointCog(i)))
     }
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -359,8 +350,7 @@ Status SendFlashMemory(const JsonNode* object)
     }
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -400,18 +390,21 @@ Status SendFlashElements()
         status = OK;
     }
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-void ModifyTable(JsonNode* object, const char* name)
+Status ModifyTable(JsonNode* object, const char* name)
 {
+    RETURN_WHEN_INVALID
     int row, column;
     float value;
     bool enabled;
     Status fieldStatus = OK;
     Status enableStatus = OK;
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, MODIFY))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, name))
     if (GetInt(object, ROW, &row) == JSON_OK)
     {
         if (GetInt(object, COLUMN, &column) == JSON_OK)
@@ -419,14 +412,25 @@ void ModifyTable(JsonNode* object, const char* name)
             if (GetFloat(object, VALUE, &value) == JSON_OK)
             {
                 fieldStatus = SetMeasurementTableField(name, column, row, value);
+                if (fieldStatus == OK)
+                {
+                    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, row))
+                    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, column))
+                    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value))        
+                }
             }
         }
     }
     if (GetBoolean(object, ENABLED, &enabled) == JSON_OK)
     {
         enableStatus = SetMeasurementTableEnabled(name, enabled);
+        if (enableStatus == OK)
+        {
+            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled))
+        }
     }
-    SendStatus(MODIFY, name, (fieldStatus != OK) ? fieldStatus : enableStatus);
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, (fieldStatus != OK) ? fieldStatus : enableStatus))
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -689,8 +693,7 @@ Status SendTextNotification(const char* name, const char* value)
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, name, value))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -700,8 +703,7 @@ Status SendIntegerNotification(const char* name, int value)
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, name, value))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -711,8 +713,7 @@ Status SendRealNotification(const char* name, double value)
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MESSAGE, NOTIFICATION))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, name, value))
-    VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL))
-    return FinishTransmission(DEFAULT_CHANNEL);
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
