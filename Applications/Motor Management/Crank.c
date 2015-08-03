@@ -30,7 +30,7 @@ char* INVALID_COG_NUMBER = "InvalidCogNumber";
 
 CogCountCallback* cogCountCallbacks = NULL;
 
-int phase = -1;
+int phase = 0;
 
 int cogCount = 0;
 int cogTicks = 0;
