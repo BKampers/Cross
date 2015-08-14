@@ -169,7 +169,7 @@ float GetRpm()
 
 bool EngineIsRunning()
 {
-    return 50.0f < GetRpm();
+    return 100.0f < GetRpm();
 }
 
 
