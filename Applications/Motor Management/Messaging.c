@@ -110,13 +110,13 @@ Status SendStatus(const char* message, const char* subject, const Status status)
 }
 
 
-Status SendMeasurementValue(const char* name, const Measurement* measurement)
+Status SendMeasurement(const char* response, const char* name, const Measurement* measurement)
 {
     RETURN_WHEN_INVALID
     float value;
     Status status = GetMeasurementValue(measurement, &value);
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, response))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, name))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value))
     VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, (measurement->simulationValue != NULL)))
@@ -223,7 +223,7 @@ Status RespondRequest(const JsonNode* object, const char* subjectString)
     Status status = FindMeasurement(subjectString, &measurement);
     if (status == OK)
     {
-        VALIDATE(SendMeasurementValue(subjectString, measurement))
+        VALIDATE(SendMeasurement(REQUEST, subjectString, measurement))
         responded = TRUE;
     }
     if (! responded)
@@ -321,6 +321,23 @@ Status SendEngineProperties()
 }
 
 
+Status SendFlashBytes(int reference, int count, Status* status)
+{
+    RETURN_WHEN_INVALID
+    int i;
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, VALUE));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+    for (i = 0; (i < count) && (*status == OK); ++i)
+    {
+        byte buffer;
+        *status = ReadPersistentMemory(reference + i, 1, &buffer);
+        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, ((int) buffer) & 0xFF))
+    }
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+}
+
+
 Status SendFlashMemory(const JsonNode* object)
 {
     RETURN_WHEN_INVALID
@@ -339,16 +356,7 @@ Status SendFlashMemory(const JsonNode* object)
     }
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, REQUEST))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_MEM))
-    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, VALUE));
-    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
-    for (i = 0; (i < count) && (status == OK); ++i)
-    {
-        byte buffer;
-        status = ReadPersistentMemory(reference + i, 1, &buffer);
-        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, ((int) buffer) & 0xFF))
-    }
-    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    VALIDATE(SendFlashBytes(reference, count, &status))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
     return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
@@ -456,8 +464,9 @@ void ModifyIgnitionTimer(const JsonNode* object)
 }
 
 
-void ModifyCogwheel(JsonNode* object)
+Status ModifyCogwheel(JsonNode* object)
 {
+    RETURN_WHEN_INVALID
     int cogTotal, gapSize, offset;
     Status status = INVALID_MESSAGE;
     if (GetInt(object, COG_TOTAL, &cogTotal) == JSON_OK)
@@ -470,30 +479,50 @@ void ModifyCogwheel(JsonNode* object)
             }
         }
     }
-    SendStatus(MODIFY, COGWHEEL, status);
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, MODIFY))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, COGWHEEL))
+    if (status == OK)
+    {
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, cogTotal))
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, GAP_SIZE, gapSize))
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, offset))
+    }
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-void ModifyCylinderCount(const JsonNode* object)
+Status ModifyCylinderCount(const JsonNode* object)
 {
+    RETURN_WHEN_INVALID
     int value;
     Status status = INVALID_MESSAGE;
     if (GetInt(object, VALUE, &value) == JSON_OK)
     {
         status = SetCylinderCount(value);
     }
-    SendStatus(MODIFY, CYLINDER_COUNT, status);
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, MODIFY))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, CYLINDER_COUNT))
+    if (status == OK)
+    {
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, VALUE, value))
+    }
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-void ModifyFlash(JsonNode* object)
+Status ModifyFlash(JsonNode* object)
 {
-    int reference;
+    RETURN_WHEN_INVALID
+    int count = 0;
+    int reference, value;
     Status status = INVALID_MESSAGE;
     if (GetInt(object, REFERENCE, &reference) == JSON_OK)
     {
         JsonNode values;
-        int count, value;
         if ((GetArray(object, VALUE, &values) == JSON_OK) && (GetCount(&values, &count) == JSON_OK))
         {
             byte* buffer = malloc(count * sizeof(byte));
@@ -531,7 +560,16 @@ void ModifyFlash(JsonNode* object)
             status = INVALID_PARAMETER;
         }
     }
-    SendStatus(MODIFY, FLASH_MEM, status);
+    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, RESPONSE, MODIFY))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_MEM))
+    if ((status == OK) && (count > 0)) 
+    {
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
+        VALIDATE(SendFlashBytes(reference, count, &status))
+    }
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
+    return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -541,7 +579,8 @@ Status HandleRequest(const JsonNode* object)
     Status status = (AllocateString(object, SUBJECT, &subject) == JSON_OK) ? OK : INVALID_SUBJECT;
     if (status == OK)
     {
-        if (strcmp(subject, ENGINE_IS_RUNNING) == 0) {
+        if (strcmp(subject, ENGINE_IS_RUNNING) == 0)
+        {
             SendEngineIsRunning();
         }
         else if (strcmp(subject, FLASH_MEM) == 0)
@@ -592,7 +631,16 @@ bool HandleModifySimulation(JsonNode* object, const char* subjectString)
         {
             status = ResetMeasurementSimulation(subjectString);
         }
-        SendStatus(MODIFY, subjectString, status);
+        if (status == OK)
+        {
+            Measurement* measurement;
+            FindMeasurement(subjectString, &measurement);
+            SendMeasurement(MODIFY, subjectString, measurement);
+        }
+        else
+        {
+            SendStatus(MODIFY, subjectString, status);
+        }
         return TRUE;
     }
     else

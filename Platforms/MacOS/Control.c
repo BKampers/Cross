@@ -9,9 +9,6 @@
 #include "Timers.h"
 
 
-int GetExternalTicks();
-void SetExternalTicks(int ticks);
-
 /*
 ** Private
 */
@@ -33,7 +30,7 @@ void* ControlTask(void* threadArgs)
         {
             JsonNode node;
             JsonStatus status;
-            int nanos, ticks;
+            int nanos;
             
             ReadSocketChannel(&channel, buffer);
             Initialize(buffer, &node);
