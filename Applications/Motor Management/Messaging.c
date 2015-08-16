@@ -565,7 +565,6 @@ Status ModifyFlash(JsonNode* object)
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, SUBJECT, FLASH_MEM))
     if ((status == OK) && (count > 0)) 
     {
-        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference))
         VALIDATE(SendFlashBytes(reference, count, &status))
     }
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status))
