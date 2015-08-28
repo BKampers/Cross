@@ -130,6 +130,14 @@ Status WriteJsonRootStart(int channelId)
 }
 
 
+Status WriteJsonRootEnd(int channelId)
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectEnd(channelId))
+    return FinishTransmission(channelId);
+}
+
+
 Status WriteJsonObjectStart(int channelId)
 {
     RETURN_WHEN_INVALID

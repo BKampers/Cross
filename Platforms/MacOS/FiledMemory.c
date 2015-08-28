@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 
 
-#define MEMORY_SIZE 0x800
+#define MEMORY_SIZE 0x1000
 
 char* RUNTIME_DIRECTORY = "runtime_data";
 char* FILE_PATH = "runtime_data/persistent_memory";

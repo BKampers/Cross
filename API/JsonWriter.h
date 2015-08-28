@@ -5,6 +5,7 @@
 #include "ApiStatus.h"
 
 Status WriteJsonRootStart(int channelId);
+Status WriteJsonRootEnd(int channelId);
 
 Status WriteJsonObjectStart(int channelId);
 Status WriteJsonObjectEnd(int channelId);
