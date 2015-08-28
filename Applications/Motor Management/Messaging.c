@@ -344,7 +344,6 @@ Status SendFlashMemory(const JsonNode* object)
     Status status = OK;
     int reference;
     int count;
-    int i;
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
     if (GetInt(object, REFERENCE, &reference) != JSON_OK)
     {
