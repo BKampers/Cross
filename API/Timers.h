@@ -10,7 +10,7 @@
 #define TIMER_CHANNEL_4 0x10
 
 #define EXTERNAL_PULSE_TIMER_PRESCALER 20
-#define IGNITION_TIMER_PRESCALER 40
+#define PERIOD_TIMER_PRESCALER 40
 
 
 void InitPeriodTimer(void (*InterruptService) ());

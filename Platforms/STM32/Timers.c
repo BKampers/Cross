@@ -43,7 +43,7 @@ void InitPeriodTimer(void (*InterruptService) ())
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    TIM_TimeBaseStructure.TIM_Prescaler = IGNITION_TIMER_PRESCALER - 1;
+    TIM_TimeBaseStructure.TIM_Prescaler = PERIOD_TIMER_PRESCALER - 1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseStructure.TIM_Period = TIMER_PERIOD;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;

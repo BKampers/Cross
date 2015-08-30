@@ -26,7 +26,7 @@
 ** Crank timer and ignition timer run with different prescalers.
 ** Use PRESCALER_RATIO to convert between these two.
 */
-#define PRESCALER_RATIO ((float) IGNITION_TIMER_PRESCALER / EXTERNAL_PULSE_TIMER_PRESCALER)
+#define PRESCALER_RATIO ((float) PERIOD_TIMER_PRESCALER / EXTERNAL_PULSE_TIMER_PRESCALER)
 
 
 /*
@@ -141,7 +141,7 @@ void GetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings)
     }
     if (status != OK)
     {
-        timerSettings->prescaler = IGNITION_TIMER_PRESCALER;
+        timerSettings->prescaler = PERIOD_TIMER_PRESCALER;
         timerSettings->period = 0xFFFF;
         timerSettings->counter = 0xFFFF;
     }
