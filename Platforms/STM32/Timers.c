@@ -7,6 +7,20 @@
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_tim.h"
 
+
+#define PERIOD_TIMER TIM2
+#define PERIOD_TIMER_PERIPHERAL RCC_APB1Periph_TIM2
+#define PERIOD_TIMER_IRQ TIM2_IRQn
+
+#define PULSE_TIMER TIM3
+#define PULSE_TIMER_PERIPHERAL RCC_APB1Periph_TIM3
+#define PULSE_TIMER_IRQ TIM3_IRQn
+
+#define COMPARE_TIMER TIM4
+#define COMPARE_TIMER_PERIPHERAL RCC_APB1Periph_TIM4
+#define COMPARE_TIMER_IRQ TIM4_IRQn
+
+
 /* Timer prescaler and period to provide cycles times of 0 .. 22 ms */
 uint16_t prescaler = 24;
 uint16_t period = 0xFFFF;
@@ -18,9 +32,10 @@ uint16_t period = 0xFFFF;
 
 #define TIMER_PERIOD 0xFFFF
 
-void (*HandleIrq2) () = NULL;
-void (*HandleIrq3) (int capture) = NULL;
-void (*HandleIrq4) (int event) = NULL;
+void (*PeriodExpiredService) () = NULL;
+void (*CaptureService) (int capture) = NULL;
+void (*CaptureOverflowService) () = NULL;
+void (*TimerMatchService) (int event) = NULL;
 
 
 /*
@@ -29,15 +44,15 @@ void (*HandleIrq4) (int event) = NULL;
 
 void InitPeriodTimer(void (*InterruptService) ())
 {
-    HandleIrq2 = InterruptService;
+    PeriodExpiredService = InterruptService;
 
     NVIC_InitTypeDef NVIC_InitStructure;
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    RCC_APB1PeriphClockCmd(PERIOD_TIMER_PERIPHERAL, ENABLE);
 
     /* enable timer irq */
-    NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = PERIOD_TIMER_IRQ;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -47,21 +62,21 @@ void InitPeriodTimer(void (*InterruptService) ())
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseStructure.TIM_Period = TIMER_PERIOD;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+    TIM_TimeBaseInit(PERIOD_TIMER, &TIM_TimeBaseStructure);
 }
 
 
 void InitCompareTimer(void (*InterruptService) (int channel))
 {
-    HandleIrq4 = InterruptService;
+    TimerMatchService = InterruptService;
 
     NVIC_InitTypeDef NVIC_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+    RCC_APB1PeriphClockCmd(COMPARE_TIMER_IRQ, ENABLE);
 
     /* Enable timer irq */
-    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = COMPARE_TIMER_IRQ;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -72,12 +87,12 @@ void InitCompareTimer(void (*InterruptService) (int channel))
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseStructure.TIM_Period = period;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+    TIM_TimeBaseInit(COMPARE_TIMER, &TIM_TimeBaseStructure);
 
     /* Start timer */
-    TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-    TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-    TIM_Cmd(TIM4, ENABLE);
+    TIM_ClearITPendingBit(COMPARE_TIMER, TIM_IT_Update);
+    TIM_ITConfig(COMPARE_TIMER, TIM_IT_Update, ENABLE);
+    TIM_Cmd(COMPARE_TIMER, ENABLE);
 }
 
 
@@ -88,57 +103,59 @@ int GetCompareTimerPeriod()
 }
 
 
-void InitExternalPulseTimer(void (*InterruptService) (int capture))
+void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*OverflowService) ())
 {
-    HandleIrq3 = InterruptService;
+    CaptureService = InterruptService;
+    CaptureOverflowService = OverflowService;
 
     NVIC_InitTypeDef NVIC_InitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     TIM_ICInitTypeDef TIM_ICInitStructure;
 
-    /* TIM3 clock enable */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    /* PULSE_TIMER clock enable */
+    RCC_APB1PeriphClockCmd(PULSE_TIMER_PERIPHERAL, ENABLE);
     /* GPIOA clock enable */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
-    /* Enable the TIM3 global Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+    /* Enable the PULSE_TIMER global Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = PULSE_TIMER_IRQ;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    /* TIM3 channel 2 pin (PA.07) configuration */
+    /* PULSE_TIMER channel 2 pin (PA.07) configuration */
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    /* TIM3 prescale */
+    /* PULSE_TIMER prescale */
     TIM_TimeBaseInitStructure.TIM_Prescaler = EXTERNAL_PULSE_TIMER_PRESCALER - 1; /* clock slow down */
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInitStructure.TIM_Period = 0xFFFF;
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
-    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStructure);
+    TIM_TimeBaseInit(PULSE_TIMER, &TIM_TimeBaseInitStructure);
 
     /*
-    ** TIM3 configuration: Input Capture mode
-    ** The external signal is connected to TIM3 CH2 pin (PA.07)
+    ** PULSE_TIMER configuration: Input Capture mode
+    ** The external signal is connected to PULSE_TIMER CH2 pin (PA.07)
     ** The Rising edge is used as active edge,
-    ** The TIM3 CCR2 is used to compute the frequency value
+    ** The PULSE_TIMER CCR2 is used to compute the frequency value
     */
     TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
     TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
     TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
     TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     TIM_ICInitStructure.TIM_ICFilter = 0x0;
-    TIM_ICInit(TIM3, &TIM_ICInitStructure);
+    TIM_ICInit(PULSE_TIMER, &TIM_ICInitStructure);
     /* TIM enable counter */
-    TIM_Cmd(TIM3, ENABLE);
+    TIM_Cmd(PULSE_TIMER, ENABLE);
     /* Enable the CC2 Interrupt Request */
-    TIM_ITConfig(TIM3, TIM_IT_CC2, ENABLE);
+    TIM_ITConfig(PULSE_TIMER, TIM_IT_CC2, ENABLE);
+    TIM_ITConfig(PULSE_TIMER, TIM_IT_CC3, ENABLE);
 }
 
 
@@ -146,10 +163,10 @@ Status StartPeriodTimer(int ticks)
 {
     if ((0 < ticks) && (ticks < TIMER_PERIOD))
     {
-        TIM_SetCounter(TIM2, TIMER_PERIOD - ticks);
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update); /* Clear interrupt to avoid immediate firing */
-        TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); /* Enable interrupt */
-        TIM_Cmd(TIM2, ENABLE); /* Start timer */
+        TIM_SetCounter(PERIOD_TIMER, TIMER_PERIOD - ticks);
+        TIM_ClearITPendingBit(PERIOD_TIMER, TIM_IT_Update); /* Clear interrupt to avoid immediate firing */
+        TIM_ITConfig(PERIOD_TIMER, TIM_IT_Update, ENABLE); /* Enable interrupt */
+        TIM_Cmd(PERIOD_TIMER, ENABLE); /* Start timer */
         return OK;
     }
     else
@@ -165,16 +182,16 @@ Status StartCompareTimer(int channel, int ticks)
     switch (channel)
     {
         case TIMER_CHANNEL_1:
-            TIM_SetCompare1(TIM4, TIM_GetCounter(TIM4) + ticks);
+            TIM_SetCompare1(COMPARE_TIMER, (uint16_t) (TIM_GetCounter(COMPARE_TIMER) + ticks));
             break;
         case TIMER_CHANNEL_2:
-            TIM_SetCompare2(TIM4, TIM_GetCounter(TIM4) + ticks);
+            TIM_SetCompare2(COMPARE_TIMER, (uint16_t) (TIM_GetCounter(COMPARE_TIMER) + ticks));
             break;
         case TIMER_CHANNEL_3:
-            TIM_SetCompare3(TIM4, TIM_GetCounter(TIM4) + ticks);
+            TIM_SetCompare3(COMPARE_TIMER, (uint16_t) (TIM_GetCounter(COMPARE_TIMER) + ticks));
             break;
         case TIMER_CHANNEL_4:
-            TIM_SetCompare4(TIM4, TIM_GetCounter(TIM4) + ticks);
+            TIM_SetCompare4(COMPARE_TIMER, (uint16_t) (TIM_GetCounter(COMPARE_TIMER) + ticks));
             break;
         default:
             status = "InvalidComparatorId";
@@ -182,8 +199,8 @@ Status StartCompareTimer(int channel, int ticks)
     }
     if (status == OK)
     {
-        TIM_ClearITPendingBit(TIM4, channel);
-        TIM_ITConfig(TIM4, channel, ENABLE);
+        TIM_ClearITPendingBit(COMPARE_TIMER, channel);
+        TIM_ITConfig(COMPARE_TIMER, channel, ENABLE);
     }
     return status;
 }
@@ -195,21 +212,34 @@ Status StartCompareTimer(int channel, int ticks)
 
 void TIM2_IRQHandler(void)
 {
-    TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
-    TIM_Cmd(TIM2, DISABLE);
-    if (HandleIrq2 != NULL)
+    TIM_ITConfig(PERIOD_TIMER, TIM_IT_Update, DISABLE);
+    TIM_Cmd(PERIOD_TIMER, DISABLE);
+    if (PeriodExpiredService != NULL)
     {
-        HandleIrq2();
+        PeriodExpiredService();
     }
 }
 
 
 void TIM3_IRQHandler(void)
 {
-    TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
-    if (HandleIrq3 != NULL)
+    if (TIM_GetITStatus(PULSE_TIMER, TIM_IT_CC2) != RESET)
     {
-        HandleIrq3(TIM_GetCapture2(TIM3));
+        int capture = TIM_GetCapture2(PULSE_TIMER);
+        TIM_SetCompare3(PULSE_TIMER, (uint16_t) (capture - 1));
+        TIM_ClearITPendingBit(PULSE_TIMER, TIM_IT_CC2);
+        if (CaptureService != NULL)
+        {
+            CaptureService(capture);
+        }
+    }
+    if (TIM_GetITStatus(PULSE_TIMER, TIM_IT_CC3) != RESET)
+    {
+        TIM_ClearITPendingBit(PULSE_TIMER, TIM_IT_CC3);
+        if (CaptureOverflowService != NULL)
+        {
+            CaptureOverflowService();
+        }
     }
 }
 
@@ -220,16 +250,16 @@ void TIM4_IRQHandler(void)
     uint16_t timerInterrupt = TIM_IT_Update;
     while (timerInterrupt <= TIM_IT_CC4)
     {
-        if (TIM_GetITStatus(TIM4, timerInterrupt) != RESET)
+        if (TIM_GetITStatus(COMPARE_TIMER, timerInterrupt) != RESET)
         {
             event |= timerInterrupt;
-            TIM_ITConfig(TIM4, timerInterrupt, DISABLE);
-            TIM_ClearITPendingBit(TIM4, timerInterrupt);
+            TIM_ITConfig(COMPARE_TIMER, timerInterrupt, DISABLE);
+            TIM_ClearITPendingBit(COMPARE_TIMER, timerInterrupt);
         }
         timerInterrupt <<= 1;
     }
-    if (HandleIrq4 != NULL)
+    if (TimerMatchService != NULL)
     {
-        HandleIrq4(event);
+        TimerMatchService(event);
     }
 }
