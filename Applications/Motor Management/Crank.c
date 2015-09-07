@@ -100,6 +100,12 @@ void PulseDetected(int capture)
 }
 
 
+void EngineStopped()
+{
+    captured = FALSE;
+}
+
+
 /*
 ** Interface
 */
@@ -108,7 +114,7 @@ void InitCrank()
 {
     InitCrankCallbacks();
     InitExternalInterrupt(&PhaseShift);
-    InitExternalPulseTimer(&PulseDetected);
+    InitExternalPulseTimer(&PulseDetected, &EngineStopped);
 }
 
 
@@ -155,7 +161,7 @@ int GetGapTicks()
 float GetRpm()
 {
     int ticks = cogTicks;
-    if (ticks > 0)
+    if (captured && (ticks > 0))
     {
         float spr = ticks / 60000.0f;
         return 60.0f / spr;
@@ -169,7 +175,7 @@ float GetRpm()
 
 bool EngineIsRunning()
 {
-    return 100.0f < GetRpm();
+    return captured;
 }
 
 
