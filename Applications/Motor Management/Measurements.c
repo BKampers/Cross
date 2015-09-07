@@ -40,10 +40,10 @@ Measurement measurements[] =
     { WATER_TEMPERATURE, &GetWaterTemperatureValue, "%3.1f",   0.0f,   100.0f, NULL },
     { AIR_TEMPERATURE,   &GetAirTemperatureValue,   "%3.1f", -50.0f,   200.0f, NULL },
     { BATTERY_VOLTAGE,   &GetBatteryVoltageValue,   "%2.1f",   0.0f,    30.0f, NULL },
-    { MAP_SENSOR,        &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL },
+    { MAP_SENSOR,        &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL }/*,
     { LAMBDA,            &GetLambdaValue,           "%3.1f",   0.0f,   100.0f, NULL },
     { AUX1,              &GetAux1Value,             "%3.1f",   0.0f,   100.0f, NULL },
-    { AUX2,              &GetAux2Value,             "%3.1f",   0.0f,   100.0f, NULL }
+    { AUX2,              &GetAux2Value,             "%3.1f",   0.0f,   100.0f, NULL }*/
 };
 
 #define MEASUREMENT_COUNT (sizeof(measurements) / sizeof(Measurement))
@@ -100,13 +100,13 @@ Status GetLambdaValue(float* value)
 
 Status GetAux1Value(float* value)
 {
-    return GetAnalogMeasurement(6, value);
+    return GetAnalogMeasurement(14, value);
 }
 
 
 Status GetAux2Value(float* value)
 {
-    return GetAnalogMeasurement(7, value);
+    return GetAnalogMeasurement(15, value);
 }
 
 
