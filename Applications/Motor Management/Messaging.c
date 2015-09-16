@@ -261,6 +261,9 @@ Status SendMeasurementNames()
     VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, AIR_TEMPERATURE))
     VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, BATTERY_VOLTAGE))
     VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, MAP_SENSOR))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, LAMBDA))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, AUX1))
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, AUX2))
     VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
     return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
