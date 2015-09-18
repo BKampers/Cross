@@ -21,7 +21,7 @@ extern char WRITE_ERROR[];
 int min(int a, int b);
 int max(int a, int b);
 
-int minf(float a, float b);
-int maxf(float a, float b);
+float minf(float a, float b);
+float maxf(float a, float b);
 
 #endif /* _APISTATUS_H_ */

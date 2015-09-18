@@ -1883,8 +1883,8 @@
 				</Function>
 			</SubMode>
 		</Mode>
-		<Mode Mapped="false" Name="IN14" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN14">
+		<Mode Mapped="true" Name="IN14" SubModeLogicalOperator="OR">
+			<SubMode Available="true" Mapped="true" Name="IN14">
 				<Function Name="ADC1_IN14">
 					<Pin Name="PC4" RemapNumber="0">
 						<Bloc Name="b0_ADC1_IN14"/>
@@ -1892,8 +1892,8 @@
 				</Function>
 			</SubMode>
 		</Mode>
-		<Mode Mapped="false" Name="IN15" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN15">
+		<Mode Mapped="true" Name="IN15" SubModeLogicalOperator="OR">
+			<SubMode Available="true" Mapped="true" Name="IN15">
 				<Function Name="ADC1_IN15">
 					<Pin Name="PC5" RemapNumber="0">
 						<Bloc Name="b0_ADC1_IN15"/>
@@ -1928,8 +1928,8 @@
 				</Function>
 			</SubMode>
 		</Mode>
-		<Mode Mapped="false" Name="IN5" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN5">
+		<Mode Mapped="true" Name="IN5" SubModeLogicalOperator="OR">
+			<SubMode Available="true" Mapped="true" Name="IN5">
 				<Function Name="ADC1_IN5">
 					<Pin Name="PA5" RemapNumber="0">
 						<Bloc Name="b0_ADC1_IN5"/>
@@ -2072,7 +2072,7 @@
 			</SubMode>
 		</Mode>
 		<Mode Mapped="false" Name="IN14" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN14">
+			<SubMode Available="false" Mapped="false" Name="IN14">
 				<Function Name="ADC2_IN14">
 					<Pin Name="PC4" RemapNumber="0">
 						<Bloc Name="b0_ADC2_IN14"/>
@@ -2081,7 +2081,7 @@
 			</SubMode>
 		</Mode>
 		<Mode Mapped="false" Name="IN15" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN15">
+			<SubMode Available="false" Mapped="false" Name="IN15">
 				<Function Name="ADC2_IN15">
 					<Pin Name="PC5" RemapNumber="0">
 						<Bloc Name="b0_ADC2_IN15"/>
@@ -2117,7 +2117,7 @@
 			</SubMode>
 		</Mode>
 		<Mode Mapped="false" Name="IN5" SubModeLogicalOperator="OR">
-			<SubMode Available="true" Mapped="false" Name="IN5">
+			<SubMode Available="false" Mapped="false" Name="IN5">
 				<Function Name="ADC2_IN5">
 					<Pin Name="PA5" RemapNumber="0">
 						<Bloc Name="b0_ADC2_IN5"/>
@@ -6746,7 +6746,7 @@
 	</Peripheral>
 	<Peripheral Name="DAC2">
 		<Mode Mapped="false" Name="Mode">
-			<SubMode Available="true" Mapped="false" Name="Dac">
+			<SubMode Available="false" Mapped="false" Name="Dac">
 				<Function Name="DAC2_OUT">
 					<Pin Name="PA5" RemapNumber="0">
 						<Bloc Name="b0_DAC2_Dac"/>
@@ -7526,7 +7526,7 @@
 		</Function>
 		<Function IOQualifier="" Mapped="false" Name="IOs"/>
 	</Pin>
-	<Pin Mapped="false" Name="PA5" Position="30">
+	<Pin Mapped="true" Name="PA5" Position="30">
 		<Function Mapped="false" Name="SPI1_SCK" PeripheralName="SPI1">
 			<Bloc Mapped="false" Name="b0_SPI1_Full-Duplex-Master" RemapNumber="0"/>
 			<Bloc Mapped="false" Name="b0_SPI1_Full-Duplex-Master_With-NSS" RemapNumber="0"/>
@@ -7545,8 +7545,8 @@
 			<Bloc Mapped="false" Name="b0_SPI1_Half-Duplex-Bidirectional-Slave" RemapNumber="0"/>
 			<Bloc Mapped="false" Name="b0_SPI1_Half-Duplex-Bidirectional-Slave_With-NSS" RemapNumber="0"/>
 		</Function>
-		<Function Mapped="false" Name="ADC1_IN5" PeripheralName="ADC1">
-			<Bloc Mapped="false" Name="b0_ADC1_IN5" RemapNumber="0"/>
+		<Function Mapped="true" Name="ADC1_IN5" PeripheralName="ADC1">
+			<Bloc Mapped="true" Name="b0_ADC1_IN5" RemapNumber="0"/>
 		</Function>
 		<Function Mapped="false" Name="ADC2_IN5" PeripheralName="ADC2">
 			<Bloc Mapped="false" Name="b0_ADC2_IN5" RemapNumber="0"/>
@@ -7666,18 +7666,18 @@
 		</Function>
 		<Function IOQualifier="" Mapped="false" Name="IOs"/>
 	</Pin>
-	<Pin Mapped="false" Name="PC4" Position="33">
-		<Function Mapped="false" Name="ADC1_IN14" PeripheralName="ADC1">
-			<Bloc Mapped="false" Name="b0_ADC1_IN14" RemapNumber="0"/>
+	<Pin Mapped="true" Name="PC4" Position="33">
+		<Function Mapped="true" Name="ADC1_IN14" PeripheralName="ADC1">
+			<Bloc Mapped="true" Name="b0_ADC1_IN14" RemapNumber="0"/>
 		</Function>
 		<Function Mapped="false" Name="ADC2_IN14" PeripheralName="ADC2">
 			<Bloc Mapped="false" Name="b0_ADC2_IN14" RemapNumber="0"/>
 		</Function>
 		<Function IOQualifier="" Mapped="false" Name="IOs"/>
 	</Pin>
-	<Pin Mapped="false" Name="PC5" Position="34">
-		<Function Mapped="false" Name="ADC1_IN15" PeripheralName="ADC1">
-			<Bloc Mapped="false" Name="b0_ADC1_IN15" RemapNumber="0"/>
+	<Pin Mapped="true" Name="PC5" Position="34">
+		<Function Mapped="true" Name="ADC1_IN15" PeripheralName="ADC1">
+			<Bloc Mapped="true" Name="b0_ADC1_IN15" RemapNumber="0"/>
 		</Function>
 		<Function Mapped="false" Name="ADC2_IN15" PeripheralName="ADC2">
 			<Bloc Mapped="false" Name="b0_ADC2_IN15" RemapNumber="0"/>

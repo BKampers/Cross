@@ -27,13 +27,13 @@ int max(int a, int b)
 }
 
 
-int minf(float a, float b)
+float minf(float a, float b)
 {
 	return MIN(a, b);
 }
 
 
-int maxf(float a, float b)
+float maxf(float a, float b)
 {
 	return MAX(a, b);
 }
