@@ -97,9 +97,10 @@ void PutLcdLine(int row, char* text)
 /***************************************************************************//**
  * Global variables, private define and typedef
  ******************************************************************************/
-#define EN  GPIO_Pin_10
-#define RS  GPIO_Pin_12
-#define RW  GPIO_Pin_11
+#define DATA_PINS GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3
+#define EN_PIN GPIO_Pin_10
+#define RS_PIN GPIO_Pin_12
+#define RW_PIN GPIO_Pin_11
 
 const unsigned int SWAP_DATA[16] = { 0x0, 0x8, 0x4, 0xC, 0x2, 0xA, 0x6, 0xE,
                                      0x1, 0x9, 0x5, 0xD, 0x3, 0xB, 0x7, 0xF};
@@ -164,7 +165,7 @@ void Delay(vu32 nCount)
 void LCD_ALL_DIR_OUT(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
+    GPIO_InitStructure.GPIO_Pin = DATA_PINS | EN_PIN | RS_PIN | RW_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -176,7 +177,7 @@ void LCD_ALL_DIR_OUT(void)
 void LCD_DATA_DIR_IN(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Pin = DATA_PINS;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOC, &GPIO_InitStructure);  
@@ -188,7 +189,7 @@ void LCD_DATA_DIR_IN(void)
 void LCD_DATA_DIR_OUT(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Pin = DATA_PINS;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -199,8 +200,8 @@ void LCD_DATA_DIR_OUT(void)
  ******************************************************************************/
 unsigned int LCD_DATA_IN(void)
 {
-    uint16_t u16Temp=0;
-    u16Temp = GPIO_ReadInputData(GPIOC)&0x000F;
+    uint16_t u16Temp = 0;
+    u16Temp = GPIO_ReadInputData(GPIOC) & 0x000F;
     return SWAP_DATA[u16Temp];
 }
 
@@ -214,18 +215,18 @@ static unsigned char Lcd_Read_Status (void)
     unsigned char status;
 
     LCD_DATA_DIR_IN();
-    GPIO_WriteBit(GPIOC, RS, Bit_RESET);
-    GPIO_WriteBit(GPIOC, RW, Bit_SET);
+    GPIO_WriteBit(GPIOC, RS_PIN, Bit_RESET);
+    GPIO_WriteBit(GPIOC, RW_PIN, Bit_SET);
     Delay(10);
-    GPIO_WriteBit(GPIOC, EN, Bit_SET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_SET);
     Delay(10);
     status  = LCD_DATA_IN() << 4;
-    GPIO_WriteBit(GPIOC, EN, Bit_RESET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_RESET);
     Delay(10);
-    GPIO_WriteBit(GPIOC, EN, Bit_SET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_SET);
     Delay(10);
     status |= LCD_DATA_IN();
-    GPIO_WriteBit(GPIOC, EN, Bit_RESET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_RESET);
     LCD_DATA_DIR_OUT();
     return (status);
 }
@@ -256,13 +257,13 @@ static unsigned char Wait_While_Busy()
 void Lcd_Write_4bits(uc8 byte)
 {
     uint16_t u16Temp=0;
-    GPIO_WriteBit(GPIOC, RW, Bit_RESET);
-    GPIO_WriteBit(GPIOC, EN, Bit_SET);
-    u16Temp = GPIO_ReadOutputData(GPIOC)&0xFFF0;
+    GPIO_WriteBit(GPIOC, RW_PIN, Bit_RESET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_SET);
+    u16Temp = GPIO_ReadOutputData(GPIOC) & 0xFFF0;
     u16Temp |=  SWAP_DATA[byte&0x0F];
     GPIO_Write(GPIOC, u16Temp);
     Delay(10);
-    GPIO_WriteBit(GPIOC, EN, Bit_RESET);
+    GPIO_WriteBit(GPIOC, EN_PIN, Bit_RESET);
     Delay(10);
 }
 
@@ -273,8 +274,8 @@ void Lcd_Write_4bits(uc8 byte)
 void Lcd_Write_Command(uc8 command)
 {
     Wait_While_Busy();
-    GPIO_WriteBit(GPIOC, RS, Bit_RESET);
-    Lcd_Write_4bits(command>>4);
+    GPIO_WriteBit(GPIOC, RS_PIN, Bit_RESET);
+    Lcd_Write_4bits(command >> 4);
     Lcd_Write_4bits(command);
 }
 
@@ -285,8 +286,8 @@ void Lcd_Write_Command(uc8 command)
 void Lcd_Write_Data(uc8 data)
 {
     Wait_While_Busy();
-    GPIO_WriteBit(GPIOC, RS, Bit_SET);
-    Lcd_Write_4bits(data>>4);
+    GPIO_WriteBit(GPIOC, RS_PIN, Bit_SET);
+    Lcd_Write_4bits(data >> 4);
     Lcd_Write_4bits(data);
 }
 
@@ -318,7 +319,7 @@ void Lcd_Init(void)
     /* Set all pins for LCD as outputs    */
     LCD_ALL_DIR_OUT();
     Delay(15000);
-    GPIO_WriteBit(GPIOC, RS, Bit_RESET);
+    GPIO_WriteBit(GPIOC, RS_PIN, Bit_RESET);
     Lcd_Write_4bits(0x3);  /* Select 4-bit interface  */
     Delay(4100);
     Lcd_Write_4bits(0x3);

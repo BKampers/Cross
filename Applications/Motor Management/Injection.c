@@ -30,6 +30,10 @@
 #define TIMER_INJECTION 0x02
 
 
+#define MIN_INJECTION_TIME 0.0f
+#define MAX_INJECTION_TIME 22.0f
+
+
 typedef struct
 {
     const char* measurementName;
@@ -42,7 +46,10 @@ CorrectionConfiguration corrections[] =
     { WATER_TEMPERATURE, NULL },
     { AIR_TEMPERATURE, NULL },
     { BATTERY_VOLTAGE, NULL},
-    { MAP_SENSOR , NULL }
+    { MAP_SENSOR, NULL },
+    { LAMBDA, NULL },
+    { AUX1, NULL },
+    { AUX2, NULL }
 };
 
 #define CORRECTION_COUNT (sizeof(corrections) / sizeof(CorrectionConfiguration))
@@ -186,6 +193,7 @@ Status UpdateInjection()
             }
         }
         time = time * (1.0f + totalCorrectionPercentage / 100.0f);
+        time = maxf(MIN_INJECTION_TIME, minf(time, MAX_INJECTION_TIME));
         if (time != injectionTime)
         {
             injectionTime = time;

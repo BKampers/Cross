@@ -15,7 +15,7 @@
 
 void InitPeriodTimer(void (*InterruptService) ());
 void InitCompareTimer(void (*InterruptService) (int channel));
-void InitExternalPulseTimer(void (*InterruptService) (int capture));
+void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*OverflowService) ());
 
 Status StartPeriodTimer(int ticks);
 Status StartCompareTimer(int channel, int ticks);
