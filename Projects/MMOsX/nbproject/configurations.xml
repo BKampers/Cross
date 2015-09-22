@@ -41,6 +41,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
+        <itemPath>../../Generic/ApiStatus.c</itemPath>
         <itemPath>../../Generic/Communication.c</itemPath>
         <itemPath>../../Generic/Json.c</itemPath>
         <itemPath>../../Generic/JsonParser.c</itemPath>
@@ -49,7 +50,6 @@
       </logicalFolder>
       <logicalFolder name="MacOS" displayName="MacOS" projectFiles="true">
         <itemPath>../../Platforms/MacOS/AnalogInput.c</itemPath>
-        <itemPath>../../Platforms/MacOS/ApiStatus.c</itemPath>
         <itemPath>../../Platforms/MacOS/Control.c</itemPath>
         <itemPath>../../Platforms/MacOS/ExternalInterrupt.c</itemPath>
         <itemPath>../../Platforms/MacOS/FiledMemory.c</itemPath>
@@ -252,6 +252,8 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/ApiStatus.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
@@ -269,8 +271,6 @@
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -455,6 +455,8 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Generic/ApiStatus.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../../Generic/Communication.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/Json.c" ex="false" tool="0" flavor2="0">
@@ -472,8 +474,6 @@
             ex="false"
             tool="0"
             flavor2="0">
-      </item>
-      <item path="../../Platforms/MacOS/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Platforms/MacOS/Control.c" ex="false" tool="0" flavor2="0">
       </item>

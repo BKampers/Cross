@@ -17,23 +17,23 @@ char WRITE_ERROR[] = "Write error";
 
 int min(int a, int b)
 {
-	return MIN(a, b);
+    return MIN(a, b);
 }
 
 
 int max(int a, int b)
 {
-	return MAX(a, b);
+    return MAX(a, b);
 }
 
 
-int minf(float a, float b)
+float minf(float a, float b)
 {
-	return MIN(a, b);
+    return MIN(a, b);
 }
 
 
-int maxf(float a, float b)
+float maxf(float a, float b)
 {
-	return MAX(a, b);
+    return MAX(a, b);
 }

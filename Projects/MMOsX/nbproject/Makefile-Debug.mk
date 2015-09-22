@@ -45,13 +45,13 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/445223610/Messaging.o \
 	${OBJECTDIR}/_ext/445223610/Table.o \
 	${OBJECTDIR}/_ext/445223610/main.o \
+	${OBJECTDIR}/_ext/1917134825/ApiStatus.o \
 	${OBJECTDIR}/_ext/1917134825/Communication.o \
 	${OBJECTDIR}/_ext/1917134825/Json.o \
 	${OBJECTDIR}/_ext/1917134825/JsonParser.o \
 	${OBJECTDIR}/_ext/1917134825/JsonWriter.o \
 	${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o \
 	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
-	${OBJECTDIR}/_ext/1308665564/ApiStatus.o \
 	${OBJECTDIR}/_ext/1308665564/Control.o \
 	${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o \
 	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
@@ -136,6 +136,11 @@ ${OBJECTDIR}/_ext/445223610/main.o: ../../Applications/Motor\ Management/main.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/main.o ../../Applications/Motor\ Management/main.c
 
+${OBJECTDIR}/_ext/1917134825/ApiStatus.o: ../../Generic/ApiStatus.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/ApiStatus.o ../../Generic/ApiStatus.c
+
 ${OBJECTDIR}/_ext/1917134825/Communication.o: ../../Generic/Communication.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
 	${RM} "$@.d"
@@ -165,11 +170,6 @@ ${OBJECTDIR}/_ext/1308665564/AnalogInput.o: ../../Platforms/MacOS/AnalogInput.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/AnalogInput.o ../../Platforms/MacOS/AnalogInput.c
-
-${OBJECTDIR}/_ext/1308665564/ApiStatus.o: ../../Platforms/MacOS/ApiStatus.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
-	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ApiStatus.o ../../Platforms/MacOS/ApiStatus.c
 
 ${OBJECTDIR}/_ext/1308665564/Control.o: ../../Platforms/MacOS/Control.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564

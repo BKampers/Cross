@@ -68,7 +68,7 @@ void InitCompareTimer(void (*InterruptService) (int channel))
 }
 
 
-void InitExternalPulseTimer(void (*InterruptService) (int capture))
+void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*OverflowService) ())
 {
     InitControl();
     HandlePulse = InterruptService;
