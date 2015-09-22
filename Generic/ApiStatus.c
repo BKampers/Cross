@@ -11,8 +11,8 @@ char BUFFER_OVERFLOW[] = "Buffer overflow";
 char WRITE_ERROR[] = "Write error";
 
 
-#define MIN(a, b) a < b ? a : b
-#define MAX(a, b) a > b ? a : b
+#define MIN(a, b) (a < b) ? a : b
+#define MAX(a, b) (a > b) ? a : b
 
 
 int min(int a, int b)
