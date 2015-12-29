@@ -18,6 +18,7 @@ JsonStatus GetArray(const JsonNode* object, const char* name, JsonNode* value);
 
 
 JsonStatus GetCount(const JsonNode* array, int* count);
+JsonStatus AllocateStringAt(const JsonNode* array, int index, char** element);
 JsonStatus GetDoubletAt(const JsonNode* array, int index, double* element);
 JsonStatus GetFloatAt(const JsonNode* array, int index, float* element);
 JsonStatus GetIntAt(const JsonNode* array, int index, int* element);
