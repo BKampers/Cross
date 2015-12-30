@@ -50,6 +50,108 @@ const char* ERROR = "Error";
 const char* STATUS = "Status";
 
 
+Status PutMeasurementAttribute(Measurement* measurement, char* attributeName)
+{
+    if (strcmp(attributeName, VALUE) == 0)
+    {
+        float value;
+        Status status = GetMeasurementValue(measurement, &value);
+        if (status == OK)
+        {
+            return WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
+        }
+        else
+        {
+            return WriteJsonStringMember(DEFAULT_CHANNEL, VALUE, status);
+        }
+    }
+    else if (strcmp(attributeName, SIMULATION) == 0)
+    {
+        return WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
+    }
+    else
+    {
+        return WriteJsonStringMember(DEFAULT_CHANNEL, attributeName, "NoSuchAttribute");
+    }
+}
+
+
+Status PutAttributes(Measurement* measurement, JsonNode* attributes)
+{
+    int attributeCount;
+    Status status = OK;
+    if (GetCount(attributes, &attributeCount) == JSON_OK)
+    {
+        int i;
+        for (i = 0; (i < attributeCount) && (status == OK); ++i)
+        {
+            char* attributeName;
+            if (AllocateStringAt(attributes, i, &attributeName) == JSON_OK)
+            {
+                status = PutMeasurementAttribute(measurement, attributeName);
+                free(attributeName);
+            }
+        }
+    }
+    return status;
+}
+
+
+Status PutMeasurement(JsonNode* message, Measurement* measurement)
+{
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurement->name);
+    if (status == OK)
+    {
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            JsonNode attributes;
+            if (GetArray(message, ATTRIBUTES, &attributes) == JSON_OK)
+            {
+                status = PutAttributes(measurement, &attributes);
+            }
+        }
+        if (status == OK)
+        {
+            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+        }
+    }
+    return status;
+}
+
+
+Status PutMeasurements(JsonNode* message)
+{
+    JsonNode instances;
+    Status status = OK;
+    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instances);
+    if (jsonStatus == JSON_OK)
+    {
+        int instanceCount;
+        jsonStatus = GetCount(&instances, &instanceCount);
+        if (jsonStatus == JSON_OK)
+        {
+            int i;
+            for (i = 0; (i < instanceCount) && (status == OK); ++i)
+            {
+                char* measurementName;
+                jsonStatus = AllocateStringAt(&instances, i, &measurementName);
+                if (jsonStatus == JSON_OK)
+                {
+                    Measurement* measurement;
+                    if (FindMeasurement(measurementName, &measurement) == OK)
+                    {
+                        status = PutMeasurement(message, measurement);
+                    }
+                    free(measurementName);
+                }
+            }
+        }
+    }
+    return status;
+}
+
+
 Status HandleMeasurementRequest(JsonNode* message)
 {
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
@@ -58,72 +160,11 @@ Status HandleMeasurementRequest(JsonNode* message)
         status = WriteJsonObjectStart(DEFAULT_CHANNEL);
         if (status == OK)
         {
-            JsonNode instances;
-            JsonStatus jsonStatus = GetArray(message, INSTANCES, &instances);
-            if (jsonStatus == JSON_OK)
+            status = PutMeasurements(message);
+            if (status == OK)
             {
-                int instanceCount;
-                jsonStatus = GetCount(&instances, &instanceCount);
-                if (jsonStatus == JSON_OK)
-                {
-                    int i;
-                    for (i = 0; (i < instanceCount) && (status == OK); ++i)
-                    {
-                        char* measurementName;
-                        jsonStatus = AllocateStringAt(&instances, i, &measurementName);
-                        if (jsonStatus == JSON_OK)
-                        {
-                            Measurement* measurement;
-                            if (FindMeasurement(measurementName, &measurement) == OK)
-                            {
-                                status = WriteJsonMemberName(DEFAULT_CHANNEL, measurementName);
-                                if (status == OK)
-                                {
-                                    status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-                                    if (status == OK)
-                                    {
-                                        JsonNode attributes;
-                                        jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-                                        if (jsonStatus == JSON_OK)
-                                        {
-                                            int attributeCount;
-                                            jsonStatus = GetCount(&attributes, &attributeCount);
-                                            if (jsonStatus == JSON_OK)
-                                            {
-                                                int a;
-                                                for (a = 0; (a < attributeCount) && (status == OK); ++a)
-                                                {
-                                                    char* attributeName;
-                                                    jsonStatus = AllocateStringAt(&attributes, a, &attributeName);
-                                                    if (jsonStatus == JSON_OK)
-                                                    {
-                                                        if (strcmp(attributeName, VALUE) == 0)
-                                                        {
-                                                            float value;
-                                                            if (measurement->GetValue(&value) == OK)
-                                                            {
-                                                                status = WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
-                                                            }
-                                                        }
-                                                        else if (strcmp(attributeName, SIMULATION) == 0)
-                                                        {
-                                                            status = WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
-                                                        }
-                                                        free(attributeName);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-                                    }
-                                }
-                            }
-                            free(measurementName);
-                        }
-                    }
-                }
+                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
             }
-            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
         }
     }
     return status;
