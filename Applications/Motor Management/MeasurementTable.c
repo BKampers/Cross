@@ -136,9 +136,17 @@ int GetMeasurementTableCount()
 }
 
 
-const char* GetMeasurementTableName(int index)
+Status GetMeasurementTable(int index, MeasurementTable** table)
 {
-    return measurementTables[index].name;
+    if ((0 <= index) && (index < measurementTableCount))
+    {
+        *table = &(measurementTables[index]);
+        return OK;
+    }
+    else
+    {
+        return INVALID_PARAMETER;
+    }
 }
 
 

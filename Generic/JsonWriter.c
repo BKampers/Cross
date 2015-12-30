@@ -14,6 +14,13 @@
 bool valueWritten = FALSE;
 
 
+Status WriteJsonNull(int channelId)
+{
+    valueWritten = TRUE;
+    return WriteString(channelId, JSON_NULL_LITERAL);
+}
+
+
 Status WriteJsonBoolean(int channelId, bool value)
 {
     valueWritten = TRUE;
@@ -172,6 +179,14 @@ Status WriteJsonBooleanMember(int channelId, const char* name, bool value)
 }
 
 
+Status WriteJsonNullMember(int channelId, const char* name)
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(channelId, name))
+    return WriteJsonNull(channelId);
+}
+
+
 Status WriteJsonIntegerMember(int channelId, const char* name, int value)
 {
     RETURN_WHEN_INVALID
@@ -209,6 +224,14 @@ Status WriteJsonArrayEnd(int channelId)
 {
     valueWritten = TRUE;
     return WriteCharacter(channelId, ARRAY_END);
+}
+
+
+Status WriteJsonNullElement(int channelId)
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonSeparator(channelId))
+    return WriteJsonNull(channelId);    
 }
 
 

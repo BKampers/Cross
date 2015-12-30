@@ -35,31 +35,31 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/_ext/445223610/Crank.o \
-	${OBJECTDIR}/_ext/445223610/Engine.o \
-	${OBJECTDIR}/_ext/445223610/Ignition.o \
-	${OBJECTDIR}/_ext/445223610/Injection.o \
-	${OBJECTDIR}/_ext/445223610/InjectionTimer.o \
-	${OBJECTDIR}/_ext/445223610/MeasurementTable.o \
-	${OBJECTDIR}/_ext/445223610/Measurements.o \
-	${OBJECTDIR}/_ext/445223610/Messaging.o \
-	${OBJECTDIR}/_ext/445223610/Table.o \
-	${OBJECTDIR}/_ext/445223610/main.o \
-	${OBJECTDIR}/_ext/1917134825/ApiStatus.o \
-	${OBJECTDIR}/_ext/1917134825/Communication.o \
-	${OBJECTDIR}/_ext/1917134825/Json.o \
-	${OBJECTDIR}/_ext/1917134825/JsonParser.o \
-	${OBJECTDIR}/_ext/1917134825/JsonWriter.o \
-	${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o \
-	${OBJECTDIR}/_ext/1308665564/AnalogInput.o \
-	${OBJECTDIR}/_ext/1308665564/Control.o \
-	${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o \
-	${OBJECTDIR}/_ext/1308665564/FiledMemory.o \
-	${OBJECTDIR}/_ext/1308665564/LcdStub.o \
-	${OBJECTDIR}/_ext/1308665564/PinStub.o \
-	${OBJECTDIR}/_ext/1308665564/SocketCommunication.o \
-	${OBJECTDIR}/_ext/1308665564/SocketHandler.o \
-	${OBJECTDIR}/_ext/1308665564/Timers.o
+	${OBJECTDIR}/_ext/1a8992ba/Crank.o \
+	${OBJECTDIR}/_ext/1a8992ba/Engine.o \
+	${OBJECTDIR}/_ext/1a8992ba/Ignition.o \
+	${OBJECTDIR}/_ext/1a8992ba/Injection.o \
+	${OBJECTDIR}/_ext/1a8992ba/InjectionTimer.o \
+	${OBJECTDIR}/_ext/1a8992ba/MeasurementTable.o \
+	${OBJECTDIR}/_ext/1a8992ba/Measurements.o \
+	${OBJECTDIR}/_ext/1a8992ba/Messaging.o \
+	${OBJECTDIR}/_ext/1a8992ba/Table.o \
+	${OBJECTDIR}/_ext/1a8992ba/main.o \
+	${OBJECTDIR}/_ext/8dbad817/ApiStatus.o \
+	${OBJECTDIR}/_ext/8dbad817/Communication.o \
+	${OBJECTDIR}/_ext/8dbad817/Json.o \
+	${OBJECTDIR}/_ext/8dbad817/JsonParser.o \
+	${OBJECTDIR}/_ext/8dbad817/JsonWriter.o \
+	${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o \
+	${OBJECTDIR}/_ext/b1ff5924/AnalogInput.o \
+	${OBJECTDIR}/_ext/b1ff5924/Control.o \
+	${OBJECTDIR}/_ext/b1ff5924/ExternalInterrupt.o \
+	${OBJECTDIR}/_ext/b1ff5924/FiledMemory.o \
+	${OBJECTDIR}/_ext/b1ff5924/LcdStub.o \
+	${OBJECTDIR}/_ext/b1ff5924/PinStub.o \
+	${OBJECTDIR}/_ext/b1ff5924/SocketCommunication.o \
+	${OBJECTDIR}/_ext/b1ff5924/SocketHandler.o \
+	${OBJECTDIR}/_ext/b1ff5924/Timers.o
 
 
 # C Compiler Flags
@@ -86,130 +86,130 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mmosx ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/_ext/445223610/Crank.o: ../../Applications/Motor\ Management/Crank.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Crank.o: ../../Applications/Motor\ Management/Crank.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Crank.o ../../Applications/Motor\ Management/Crank.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Crank.o ../../Applications/Motor\ Management/Crank.c
 
-${OBJECTDIR}/_ext/445223610/Engine.o: ../../Applications/Motor\ Management/Engine.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Engine.o: ../../Applications/Motor\ Management/Engine.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Engine.o ../../Applications/Motor\ Management/Engine.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Engine.o ../../Applications/Motor\ Management/Engine.c
 
-${OBJECTDIR}/_ext/445223610/Ignition.o: ../../Applications/Motor\ Management/Ignition.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Ignition.o: ../../Applications/Motor\ Management/Ignition.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Ignition.o ../../Applications/Motor\ Management/Ignition.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Ignition.o ../../Applications/Motor\ Management/Ignition.c
 
-${OBJECTDIR}/_ext/445223610/Injection.o: ../../Applications/Motor\ Management/Injection.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Injection.o: ../../Applications/Motor\ Management/Injection.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Injection.o ../../Applications/Motor\ Management/Injection.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Injection.o ../../Applications/Motor\ Management/Injection.c
 
-${OBJECTDIR}/_ext/445223610/InjectionTimer.o: ../../Applications/Motor\ Management/InjectionTimer.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/InjectionTimer.o: ../../Applications/Motor\ Management/InjectionTimer.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/InjectionTimer.o ../../Applications/Motor\ Management/InjectionTimer.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/InjectionTimer.o ../../Applications/Motor\ Management/InjectionTimer.c
 
-${OBJECTDIR}/_ext/445223610/MeasurementTable.o: ../../Applications/Motor\ Management/MeasurementTable.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/MeasurementTable.o: ../../Applications/Motor\ Management/MeasurementTable.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/MeasurementTable.o ../../Applications/Motor\ Management/MeasurementTable.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/MeasurementTable.o ../../Applications/Motor\ Management/MeasurementTable.c
 
-${OBJECTDIR}/_ext/445223610/Measurements.o: ../../Applications/Motor\ Management/Measurements.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Measurements.o: ../../Applications/Motor\ Management/Measurements.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Measurements.o ../../Applications/Motor\ Management/Measurements.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Measurements.o ../../Applications/Motor\ Management/Measurements.c
 
-${OBJECTDIR}/_ext/445223610/Messaging.o: ../../Applications/Motor\ Management/Messaging.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Messaging.o: ../../Applications/Motor\ Management/Messaging.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Messaging.o ../../Applications/Motor\ Management/Messaging.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Messaging.o ../../Applications/Motor\ Management/Messaging.c
 
-${OBJECTDIR}/_ext/445223610/Table.o: ../../Applications/Motor\ Management/Table.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/Table.o: ../../Applications/Motor\ Management/Table.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/Table.o ../../Applications/Motor\ Management/Table.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/Table.o ../../Applications/Motor\ Management/Table.c
 
-${OBJECTDIR}/_ext/445223610/main.o: ../../Applications/Motor\ Management/main.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/445223610
+${OBJECTDIR}/_ext/1a8992ba/main.o: ../../Applications/Motor\ Management/main.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1a8992ba
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/445223610/main.o ../../Applications/Motor\ Management/main.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1a8992ba/main.o ../../Applications/Motor\ Management/main.c
 
-${OBJECTDIR}/_ext/1917134825/ApiStatus.o: ../../Generic/ApiStatus.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/ApiStatus.o: ../../Generic/ApiStatus.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/ApiStatus.o ../../Generic/ApiStatus.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ../../Generic/ApiStatus.c
 
-${OBJECTDIR}/_ext/1917134825/Communication.o: ../../Generic/Communication.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/Communication.o: ../../Generic/Communication.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/Communication.o ../../Generic/Communication.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/Communication.o ../../Generic/Communication.c
 
-${OBJECTDIR}/_ext/1917134825/Json.o: ../../Generic/Json.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/Json.o: ../../Generic/Json.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/Json.o ../../Generic/Json.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/Json.o ../../Generic/Json.c
 
-${OBJECTDIR}/_ext/1917134825/JsonParser.o: ../../Generic/JsonParser.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/JsonParser.o: ../../Generic/JsonParser.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/JsonParser.o ../../Generic/JsonParser.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/JsonParser.o ../../Generic/JsonParser.c
 
-${OBJECTDIR}/_ext/1917134825/JsonWriter.o: ../../Generic/JsonWriter.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/JsonWriter.o: ../../Generic/JsonWriter.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/JsonWriter.o ../../Generic/JsonWriter.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/JsonWriter.o ../../Generic/JsonWriter.c
 
-${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o: ../../Generic/PersistentElementManager.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1917134825
+${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o: ../../Generic/PersistentElementManager.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1917134825/PersistentElementManager.o ../../Generic/PersistentElementManager.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o ../../Generic/PersistentElementManager.c
 
-${OBJECTDIR}/_ext/1308665564/AnalogInput.o: ../../Platforms/MacOS/AnalogInput.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/AnalogInput.o: ../../Platforms/MacOS/AnalogInput.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/AnalogInput.o ../../Platforms/MacOS/AnalogInput.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/AnalogInput.o ../../Platforms/MacOS/AnalogInput.c
 
-${OBJECTDIR}/_ext/1308665564/Control.o: ../../Platforms/MacOS/Control.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/Control.o: ../../Platforms/MacOS/Control.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/Control.o ../../Platforms/MacOS/Control.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/Control.o ../../Platforms/MacOS/Control.c
 
-${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o: ../../Platforms/MacOS/ExternalInterrupt.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/ExternalInterrupt.o: ../../Platforms/MacOS/ExternalInterrupt.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/ExternalInterrupt.o ../../Platforms/MacOS/ExternalInterrupt.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/ExternalInterrupt.o ../../Platforms/MacOS/ExternalInterrupt.c
 
-${OBJECTDIR}/_ext/1308665564/FiledMemory.o: ../../Platforms/MacOS/FiledMemory.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/FiledMemory.o: ../../Platforms/MacOS/FiledMemory.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/FiledMemory.o ../../Platforms/MacOS/FiledMemory.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/FiledMemory.o ../../Platforms/MacOS/FiledMemory.c
 
-${OBJECTDIR}/_ext/1308665564/LcdStub.o: ../../Platforms/MacOS/LcdStub.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/LcdStub.o: ../../Platforms/MacOS/LcdStub.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/LcdStub.o ../../Platforms/MacOS/LcdStub.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/LcdStub.o ../../Platforms/MacOS/LcdStub.c
 
-${OBJECTDIR}/_ext/1308665564/PinStub.o: ../../Platforms/MacOS/PinStub.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/PinStub.o: ../../Platforms/MacOS/PinStub.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/PinStub.o ../../Platforms/MacOS/PinStub.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/PinStub.o ../../Platforms/MacOS/PinStub.c
 
-${OBJECTDIR}/_ext/1308665564/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/SocketCommunication.o: ../../Platforms/MacOS/SocketCommunication.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/SocketCommunication.o ../../Platforms/MacOS/SocketCommunication.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/SocketCommunication.o ../../Platforms/MacOS/SocketCommunication.c
 
-${OBJECTDIR}/_ext/1308665564/SocketHandler.o: ../../Platforms/MacOS/SocketHandler.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/SocketHandler.o: ../../Platforms/MacOS/SocketHandler.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/SocketHandler.o ../../Platforms/MacOS/SocketHandler.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/SocketHandler.o ../../Platforms/MacOS/SocketHandler.c
 
-${OBJECTDIR}/_ext/1308665564/Timers.o: ../../Platforms/MacOS/Timers.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/1308665564
+${OBJECTDIR}/_ext/b1ff5924/Timers.o: ../../Platforms/MacOS/Timers.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/b1ff5924
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1308665564/Timers.o ../../Platforms/MacOS/Timers.c
+	$(COMPILE.c) -g -I../../API -I../../Json/include -I../../Applications/Motor\ Management -I../../Platforms/MacOS -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b1ff5924/Timers.o ../../Platforms/MacOS/Timers.c
 
 # Subprojects
 .build-subprojects:

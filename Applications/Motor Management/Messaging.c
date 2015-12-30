@@ -23,6 +23,9 @@
 #include "MeasurementTable.h"
 #include "Measurements.h"
 
+/*
+** Private
+*/
 
 const char* DIRECTION = "Direction";
 const char* CALL = "Call";
@@ -45,6 +48,9 @@ const char* VALUES = "Values";
 
 const char* VALUE = "Value";
 const char* SIMULATION = "Simulation";
+const char* CURRENT_ROW = "CurrentRow";
+const char* CURRENT_COLUMN = "CurrentColumn";
+const char* TABLE = "Table";
 
 const char* ERROR = "Error";
 const char* STATUS = "Status";
@@ -76,7 +82,7 @@ Status PutMeasurementAttribute(Measurement* measurement, char* attributeName)
 }
 
 
-Status PutAttributes(Measurement* measurement, JsonNode* attributes)
+Status PutMeasurementAttributes(Measurement* measurement, JsonNode* attributes)
 {
     int attributeCount;
     Status status = OK;
@@ -108,7 +114,7 @@ Status PutMeasurement(JsonNode* message, Measurement* measurement)
             JsonNode attributes;
             if (GetArray(message, ATTRIBUTES, &attributes) == JSON_OK)
             {
-                status = PutAttributes(measurement, &attributes);
+                status = PutMeasurementAttributes(measurement, &attributes);
             }
         }
         if (status == OK)
@@ -171,9 +177,179 @@ Status HandleMeasurementRequest(JsonNode* message)
 }
 
 
+Status PutMeasurmentTableFields(MeasurementTable* measurementTable) 
+{
+    Status s = OK;
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, TABLE);
+    if (status == OK)
+    {
+        byte column, row;
+        status = WriteJsonArrayStart(DEFAULT_CHANNEL);
+        for (row = 0; (row < measurementTable->table.rows) && (status == OK); ++row)
+        {
+            status = WriteJsonArrayStart(DEFAULT_CHANNEL);
+            for (column = 0; (column < measurementTable->table.columns) && (status == OK); ++column)
+            {
+                float value;
+                Status valueStatus = GetMeasurementTableField(measurementTable, column, row, &value);
+                if (valueStatus == OK)
+                {
+                    status = WriteJsonRealElement(DEFAULT_CHANNEL, value);
+                }
+                else 
+                {
+                    s = valueStatus;
+                    status = WriteJsonNullElement(DEFAULT_CHANNEL);
+                }
+            }
+            if (status == OK)
+            {
+                status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+            }
+        }
+        if (status == OK)
+        {
+            status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+        }
+    }
+    if (s != OK)
+    {
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, s);
+    }
+    return status; 
+}
+
+
+Status PutMeasurementTableAttributes(MeasurementTable* measurementTable, char* attributeName)
+{
+    Status status = OK;
+    if ((attributeName == NULL) || (strcmp(attributeName, CURRENT_ROW) == 0))
+    {
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex);
+    }
+    if ((attributeName == NULL) || (strcmp(attributeName, CURRENT_COLUMN) == 0))
+    {
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex);
+    }
+    if ((attributeName == NULL) || (strcmp(attributeName, TABLE) == 0))
+    {
+        status = PutMeasurmentTableFields(measurementTable);
+    }
+    return status;
+}
+
+
+Status PutListedMeasurementTableAttributes(MeasurementTable* measurementTable, JsonNode* attributes)
+{
+    int attributeCount;
+    Status status = OK;
+    if (GetCount(attributes, &attributeCount) == JSON_OK)
+    {
+        int i;
+        for (i = 0; (i < attributeCount) && (status == OK); ++i)
+        {
+            char* attributeName;
+            if (AllocateStringAt(attributes, i, &attributeName) == JSON_OK)
+            {
+                status = PutMeasurementTableAttributes(measurementTable, attributeName);
+                free(attributeName);
+            }
+        }
+    }
+    return status;
+}
+
+
+Status PutMeasurementTable(JsonNode* message, MeasurementTable* measurementTable)
+{
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurementTable->name);
+    if (status == OK)
+    {
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            JsonNode attributes;
+            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+            if (jsonStatus == JSON_OK)
+            {
+                status = PutListedMeasurementTableAttributes(measurementTable, &attributes);
+            }
+            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+            {
+                status = PutMeasurementTableAttributes(measurementTable, NULL);
+            }
+        }
+    }
+    if (status == OK)
+    {
+        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+    }
+    return status;
+}
+
+
+Status PutMeasurementTables(JsonNode* message)
+{
+    JsonNode instances;
+    Status status = OK;
+    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instances);
+    if (jsonStatus == JSON_OK)
+    {
+        int instanceCount;
+        jsonStatus = GetCount(&instances, &instanceCount);
+        if (jsonStatus == JSON_OK)
+        {
+            int i;
+            for (i = 0; (i < instanceCount) && (status == OK); ++i)
+            {
+                char* tableName;
+                jsonStatus = AllocateStringAt(&instances, i, &tableName);
+                if (jsonStatus == JSON_OK)
+                {
+                    MeasurementTable* measurementTable;
+                    if (FindMeasurementTable(tableName, &measurementTable) == OK)
+                    {
+                        status = PutMeasurementTable(message, measurementTable);
+                    }
+                    free(tableName);
+                }
+            }
+        }
+    }
+    else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+    {
+        int count = GetMeasurementTableCount();
+        int i;
+        for (i = 0; i < count; ++i)
+        {
+            MeasurementTable* measurementTable;
+            status = GetMeasurementTable(i, &measurementTable);
+            if (status == OK)
+            {
+                status = PutMeasurementTable(message, measurementTable);
+            }
+        }
+    }
+    return status;
+}
+
+
 Status HandleMeasurementTableRequest(JsonNode* message)
 {
-    return NOT_IMPLEMENTED;
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+    if (status == OK)
+    {
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            status = PutMeasurementTables(message);
+            if (status == OK)
+            {
+                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+            }
+        }
+    }
+    return status;
 }
 
 
