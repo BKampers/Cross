@@ -56,7 +56,7 @@ const char* ERROR = "Error";
 const char* STATUS = "Status";
 
 
-bool AttributeRequested(const JsonNode* attributes, const char* attributeName)
+bool NameRequested(const JsonNode* attributes, const char* attributeName)
 {
     int index;
     return (attributes == NULL) || (IndexOfString(attributes, attributeName, &index) == JSON_OK);
@@ -82,11 +82,11 @@ Status PutMeasurementValue(const Measurement* measurement)
 Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* attributes)
 {
     Status status = OK;
-    if (AttributeRequested(attributes, VALUE))
+    if (NameRequested(attributes, VALUE))
     {
        status = PutMeasurementValue(measurement); 
     }
-    if (AttributeRequested(attributes, SIMULATION))
+    if (NameRequested(attributes, SIMULATION))
     {
        status = WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
     }
@@ -124,44 +124,29 @@ Status PutMeasurement(const JsonNode* message, const Measurement* measurement)
 
 Status PutMeasurements(const JsonNode* message)
 {
-    JsonNode instances;
+    JsonNode instanceArray;
     Status status = OK;
-    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instances);
-    if (jsonStatus == JSON_OK)
+    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
     {
-        int instanceCount;
-        jsonStatus = GetCount(&instances, &instanceCount);
-        if (jsonStatus == JSON_OK)
-        {
-            int i;
-            for (i = 0; (i < instanceCount) && (status == OK); ++i)
-            {
-                char* measurementName;
-                jsonStatus = AllocateStringAt(&instances, i, &measurementName);
-                if (jsonStatus == JSON_OK)
-                {
-                    Measurement* measurement;
-                    if (FindMeasurement(measurementName, &measurement) == OK)
-                    {
-                        status = PutMeasurement(message, measurement);
-                    }
-                    free(measurementName);
-                }
-            }
-        }
-    }
-    else if (jsonStatus == JSON_NAME_NOT_PRESENT)
-    {
-        int i;
+        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
         int count = GetMeasurementCount();
+        int i;
         for (i = 0; (i < count) && (status == OK); ++i)
         {
             Measurement* measurement;
             if (GetMeasurement(i, &measurement) == OK)
             {
-                status = PutMeasurement(message, measurement);
+                if (NameRequested(instances, measurement->name))
+                {
+                    status = PutMeasurement(message, measurement);
+                }
             }
         }
+    }
+    else
+    {
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidInstances");
     }
     return status;
 }
@@ -232,15 +217,15 @@ Status PutMeasurmentTableFields(const MeasurementTable* measurementTable)
 Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, const JsonNode* attributes)
 {
     Status status = OK;
-    if (AttributeRequested(attributes, CURRENT_ROW))
+    if (NameRequested(attributes, CURRENT_ROW))
     {
         status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex);
     }
-    if (AttributeRequested(attributes, CURRENT_COLUMN))
+    if (NameRequested(attributes, CURRENT_COLUMN))
     {
         status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex);
     }
-    if (AttributeRequested(attributes, TABLE))
+    if (NameRequested(attributes, TABLE))
     {
         status = PutMeasurmentTableFields(measurementTable);
     }
@@ -278,44 +263,29 @@ Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* meas
 
 Status PutMeasurementTables(const JsonNode* message)
 {
-    JsonNode instances;
+    JsonNode instanceArray;
     Status status = OK;
-    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instances);
-    if (jsonStatus == JSON_OK)
+    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
     {
-        int instanceCount;
-        jsonStatus = GetCount(&instances, &instanceCount);
-        if (jsonStatus == JSON_OK)
-        {
-            int i;
-            for (i = 0; (i < instanceCount) && (status == OK); ++i)
-            {
-                char* tableName;
-                jsonStatus = AllocateStringAt(&instances, i, &tableName);
-                if (jsonStatus == JSON_OK)
-                {
-                    MeasurementTable* measurementTable;
-                    if (FindMeasurementTable(tableName, &measurementTable) == OK)
-                    {
-                        status = PutMeasurementTable(message, measurementTable);
-                    }
-                    free(tableName);
-                }
-            }
-        }
-    }
-    else if (jsonStatus == JSON_NAME_NOT_PRESENT)
-    {
-        int i;
+        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
         int count = GetMeasurementTableCount();
+        int i;
         for (i = 0; (i < count) && (status == OK); ++i)
         {
             MeasurementTable* measurementTable;
             if (GetMeasurementTable(i, &measurementTable) == OK)
             {
-                status = PutMeasurementTable(message, measurementTable);
+                if (NameRequested(instances, measurementTable->name))
+                {
+                    status = PutMeasurementTable(message, measurementTable);
+                }
             }
         }
+    }
+    else
+    {
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidInstances");
     }
     return status;
 }
