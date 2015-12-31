@@ -56,33 +56,35 @@ const char* ERROR = "Error";
 const char* STATUS = "Status";
 
 
-Status PutMeasurementAttribute(Measurement* measurement, char* attributeName)
+Status PutMeasurementAttributes(Measurement* measurement, char* attributeName)
 {
-    if (strcmp(attributeName, VALUE) == 0)
+    Status status = UNINITIALIZED;
+    if ((attributeName == NULL) || (strcmp(attributeName, VALUE) == 0))
     {
         float value;
         Status status = GetMeasurementValue(measurement, &value);
         if (status == OK)
         {
-            return WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
+            status = WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
         }
         else
         {
-            return WriteJsonStringMember(DEFAULT_CHANNEL, VALUE, status);
+            status =  WriteJsonStringMember(DEFAULT_CHANNEL, VALUE, status);
         }
     }
-    else if (strcmp(attributeName, SIMULATION) == 0)
+    if ((attributeName == NULL) || (strcmp(attributeName, SIMULATION) == 0))
     {
-        return WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
+        status =  WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
     }
-    else
+    if (status == UNINITIALIZED)
     {
-        return WriteJsonStringMember(DEFAULT_CHANNEL, attributeName, "NoSuchAttribute");
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, "InvalidAttribute", attributeName);
     }
+    return status;
 }
 
 
-Status PutMeasurementAttributes(Measurement* measurement, JsonNode* attributes)
+Status PutListedMeasurementAttributes(Measurement* measurement, JsonNode* attributes)
 {
     int attributeCount;
     Status status = OK;
@@ -94,7 +96,7 @@ Status PutMeasurementAttributes(Measurement* measurement, JsonNode* attributes)
             char* attributeName;
             if (AllocateStringAt(attributes, i, &attributeName) == JSON_OK)
             {
-                status = PutMeasurementAttribute(measurement, attributeName);
+                status = PutMeasurementAttributes(measurement, attributeName);
                 free(attributeName);
             }
         }
@@ -112,9 +114,14 @@ Status PutMeasurement(JsonNode* message, Measurement* measurement)
         if (status == OK)
         {
             JsonNode attributes;
-            if (GetArray(message, ATTRIBUTES, &attributes) == JSON_OK)
+            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+            if (jsonStatus == JSON_OK)
             {
-                status = PutMeasurementAttributes(measurement, &attributes);
+                status = PutListedMeasurementAttributes(measurement, &attributes);
+            }
+            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+            {
+                status = PutMeasurementAttributes(measurement, NULL);
             }
         }
         if (status == OK)
@@ -154,6 +161,19 @@ Status PutMeasurements(JsonNode* message)
             }
         }
     }
+    else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+    {
+        int i;
+        int count = GetMeasurementCount();
+        for (i = 0; (i < count) && (status == OK); ++i)
+        {
+            Measurement* measurement;
+            if (GetMeasurement(i, &measurement) == OK)
+            {
+                status = PutMeasurement(message, measurement);
+            }
+        }
+    }
     return status;
 }
 
@@ -179,7 +199,7 @@ Status HandleMeasurementRequest(JsonNode* message)
 
 Status PutMeasurmentTableFields(MeasurementTable* measurementTable) 
 {
-    Status s = OK;
+    Status error = OK;
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, TABLE);
     if (status == OK)
     {
@@ -198,7 +218,7 @@ Status PutMeasurmentTableFields(MeasurementTable* measurementTable)
                 }
                 else 
                 {
-                    s = valueStatus;
+                    error = valueStatus;
                     status = WriteJsonNullElement(DEFAULT_CHANNEL);
                 }
             }
@@ -212,9 +232,9 @@ Status PutMeasurmentTableFields(MeasurementTable* measurementTable)
             status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
         }
     }
-    if (s != OK)
+    if (error != OK)
     {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, s);
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, error);
     }
     return status; 
 }
@@ -318,13 +338,12 @@ Status PutMeasurementTables(JsonNode* message)
     }
     else if (jsonStatus == JSON_NAME_NOT_PRESENT)
     {
-        int count = GetMeasurementTableCount();
         int i;
-        for (i = 0; i < count; ++i)
+        int count = GetMeasurementTableCount();
+        for (i = 0; (i < count) && (status == OK); ++i)
         {
             MeasurementTable* measurementTable;
-            status = GetMeasurementTable(i, &measurementTable);
-            if (status == OK)
+            if (GetMeasurementTable(i, &measurementTable) == OK)
             {
                 status = PutMeasurementTable(message, measurementTable);
             }
