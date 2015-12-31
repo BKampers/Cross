@@ -381,14 +381,14 @@ Status HandleRequest(const JsonNode* message)
                 }
                 else
                 {
-                    status = WriteJsonStringMember(DEFAULT_CHANNEL, "Error", "InvalidDataType");
+                    status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidDataType");
                 }
             }
             free(dataType);
         }
         else
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, "Error", "INoDataType");
+            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "INoDataType");
         }
     }
     return status;
@@ -422,13 +422,13 @@ Status HandleCall(const JsonNode* message)
         }
         else
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, "Error", "InvalidProcedure");
+            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidProcedure");
         }
         free(procedure);
     }
     else
     {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, "Error", "NoProcedure");
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "NoProcedure");
     }
     return status;
 }
