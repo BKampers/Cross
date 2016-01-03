@@ -1,6 +1,6 @@
 /*
 ** JSON messaging for Randd Motor Management system
-** Copyright 2015, Bart Kampers
+** Author: Bart Kampers
 */
 
 #include "Messaging.h"
@@ -40,7 +40,7 @@ const char* DATA_TYPE = "DataType";
 const char* MEASUREMENT = "Measurement";
 const char* MEASUREMENT_TABLE = "MeasurementTable";
 const char* ENGINE = "Engine";
-const char* MEMORY = "Memory";
+const char*  ELEMENTS = "Elements";
 
 const char* INSTANCES = "Instances";
 const char* ATTRIBUTES = "Attributes";
@@ -51,6 +51,18 @@ const char* SIMULATION = "Simulation";
 const char* CURRENT_ROW = "CurrentRow";
 const char* CURRENT_COLUMN = "CurrentColumn";
 const char* TABLE = "Table";
+
+const char* CYLINDER_COUNT = "CylinderCount";
+const char* DEAD_POINTS = "DeadPoints";
+const char* COGWHEEL = "Cogwheel";
+const char* COG_TOTAL = "CogTotal";
+const char* GAP_SIZE = "GapSize";
+const char* OFFSET = "Offset";
+
+const char*  PERSISTENT = "Persistent";
+const char* TYPE = "Type";
+const char* REFERENCE = "Reference";
+const char* SIZE = "Size";
 
 const char* ERROR = "Error";
 const char* STATUS = "Status";
@@ -73,7 +85,7 @@ Status PutMeasurementValue(const Measurement* measurement)
     }
     else
     {
-        status =  WriteJsonStringMember(DEFAULT_CHANNEL, VALUE, status);
+        status =  WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, status);
     }
     return status;
 }
@@ -310,15 +322,178 @@ Status HandleMeasurementTableRequest(const JsonNode* message)
 }
 
 
-Status HandleEngineRequest(const JsonNode* message)
+Status PutDeadPoints()
 {
-    return NOT_IMPLEMENTED;
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, DEAD_POINTS);
+    if (status == OK)
+    {
+        status = WriteJsonArrayStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            int i;
+            for (i = 0; (i < GetDeadPointCount()) && (status == OK); ++i)
+            {
+                status = WriteJsonIntegerElement(DEFAULT_CHANNEL, GetDeadPointCog(i));
+            }
+        }            
+        if (status == OK)
+        {
+            status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+        }
+    }
+    return status;
 }
 
 
-Status HandleMemoryRequest(const JsonNode* message)
+Status PutCogwheel()
 {
-    return NOT_IMPLEMENTED;
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, COGWHEEL);
+    if (status == OK)
+    {
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            status = WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, GetCogTotal());
+            if (status == OK)
+            {
+                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, GAP_SIZE, GetGapSize());
+                if (status == OK)
+                {
+                    status = WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, GetDeadPointOffset());
+                    if (status == OK)
+                    {
+                        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+                    }
+                }
+            }
+        }
+    }
+    return status;
+}
+
+
+Status PutEngineAttributes(const JsonNode* attributes)
+{
+    Status status = OK;
+    if (NameRequested(attributes, CYLINDER_COUNT))
+    {
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount());
+    }
+    if ((status == OK) && NameRequested(attributes, DEAD_POINTS))
+    {
+        status = PutDeadPoints();
+    }
+    if ((status == OK) && NameRequested(attributes, COGWHEEL))
+    {
+        status = PutCogwheel();
+    }
+    return status;
+}
+
+
+Status HandleEngineRequest(const JsonNode* message)
+{
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUE);
+    if (status == OK)
+    {
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            JsonNode attributes;
+            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+            if (jsonStatus == JSON_OK)
+            {
+                status = PutEngineAttributes(&attributes);
+            }
+        }    
+        if (status == OK)
+        {
+            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+        }
+    }
+    return status;
+}
+
+
+Status PutElement(TypeId typeId, Reference reference, ElementSize size)
+{
+    Status status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+    if (status == OK)
+    {
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, TYPE, typeId);
+        if (status == OK)
+        {
+            status = WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference);
+            if (status == OK)
+            {
+                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, SIZE, size);
+            }
+        }
+    }
+    return status;
+}
+
+
+Status PutElementTypes(TypeId typeId)
+{
+    Status status = OK;
+    Reference reference;
+    Status memoryStatus = FindFirst(typeId, &reference);
+    while ((memoryStatus == OK) && (status == OK))
+    {
+        ElementSize size;
+        memoryStatus = GetSize(reference, &size);
+        if (memoryStatus == OK)
+        {
+            status = PutElement(typeId, reference, size);
+            memoryStatus = FindNext(typeId, &reference);
+        }
+    }
+    return status;
+}
+
+
+Status PutPersistentElements()
+{
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, PERSISTENT);
+    if (status == OK)
+    {
+        WriteJsonArrayStart(DEFAULT_CHANNEL);
+        if (status == OK)
+        {
+            int count = GetTypeCount();
+            int i;
+            for (i = 0; (i < count) && (status == OK); ++i)
+            {
+                status = PutElementTypes((TypeId) i);
+            }
+            if (status == OK)
+            {
+                status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+            }
+        }
+    }
+    return status;
+}
+
+
+Status HandleElementsRequest(const JsonNode* message)
+{
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+    if (status == OK)
+    {
+        JsonNode attributes;
+        JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+        if ((jsonStatus == JSON_OK) && NameRequested(&attributes, PERSISTENT))
+        {
+             status = PutPersistentElements();
+        }
+        if (status == OK)
+        {
+            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+        }
+    }
+    return status;
 }
 
 
@@ -345,9 +520,9 @@ Status HandleRequest(const JsonNode* message)
                 {
                     status = HandleEngineRequest(message);
                 }
-                else if (strcmp(dataType, MEMORY) == 0)
+                else if (strcmp(dataType, ELEMENTS) == 0)
                 {
-                    status = HandleMemoryRequest(message);
+                    status = HandleElementsRequest(message);
                 }
                 else
                 {
@@ -477,5 +652,5 @@ Status SendRealNotification(const char* name, double value)
 
 Status SendErrorNotification(const char* error)
 {
-     return SendTextNotification(ERROR, error);
+    return SendTextNotification(ERROR, error);
 }
