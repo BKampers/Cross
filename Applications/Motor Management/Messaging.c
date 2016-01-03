@@ -60,7 +60,7 @@ const char* GAP_SIZE = "GapSize";
 const char* OFFSET = "Offset";
 
 const char*  PERSISTENT = "Persistent";
-const char* TYPE = "Type";
+const char* TYPE_ID = "TypeId";
 const char* REFERENCE = "Reference";
 const char* SIZE = "Size";
 
@@ -420,13 +420,17 @@ Status PutElement(TypeId typeId, Reference reference, ElementSize size)
     Status status = WriteJsonObjectStart(DEFAULT_CHANNEL);
     if (status == OK)
     {
-        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, TYPE, typeId);
+        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, TYPE_ID, typeId);
         if (status == OK)
         {
             status = WriteJsonIntegerMember(DEFAULT_CHANNEL, REFERENCE, reference);
             if (status == OK)
             {
                 status = WriteJsonIntegerMember(DEFAULT_CHANNEL, SIZE, size);
+                if (status == OK)
+                {
+                    status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+                }
             }
         }
     }
@@ -482,15 +486,19 @@ Status HandleElementsRequest(const JsonNode* message)
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
     if (status == OK)
     {
-        JsonNode attributes;
-        JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-        if ((jsonStatus == JSON_OK) && NameRequested(&attributes, PERSISTENT))
-        {
-             status = PutPersistentElements();
-        }
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
         if (status == OK)
         {
-            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+            JsonNode attributes;
+            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+            if ((jsonStatus == JSON_NAME_NOT_PRESENT) || ((jsonStatus == JSON_OK) && NameRequested(&attributes, PERSISTENT)))
+            {
+                status = PutPersistentElements();
+            }
+            if (status == OK)
+            {
+                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+            }
         }
     }
     return status;
