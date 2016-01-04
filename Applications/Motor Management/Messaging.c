@@ -75,28 +75,29 @@ bool NameRequested(const JsonNode* attributes, const char* attributeName)
 }
 
 
-Status PutMeasurementValue(const Measurement* measurement)
+Status PutMeasurementValue(const Measurement* measurement, Status* error)
 {
     float value;
-    Status status = GetMeasurementValue(measurement, &value);
-    if (status == OK)
+    Status status = OK;
+    Status measurementStatus = GetMeasurementValue(measurement, &value);
+    if (measurementStatus == OK)
     {
         status = WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
     }
     else
     {
-        status =  WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, status);
+        *error = measurementStatus;
     }
     return status;
 }
 
 
-Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* attributes)
+Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* attributes, Status* error)
 {
     Status status = OK;
     if (NameRequested(attributes, VALUE))
     {
-       status = PutMeasurementValue(measurement); 
+       status = PutMeasurementValue(measurement, error); 
     }
     if (NameRequested(attributes, SIMULATION))
     {
@@ -106,7 +107,7 @@ Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* 
 }
 
 
-Status PutMeasurement(const JsonNode* message, const Measurement* measurement)
+Status PutMeasurement(const JsonNode* message, const Measurement* measurement, Status* error)
 {
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurement->name);
     if (status == OK)
@@ -118,11 +119,11 @@ Status PutMeasurement(const JsonNode* message, const Measurement* measurement)
             JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
             if (jsonStatus == JSON_OK)
             {
-                status = PutMeasurementAttributes(measurement, &attributes);
+                status = PutMeasurementAttributes(measurement, &attributes, error);
             }
             else if (jsonStatus == JSON_NAME_NOT_PRESENT)
             {
-                status = PutMeasurementAttributes(measurement, NULL);
+                status = PutMeasurementAttributes(measurement, NULL, error);
             }
         }
         if (status == OK)
@@ -134,7 +135,7 @@ Status PutMeasurement(const JsonNode* message, const Measurement* measurement)
 }
 
 
-Status PutMeasurements(const JsonNode* message)
+Status PutMeasurements(const JsonNode* message, Status* error)
 {
     JsonNode instanceArray;
     Status status = OK;
@@ -151,20 +152,20 @@ Status PutMeasurements(const JsonNode* message)
             {
                 if (NameRequested(instances, measurement->name))
                 {
-                    status = PutMeasurement(message, measurement);
+                    status = PutMeasurement(message, measurement, error);
                 }
             }
         }
     }
     else
     {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidInstances");
+        *error = "InvalidInstances";
     }
     return status;
 }
 
 
-Status HandleMeasurementRequest(const JsonNode* message)
+Status HandleMeasurementRequest(const JsonNode* message, Status* error)
 {
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
     if (status == OK)
@@ -172,7 +173,7 @@ Status HandleMeasurementRequest(const JsonNode* message)
         status = WriteJsonObjectStart(DEFAULT_CHANNEL);
         if (status == OK)
         {
-            status = PutMeasurements(message);
+            status = PutMeasurements(message, error);
             if (status == OK)
             {
                 status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
@@ -183,9 +184,8 @@ Status HandleMeasurementRequest(const JsonNode* message)
 }
 
 
-Status PutMeasurmentTableFields(const MeasurementTable* measurementTable) 
+Status PutMeasurmentTableFields(const MeasurementTable* measurementTable, Status* error) 
 {
-    Status error = UNINITIALIZED;
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, TABLE);
     if (status == OK)
     {
@@ -204,7 +204,7 @@ Status PutMeasurmentTableFields(const MeasurementTable* measurementTable)
                 }
                 else 
                 {
-                    error = valueStatus;
+                    *error = valueStatus;
                     status = WriteJsonNullElement(DEFAULT_CHANNEL);
                 }
             }
@@ -218,15 +218,11 @@ Status PutMeasurmentTableFields(const MeasurementTable* measurementTable)
             status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
         }
     }
-    if (error != UNINITIALIZED)
-    {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, error);
-    }
     return status; 
 }
 
 
-Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, const JsonNode* attributes)
+Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, const JsonNode* attributes, Status* error)
 {
     Status status = OK;
     if (NameRequested(attributes, CURRENT_ROW))
@@ -239,13 +235,13 @@ Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, c
     }
     if (NameRequested(attributes, TABLE))
     {
-        status = PutMeasurmentTableFields(measurementTable);
+        status = PutMeasurmentTableFields(measurementTable, error);
     }
     return status;
 }
 
 
-Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* measurementTable)
+Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* measurementTable, Status* error)
 {
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurementTable->name);
     if (status == OK)
@@ -257,11 +253,11 @@ Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* meas
             JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
             if (jsonStatus == JSON_OK)
             {
-                status = PutMeasurementTableAttributes(measurementTable, &attributes);
+                status = PutMeasurementTableAttributes(measurementTable, &attributes, error);
             }
             else if (jsonStatus == JSON_NAME_NOT_PRESENT)
             {
-                status = PutMeasurementTableAttributes(measurementTable, NULL);
+                status = PutMeasurementTableAttributes(measurementTable, NULL, error);
             }
         }
     }
@@ -273,7 +269,7 @@ Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* meas
 }
 
 
-Status PutMeasurementTables(const JsonNode* message)
+Status PutMeasurementTables(const JsonNode* message, Status* error)
 {
     JsonNode instanceArray;
     Status status = OK;
@@ -290,20 +286,20 @@ Status PutMeasurementTables(const JsonNode* message)
             {
                 if (NameRequested(instances, measurementTable->name))
                 {
-                    status = PutMeasurementTable(message, measurementTable);
+                    status = PutMeasurementTable(message, measurementTable, error);
                 }
             }
         }
     }
     else
     {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidInstances");
+        *error = "InvalidInstances";
     }
     return status;
 }
 
 
-Status HandleMeasurementTableRequest(const JsonNode* message)
+Status HandleMeasurementTableRequest(const JsonNode* message, Status* error)
 {
     Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
     if (status == OK)
@@ -311,7 +307,7 @@ Status HandleMeasurementTableRequest(const JsonNode* message)
         status = WriteJsonObjectStart(DEFAULT_CHANNEL);
         if (status == OK)
         {
-            status = PutMeasurementTables(message);
+            status = PutMeasurementTables(message, error);
             if (status == OK)
             {
                 status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
@@ -505,7 +501,7 @@ Status HandleElementsRequest(const JsonNode* message)
 }
 
 
-Status HandleRequest(const JsonNode* message)
+Status HandleRequest(const JsonNode* message, Status* error)
 {
     char* dataType;
     Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, REQUEST);
@@ -518,11 +514,11 @@ Status HandleRequest(const JsonNode* message)
             {
                 if (strcmp(dataType, MEASUREMENT) == 0)
                 {
-                    status = HandleMeasurementRequest(message);
+                    status = HandleMeasurementRequest(message, error);
                 }
                 else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
                 {
-                    status = HandleMeasurementTableRequest(message);
+                    status = HandleMeasurementTableRequest(message, error);
                 }
                 else if (strcmp(dataType, ENGINE) == 0)
                 {
@@ -534,14 +530,14 @@ Status HandleRequest(const JsonNode* message)
                 }
                 else
                 {
-                    status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidDataType");
+                    *error = "InvalidDataType";
                 }
             }
             free(dataType);
         }
         else
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "INoDataType");
+            *error = "NoDataType";
         }
     }
     return status;
@@ -559,15 +555,15 @@ Status HandleModify(const JsonNode* message)
 }
 
 
-Status HandleCall(const JsonNode* message) 
+Status HandleCall(const JsonNode* message, Status* error) 
 {
-    Status status;
+    Status status = OK;
     char* procedure;
     if (AllocateString(message, PROCEDURE, &procedure) == JSON_OK)
     {
         if (strcmp(procedure, REQUEST) == 0)
         {
-            status = HandleRequest(message);
+            status = HandleRequest(message, error);
         }
         else if (strcmp(procedure, MODIFY) == 0)
         {
@@ -575,13 +571,13 @@ Status HandleCall(const JsonNode* message)
         }
         else
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidProcedure");
+            *error = "InvalidProcedure";
         }
         free(procedure);
     }
     else
     {
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "NoProcedure");
+        *error = "NoProcedure";
     }
     return status;
 }
@@ -595,6 +591,7 @@ void HandleMessage(const char* jsonString)
 {
     JsonNode message;
     char* direction;
+    Status error = UNINITIALIZED;
     Status status = WriteJsonRootStart(DEFAULT_CHANNEL);
     if (status == OK)
     {
@@ -606,24 +603,27 @@ void HandleMessage(const char* jsonString)
                 status = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, RETURN);
                 if (status == OK) 
                 {
-                    status = HandleCall(&message);
+                    status = HandleCall(&message, &error);
                 }
             }
             else
             {
-                status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidDirection");
+                error = "InvalidDirection";
             }
         }
         else
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, NOTIFICATION);
-            if (status == OK)
-            {   
-                WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, "InvalidDirection");
-            }
+            error =  "InvalidDirection";
         }
         free(direction);
-        status = WriteJsonRootEnd(DEFAULT_CHANNEL);
+        if ((status == OK) && (error != UNINITIALIZED))
+        {
+            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, error);
+        }
+        if (status == OK)
+        {
+            status = WriteJsonRootEnd(DEFAULT_CHANNEL);
+        }
     }
 }
 
