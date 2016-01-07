@@ -358,7 +358,7 @@ Status PutCogwheel()
                     status = WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, GetDeadPointOffset());
                     if (status == OK)
                     {
-                        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+                        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
                     }
                 }
             }
@@ -370,18 +370,29 @@ Status PutCogwheel()
 
 Status PutEngineAttributes(const JsonNode* attributes)
 {
-    Status status = OK;
-    if (NameRequested(attributes, CYLINDER_COUNT))
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, "");
+    if (status == OK)
     {
-        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount());
-    }
-    if ((status == OK) && NameRequested(attributes, DEAD_POINTS))
-    {
-        status = PutDeadPoints();
-    }
-    if ((status == OK) && NameRequested(attributes, COGWHEEL))
-    {
-        status = PutCogwheel();
+        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+        if (status == OK) 
+        {
+            if (NameRequested(attributes, CYLINDER_COUNT))
+            {
+                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount());
+            }
+            if ((status == OK) && NameRequested(attributes, DEAD_POINTS))
+            {
+                status = PutDeadPoints();
+            }
+            if ((status == OK) && NameRequested(attributes, COGWHEEL))
+            {
+                status = PutCogwheel();
+            }
+            if (status == OK)
+            {
+                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+            }
+        }
     }
     return status;
 }
@@ -389,7 +400,7 @@ Status PutEngineAttributes(const JsonNode* attributes)
 
 Status HandleEngineRequest(const JsonNode* message)
 {
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUE);
+    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
     if (status == OK)
     {
         status = WriteJsonObjectStart(DEFAULT_CHANNEL);
@@ -400,6 +411,10 @@ Status HandleEngineRequest(const JsonNode* message)
             if (jsonStatus == JSON_OK)
             {
                 status = PutEngineAttributes(&attributes);
+            }
+            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+            {
+                status = PutEngineAttributes(NULL);
             }
         }    
         if (status == OK)
