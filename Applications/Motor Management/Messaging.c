@@ -40,17 +40,21 @@ const char* DATA_TYPE = "DataType";
 const char* MEASUREMENT = "Measurement";
 const char* MEASUREMENT_TABLE = "MeasurementTable";
 const char* ENGINE = "Engine";
-const char*  ELEMENTS = "Elements";
+const char* ELEMENTS = "Elements";
 
 const char* INSTANCES = "Instances";
 const char* ATTRIBUTES = "Attributes";
 const char* VALUES = "Values";
 
+//const char* NAME = "Name";
 const char* VALUE = "Value";
 const char* SIMULATION = "Simulation";
+const char* ROW = "Row";
+const char* COLUMN = "Column";
 const char* CURRENT_ROW = "CurrentRow";
 const char* CURRENT_COLUMN = "CurrentColumn";
 const char* TABLE = "Table";
+const char* ENABLED = "Enabled";
 
 const char* CYLINDER_COUNT = "CylinderCount";
 const char* DEAD_POINTS = "DeadPoints";
@@ -229,13 +233,22 @@ Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, c
     {
         status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex);
     }
-    if (NameRequested(attributes, CURRENT_COLUMN))
+    if ((status == OK) && NameRequested(attributes, CURRENT_COLUMN))
     {
         status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex);
     }
-    if (NameRequested(attributes, TABLE))
+    if ((status == OK) && NameRequested(attributes, TABLE))
     {
         status = PutMeasurmentTableFields(measurementTable, error);
+    }
+    if ((status == OK) && NameRequested(attributes, ENABLED))
+    {
+        bool enabled;
+        *error = GetMeasurementTableEnabled(measurementTable->name, &enabled);
+        if (*error == OK)
+        {
+            status = WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled);
+        }
     }
     return status;
 }
@@ -559,12 +572,83 @@ Status HandleRequest(const JsonNode* message, Status* error)
 }
 
 
-Status HandleModify(const JsonNode* message)
+Status HandleMeasurementModification(const JsonNode* message, Status* error)
+{
+    return NOT_IMPLEMENTED;
+}
+
+
+Status HandleMeasurementTableModification(const JsonNode* message, Status* error)
+{
+    JsonNode instanceArray;
+    Status status = OK;
+    int column, row;
+    float value;
+    JsonStatus columnAvailable = GetInt(message, ROW, &column);
+    JsonStatus rowAvailable = GetInt(message, ROW, &row);
+    JsonStatus valueAvailable = GetFloat(message, ROW, &value);
+    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
+    {
+        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
+        int count = GetMeasurementTableCount();
+        int i;
+        for (i = 0; (i < count) && (status == OK); ++i)
+        {
+            MeasurementTable* measurementTable;
+            if (GetMeasurementTable(i, &measurementTable) == OK)
+            {
+                if (NameRequested(instances, measurementTable->name))
+                {
+                    *error = SetMeasurementTableField(measurementTable->name, column, row, value);
+                }
+            }
+        }
+    }
+    return status;
+}
+
+
+Status HandleEngineModification(const JsonNode* message, Status* error)
+{
+    return NOT_IMPLEMENTED;
+}
+
+
+Status HandleModify(const JsonNode* message, Status* error)
 {
     Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, MODIFY);
     if (status == OK)
     {
-        
+        char* dataType;
+        if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
+        {
+            status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
+            if (status == OK)
+            {
+                if (strcmp(dataType, MEASUREMENT) == 0)
+                {
+                    status = HandleMeasurementModification(message, error);
+                }
+                else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
+                {
+                    status = HandleMeasurementTableModification(message, error);
+                }
+                else if (strcmp(dataType, ENGINE) == 0)
+                {
+                    status = HandleEngineModification(message, error);
+                }
+                else
+                {
+                    *error = "InvalidDataType";
+                }
+            }
+            free(dataType);
+        }
+        else
+        {
+            *error = "NoDataType";
+        }
     }
     return status;
 }
@@ -582,7 +666,7 @@ Status HandleCall(const JsonNode* message, Status* error)
         }
         else if (strcmp(procedure, MODIFY) == 0)
         {
-            status = HandleModify(message);
+            status = HandleModify(message, error);
         }
         else
         {
@@ -628,7 +712,7 @@ void HandleMessage(const char* jsonString)
         }
         else
         {
-            error =  "InvalidDirection";
+            error =  "NoDirection";
         }
         free(direction);
         if ((status == OK) && (error != UNINITIALIZED))
