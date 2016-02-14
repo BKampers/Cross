@@ -580,30 +580,57 @@ Status HandleMeasurementModification(const JsonNode* message, Status* error)
 
 Status HandleMeasurementTableModification(const JsonNode* message, Status* error)
 {
-    JsonNode instanceArray;
+    JsonNode values;
     Status status = OK;
-    int column, row;
-    float value;
-    JsonStatus columnAvailable = GetInt(message, ROW, &column);
-    JsonStatus rowAvailable = GetInt(message, ROW, &row);
-    JsonStatus valueAvailable = GetFloat(message, ROW, &value);
-    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
-    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
+    JsonStatus jsonStatus = GetObject(message, VALUES, &values);
+    if (jsonStatus == JSON_OK)
     {
-        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
-        int count = GetMeasurementTableCount();
-        int i;
-        for (i = 0; (i < count) && (status == OK); ++i)
+        int column, row;
+        float value;
+        JsonStatus columnAvailable = GetInt(&values, COLUMN, &column);
+        JsonStatus rowAvailable = GetInt(&values, ROW, &row);
+        JsonStatus valueAvailable = GetFloat(&values, ROW, &value);
+        if ((columnAvailable == JSON_OK) && (rowAvailable == JSON_OK) && (valueAvailable == JSON_OK))
         {
-            MeasurementTable* measurementTable;
-            if (GetMeasurementTable(i, &measurementTable) == OK)
+            JsonNode instanceArray;
+            JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+            if (jsonStatus == JSON_OK)
             {
-                if (NameRequested(instances, measurementTable->name))
+                int instanceCount;
+                jsonStatus = GetCount(&instanceArray, &instanceCount);
+                if ((jsonStatus == JSON_OK) && (instanceCount == 1))
                 {
-                    *error = SetMeasurementTableField(measurementTable->name, column, row, value);
+                    char* tableName;
+                    jsonStatus = AllocateStringAt(&instanceArray, 0, &tableName);
+                    if (jsonStatus == JSON_OK)
+                    {
+                        MeasurementTable* measurementTable;
+                        *error = FindMeasurementTable(tableName, &measurementTable);
+                        if (*error == OK)
+                        {
+                            *error = SetMeasurementTableField(measurementTable->name, column, row, value);
+                        }
+                        free(tableName);
+                    }
+                }
+                else
+                {
+                    *error = "InvalidInstanceCount";
                 }
             }
+            else
+            {
+                *error = "InvalidInstance";
+            }
         }
+        else
+        {
+            *error = "InvalidValue";
+        }
+    }
+    else 
+    {
+        *error = "NoValue";
     }
     return status;
 }
@@ -717,7 +744,7 @@ void HandleMessage(const char* jsonString)
         free(direction);
         if ((status == OK) && (error != UNINITIALIZED))
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, ERROR, error);
+            status = WriteJsonStringMember(DEFAULT_CHANNEL, ((error == OK) ? STATUS : ERROR), error);
         }
         if (status == OK)
         {
