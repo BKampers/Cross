@@ -54,6 +54,7 @@ const char* COLUMN = "Column";
 const char* CURRENT_ROW = "CurrentRow";
 const char* CURRENT_COLUMN = "CurrentColumn";
 const char* TABLE = "Table";
+const char* FIELDS = "Fields";
 const char* ENABLED = "Enabled";
 
 const char* CYLINDER_COUNT = "CylinderCount";
@@ -572,71 +573,61 @@ Status HandleRequest(const JsonNode* message, Status* error)
 }
 
 
-Status HandleMeasurementModification(const JsonNode* message, Status* error)
+Status HandleMeasurementModification(const JsonNode* instances, const JsonNode* values, Status* error)
 {
     return NOT_IMPLEMENTED;
 }
 
 
-Status HandleMeasurementTableModification(const JsonNode* message, Status* error)
+Status HandleMeasurementTableModification(const JsonNode* instances, const JsonNode* values, Status* error)
 {
-    JsonNode values;
-    Status status = OK;
-    JsonStatus jsonStatus = GetObject(message, VALUES, &values);
-    if (jsonStatus == JSON_OK)
+    int instanceCount;
+    JsonStatus jsonStatus = GetCount(instances, &instanceCount);
+    if ((jsonStatus == JSON_OK) && (instanceCount == 1))
     {
-        int column, row;
-        float value;
-        JsonStatus columnAvailable = GetInt(&values, COLUMN, &column);
-        JsonStatus rowAvailable = GetInt(&values, ROW, &row);
-        JsonStatus valueAvailable = GetFloat(&values, ROW, &value);
-        if ((columnAvailable == JSON_OK) && (rowAvailable == JSON_OK) && (valueAvailable == JSON_OK))
+        char* tableName;
+        jsonStatus = AllocateStringAt(instances, 0, &tableName);
+        if (jsonStatus == JSON_OK)
         {
-            JsonNode instanceArray;
-            JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
-            if (jsonStatus == JSON_OK)
+            MeasurementTable* measurementTable;
+            *error = FindMeasurementTable(tableName, &measurementTable);
+            if (*error == OK)
             {
-                int instanceCount;
-                jsonStatus = GetCount(&instanceArray, &instanceCount);
-                if ((jsonStatus == JSON_OK) && (instanceCount == 1))
+                JsonNode fields;
+                if (GetArray(values, FIELDS, &fields) == JSON_OK)
                 {
-                    char* tableName;
-                    jsonStatus = AllocateStringAt(&instanceArray, 0, &tableName);
-                    if (jsonStatus == JSON_OK)
+                    int i = 0;
+                    JsonStatus next;
+                    do 
                     {
-                        MeasurementTable* measurementTable;
-                        *error = FindMeasurementTable(tableName, &measurementTable);
-                        if (*error == OK)
+                        float value;
+                        int column, row;
+                        JsonNode field;
+                        next = GetObjectAt(&fields, i, &field);
+                        if ((next == JSON_OK) && (GetInt(values, COLUMN, &column) == JSON_OK) && (GetInt(values, ROW, &row) == JSON_OK) && (GetFloat(values, ROW, &value)))
                         {
                             *error = SetMeasurementTableField(measurementTable->name, column, row, value);
                         }
-                        free(tableName);
-                    }
+                        ++i;
+                    } while ((*error == OK) && (next == JSON_OK));
                 }
                 else
                 {
-                    *error = "InvalidInstanceCount";
+                    *error = "NoFields";
                 }
             }
-            else
-            {
-                *error = "InvalidInstance";
-            }
-        }
-        else
-        {
-            *error = "InvalidValue";
+            free(tableName);
         }
     }
-    else 
+    else
     {
-        *error = "NoValue";
+        *error = "InvalidInstanceCount";
     }
-    return status;
+    return OK;
 }
 
 
-Status HandleEngineModification(const JsonNode* message, Status* error)
+Status HandleEngineModification(const JsonNode* instances, const JsonNode* values, Status* error)
 {
     return NOT_IMPLEMENTED;
 }
@@ -647,34 +638,50 @@ Status HandleModify(const JsonNode* message, Status* error)
     Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, MODIFY);
     if (status == OK)
     {
+        JsonNode instances;
+        JsonNode values;
         char* dataType;
-        if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
+        if (GetArray(message, INSTANCES, &instances) == JSON_OK)
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
-            if (status == OK)
+            if (GetObject(message, VALUES, &values) == JSON_OK)
             {
-                if (strcmp(dataType, MEASUREMENT) == 0)
+                if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
                 {
-                    status = HandleMeasurementModification(message, error);
-                }
-                else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
-                {
-                    status = HandleMeasurementTableModification(message, error);
-                }
-                else if (strcmp(dataType, ENGINE) == 0)
-                {
-                    status = HandleEngineModification(message, error);
+                    status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
+                    if (status == OK)
+                    {
+                        if (strcmp(dataType, MEASUREMENT) == 0)
+                        {
+                            status = HandleMeasurementModification(&instances, &values, error);
+                        }
+                        else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
+                        {
+                            status = HandleMeasurementTableModification(&instances, &values, error);
+                        }
+                        else if (strcmp(dataType, ENGINE) == 0)
+                        {
+                            status = HandleEngineModification(&instances, &values, error);
+                        }
+                        else
+                        {
+                            *error = "InvalidDataType";
+                        }
+                    }
+                    free(dataType);
                 }
                 else
                 {
-                    *error = "InvalidDataType";
+                    *error = "NoDataType";
                 }
             }
-            free(dataType);
+            else
+            {
+                *error = "NoValues";
+            }
         }
         else
         {
-            *error = "NoDataType";
+            *error = "NoInstances";
         }
     }
     return status;
