@@ -579,7 +579,37 @@ Status HandleMeasurementModification(const JsonNode* instances, const JsonNode* 
 }
 
 
-Status HandleMeasurementTableModification(const JsonNode* instances, const JsonNode* values, Status* error)
+void ModifyFields(const MeasurementTable* measurementTable, const JsonNode* values, Status* error) 
+{
+    JsonNode fields;
+    if (GetArray(values, FIELDS, &fields) == JSON_OK)
+    {
+        int i = 0;
+        JsonStatus next;
+        do 
+        {
+            float value;
+            int column, row;
+            JsonNode field;
+            next = GetObjectAt(&fields, i, &field);
+            if (next == JSON_OK)
+            {
+                if ((GetInt(&field, COLUMN, &column) == JSON_OK) && (GetInt(&field, ROW, &row) == JSON_OK) && (GetFloat(&field, VALUE, &value) == JSON_OK))
+                {
+                    *error = SetMeasurementTableField(measurementTable->name, column, row, value);
+                }
+                else
+                {
+                    *error = "InvalidField";
+                }
+            }
+            ++i;
+        } while ((*error == OK) && (next == JSON_OK));
+    }
+}
+
+
+void HandleMeasurementTableModification(const JsonNode* instances, const JsonNode* values, Status* error)
 {
     int instanceCount;
     JsonStatus jsonStatus = GetCount(instances, &instanceCount);
@@ -593,28 +623,7 @@ Status HandleMeasurementTableModification(const JsonNode* instances, const JsonN
             *error = FindMeasurementTable(tableName, &measurementTable);
             if (*error == OK)
             {
-                JsonNode fields;
-                if (GetArray(values, FIELDS, &fields) == JSON_OK)
-                {
-                    int i = 0;
-                    JsonStatus next;
-                    do 
-                    {
-                        float value;
-                        int column, row;
-                        JsonNode field;
-                        next = GetObjectAt(&fields, i, &field);
-                        if ((next == JSON_OK) && (GetInt(values, COLUMN, &column) == JSON_OK) && (GetInt(values, ROW, &row) == JSON_OK) && (GetFloat(values, ROW, &value)))
-                        {
-                            *error = SetMeasurementTableField(measurementTable->name, column, row, value);
-                        }
-                        ++i;
-                    } while ((*error == OK) && (next == JSON_OK));
-                }
-                else
-                {
-                    *error = "NoFields";
-                }
+                ModifyFields(measurementTable, values, error); 
             }
             free(tableName);
         }
@@ -623,7 +632,6 @@ Status HandleMeasurementTableModification(const JsonNode* instances, const JsonN
     {
         *error = "InvalidInstanceCount";
     }
-    return OK;
 }
 
 
@@ -638,13 +646,13 @@ Status HandleModify(const JsonNode* message, Status* error)
     Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, MODIFY);
     if (status == OK)
     {
-        JsonNode instances;
-        JsonNode values;
-        char* dataType;
+        JsonNode instances;        
         if (GetArray(message, INSTANCES, &instances) == JSON_OK)
         {
+            JsonNode values;
             if (GetObject(message, VALUES, &values) == JSON_OK)
             {
+                char* dataType;
                 if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
                 {
                     status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
@@ -656,7 +664,7 @@ Status HandleModify(const JsonNode* message, Status* error)
                         }
                         else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
                         {
-                            status = HandleMeasurementTableModification(&instances, &values, error);
+                            HandleMeasurementTableModification(&instances, &values, error);
                         }
                         else if (strcmp(dataType, ENGINE) == 0)
                         {
