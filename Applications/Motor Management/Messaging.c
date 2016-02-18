@@ -35,6 +35,8 @@ const char* NOTIFICATION = "Notification";
 const char* PROCEDURE = "Procedure";
 const char* REQUEST = "Request";
 const char* MODIFY = "Modify";
+const char* FUNCTION = "Function";
+const char* PARAMETERS = "Parameters";
 
 const char* DATA_TYPE = "DataType";
 const char* MEASUREMENT = "Measurement";
@@ -696,6 +698,32 @@ Status HandleModify(const JsonNode* message, Status* error)
 }
 
 
+void CallSetMeasurementTableEnabled(const JsonNode* parameters, Status* error)
+{
+    char* tableName;
+    bool enabled;
+    if ((GetBoolean(parameters, "Enabled", &enabled) == JSON_OK) && (AllocateString(parameters, "TableName", &tableName) == JSON_OK))
+    {
+        *error = SetMeasurementTableEnabled(tableName, enabled);
+        free(tableName);
+    }
+    else
+    {
+        *error = "InvalidParameters";
+    }
+}
+
+
+char* EMPTY_OBJECT = "{}";
+JsonStatus EmptyObject(JsonNode* node)
+{
+    node->source = EMPTY_OBJECT;
+    node->type = JSON_OBJECT;
+    node->length = 2;
+    return JSON_OK;
+}
+
+
 Status HandleCall(const JsonNode* message, Status* error) 
 {
     Status status = OK;
@@ -713,6 +741,28 @@ Status HandleCall(const JsonNode* message, Status* error)
         else
         {
             *error = "InvalidProcedure";
+        }
+        free(procedure);
+    }
+    else if (AllocateString(message, FUNCTION, &procedure) == JSON_OK)
+    {
+        JsonNode parameters;
+        JsonStatus jsonStatus = GetObject(message, PARAMETERS, &parameters);
+        status = WriteJsonStringMember(DEFAULT_CHANNEL, FUNCTION, procedure);
+        if (jsonStatus == JSON_NAME_NOT_PRESENT)
+        {
+            jsonStatus = EmptyObject(&parameters);
+        }
+        if (jsonStatus == JSON_OK) 
+        {
+            if (strcmp(procedure, "SetMeasurementTableEnabled") == 0)
+            {
+                CallSetMeasurementTableEnabled(&parameters, error);
+            }    
+            else
+            {
+                *error = "UnknownFunction";
+            }
         }
         free(procedure);
     }
@@ -751,12 +801,12 @@ void HandleMessage(const char* jsonString)
             {
                 error = "InvalidDirection";
             }
+            free(direction);
         }
         else
         {
             error =  "NoDirection";
         }
-        free(direction);
         if ((status == OK) && (error != UNINITIALIZED))
         {
             status = WriteJsonStringMember(DEFAULT_CHANNEL, ((error == OK) ? STATUS : ERROR), error);
