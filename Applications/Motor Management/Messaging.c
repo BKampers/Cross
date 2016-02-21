@@ -75,6 +75,13 @@ const char* ERROR = "Error";
 const char* STATUS = "Status";
 
 
+typedef struct
+{
+    const char* name;
+    Status (*Call) (const JsonNode* parameters, Status* status);
+} Function;
+
+
 bool NameRequested(const JsonNode* attributes, const char* attributeName)
 {
     int index;
@@ -698,20 +705,51 @@ Status HandleModify(const JsonNode* message, Status* error)
 }
 
 
-void CallSetMeasurementTableEnabled(const JsonNode* parameters, Status* error)
+Status CallGetMeasurementTableNames(const JsonNode* parameters, Status* status)
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, "Names"));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    int count = GetMeasurementTableCount();
+    int i;
+    for (i = 0; i < count; ++i)
+    {
+        MeasurementTable* measurementTable;
+        if (GetMeasurementTable(i, &measurementTable) == OK)
+        {
+            VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, measurementTable->name));
+        }
+    }
+    *status = OK;
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+}
+
+
+Status CallSetMeasurementTableEnabled(const JsonNode* parameters, Status* status)
 {
     char* tableName;
     bool enabled;
     if ((GetBoolean(parameters, "Enabled", &enabled) == JSON_OK) && (AllocateString(parameters, "TableName", &tableName) == JSON_OK))
     {
-        *error = SetMeasurementTableEnabled(tableName, enabled);
+        *status = SetMeasurementTableEnabled(tableName, enabled);
         free(tableName);
     }
     else
     {
-        *error = "InvalidParameters";
+        *status = "InvalidParameters";
     }
+    return OK;
 }
+
+
+Function functions[] =
+{
+    { "GetMeasurementTableNames", &CallGetMeasurementTableNames },
+    { "SetMeasurementTableEnabled", &CallSetMeasurementTableEnabled }
+};
+
+
+#define FUNCTION_COUNT (sizeof(functions) / sizeof(Function))
 
 
 char* EMPTY_OBJECT = "{}";
@@ -724,53 +762,68 @@ JsonStatus EmptyObject(JsonNode* node)
 }
 
 
+Function* FindFunction(const char* name) 
+{
+    int i;
+    for (i = 0; i < FUNCTION_COUNT; ++i)
+    {
+        if (strcmp(name, functions[i].name) == 0)
+        {
+            return &(functions[i]);
+        }
+    }
+    return NULL;
+}
+
+
 Status HandleCall(const JsonNode* message, Status* error) 
 {
-    Status status = OK;
-    char* procedure;
-    if (AllocateString(message, PROCEDURE, &procedure) == JSON_OK)
+    Status transportStatus = OK;
+    char* functionName;
+    if (AllocateString(message, PROCEDURE, &functionName) == JSON_OK)
     {
-        if (strcmp(procedure, REQUEST) == 0)
+        if (strcmp(functionName, REQUEST) == 0)
         {
-            status = HandleRequest(message, error);
+            transportStatus = HandleRequest(message, error);
         }
-        else if (strcmp(procedure, MODIFY) == 0)
+        else if (strcmp(functionName, MODIFY) == 0)
         {
-            status = HandleModify(message, error);
+            transportStatus = HandleModify(message, error);
         }
         else
         {
             *error = "InvalidProcedure";
         }
-        free(procedure);
+        free(functionName);
     }
-    else if (AllocateString(message, FUNCTION, &procedure) == JSON_OK)
+    else if (AllocateString(message, FUNCTION, &functionName) == JSON_OK)
     {
-        JsonNode parameters;
-        JsonStatus jsonStatus = GetObject(message, PARAMETERS, &parameters);
-        status = WriteJsonStringMember(DEFAULT_CHANNEL, FUNCTION, procedure);
-        if (jsonStatus == JSON_NAME_NOT_PRESENT)
+        transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, FUNCTION, functionName);
+        Function* function = FindFunction(functionName);
+        if ((transportStatus == OK) && (function != NULL))
         {
-            jsonStatus = EmptyObject(&parameters);
-        }
-        if (jsonStatus == JSON_OK) 
-        {
-            if (strcmp(procedure, "SetMeasurementTableEnabled") == 0)
+            JsonNode parameters;
+            JsonStatus jsonStatus = GetObject(message, PARAMETERS, &parameters);
+            if (jsonStatus == JSON_NAME_NOT_PRESENT)
             {
-                CallSetMeasurementTableEnabled(&parameters, error);
-            }    
-            else
-            {
-                *error = "UnknownFunction";
+                jsonStatus = EmptyObject(&parameters);
             }
+            if (jsonStatus == JSON_OK) 
+            {
+                transportStatus = function->Call(&parameters, error);
+            }
+            free(functionName);
         }
-        free(procedure);
+        else 
+        {
+            *error = "UnknownFunction";
+        }
     }
     else
     {
-        *error = "NoProcedure";
+        *error = "NoFunction";
     }
-    return status;
+    return transportStatus;
 }
 
 
@@ -783,18 +836,18 @@ void HandleMessage(const char* jsonString)
     JsonNode message;
     char* direction;
     Status error = UNINITIALIZED;
-    Status status = WriteJsonRootStart(DEFAULT_CHANNEL);
-    if (status == OK)
+    Status transportStatus = WriteJsonRootStart(DEFAULT_CHANNEL);
+    if (transportStatus == OK)
     {
         Initialize(jsonString, &message);
         if (AllocateString(&message, DIRECTION, &direction) == JSON_OK)
         {
             if (strcmp(direction, CALL) == 0)
             {
-                status = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, RETURN);
-                if (status == OK) 
+                transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, RETURN);
+                if (transportStatus == OK) 
                 {
-                    status = HandleCall(&message, &error);
+                    transportStatus = HandleCall(&message, &error);
                 }
             }
             else
@@ -807,13 +860,13 @@ void HandleMessage(const char* jsonString)
         {
             error =  "NoDirection";
         }
-        if ((status == OK) && (error != UNINITIALIZED))
+        if ((transportStatus == OK) && (error != UNINITIALIZED))
         {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, ((error == OK) ? STATUS : ERROR), error);
+            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, ((error == OK) ? STATUS : ERROR), error);
         }
-        if (status == OK)
+        if (transportStatus == OK)
         {
-            status = WriteJsonRootEnd(DEFAULT_CHANNEL);
+            transportStatus = WriteJsonRootEnd(DEFAULT_CHANNEL);
         }
     }
 }
