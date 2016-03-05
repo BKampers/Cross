@@ -49,6 +49,7 @@ const char* INSTANCES = "Instances";
 const char* ATTRIBUTES = "Attributes";
 const char* VALUES = "Values";
 
+const char* MEASUREMENT_NAME = "MeasurmentName";
 const char* TABLE_NAME = "TableName";
 const char* VALUE = "Value";
 const char* SIMULATION = "Simulation";
@@ -59,7 +60,10 @@ const char* CURRENT_COLUMN = "CurrentColumn";
 const char* TABLE = "Table";
 const char* FIELDS = "Fields";
 const char* ENABLED = "Enabled";
-
+const char* MINIMUM = "Minimum";
+const char* MAXIMUM = "Maximum";
+const char* SIMULATION_VALUE = "SimulationValue";
+const char* FORMAT = "Format";
 const char* CYLINDER_COUNT = "CylinderCount";
 const char* DEAD_POINTS = "DeadPoints";
 const char* COGWHEEL = "Cogwheel";
@@ -67,7 +71,7 @@ const char* COG_TOTAL = "CogTotal";
 const char* GAP_SIZE = "GapSize";
 const char* OFFSET = "Offset";
 
-const char*  PERSISTENT = "Persistent";
+const char* PERSISTENT = "Persistent";
 const char* TYPE_ID = "TypeId";
 const char* REFERENCE = "Reference";
 const char* SIZE = "Size";
@@ -728,6 +732,32 @@ Status PutMeasurementTableProperties(const char* tableName, Status* status)
 }
 
 
+Status PutMeasurementProperties(const char* measurmentName, Status* status)
+{
+    RETURN_WHEN_INVALID
+    Measurement* measurement;
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    *status = FindMeasurement(measurmentName, &measurement);
+    if (*status == OK)
+    {
+        VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurement->minimum));
+        VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurement->maximum));
+        VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, FORMAT, measurement->format));
+        if (measurement->simulationValue == NULL)
+        {
+            VALIDATE(WriteJsonNullMember(DEFAULT_CHANNEL, SIMULATION_VALUE));
+        }
+        else
+        {
+            VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, SIMULATION_VALUE, *(measurement->simulationValue)));
+            
+        }
+    }
+    return (WriteJsonObjectEnd(DEFAULT_CHANNEL));    
+}
+
+
 Status PutMeasurementTableFields(const char* tableName, Status* status)
 {
     RETURN_WHEN_INVALID
@@ -758,6 +788,42 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
         }
     }
     return (WriteJsonArrayEnd(DEFAULT_CHANNEL));    
+}
+
+
+Status CallGetMeasurementNames(const JsonNode* parameters, Status* status)
+{
+    RETURN_WHEN_INVALID
+    int count = GetMeasurementCount();
+    int i;
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    for (i = 0; i < count; ++i)
+    {
+        Measurement* measurement;
+        if (GetMeasurement(i, &measurement) == OK)
+        {
+            VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, measurement->name));
+        }
+    }
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+}
+
+
+Status CallGetMeasurementProperties(const JsonNode* parameters, Status* status)
+{
+    Status transportStatus = OK;
+    char* measurementName;
+    if (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK)
+    {
+        transportStatus = PutMeasurementProperties(measurementName, status);
+        free(measurementName);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return transportStatus;
 }
 
 
@@ -830,6 +896,7 @@ Status CallSetMeasurementTableEnabled(const JsonNode* parameters, Status* status
     return OK;
 }
 
+
 Status CallSetMeasurementTableField(const JsonNode* parameters, Status* status)
 {
     char* tableName;
@@ -850,8 +917,11 @@ Status CallSetMeasurementTableField(const JsonNode* parameters, Status* status)
     return OK;
 }
 
+
 Function functions[] =
 {
+    { "GetMeasurementNames", &CallGetMeasurementNames },
+    { "GetMeasurementProperties", &CallGetMeasurementProperties },
     { "GetMeasurementTableNames", &CallGetMeasurementTableNames },
     { "GetMeasurementTableProperties", &CallGetMeasurementTableProperties },
     { "GetMeasurementTableFields", &CallGetMeasurementTableFields },
