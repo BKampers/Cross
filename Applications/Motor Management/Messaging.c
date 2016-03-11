@@ -791,22 +791,35 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
 }
 
 
-Status CallGetMeasurementNames(const JsonNode* parameters, Status* status)
+Status CallGetMeasurements(const JsonNode* parameters, Status* status)
 {
     RETURN_WHEN_INVALID
     int count = GetMeasurementCount();
     int i;
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
-    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     for (i = 0; i < count; ++i)
     {
         Measurement* measurement;
         if (GetMeasurement(i, &measurement) == OK)
         {
-            VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, measurement->name));
+            float value;
+            VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, measurement->name));
+            VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+            *status = GetMeasurementValue(measurement, &value);
+            if (*status == OK)
+            {
+                VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value));
+            }
+            else
+            {
+                VALIDATE(WriteJsonNullMember(DEFAULT_CHANNEL, VALUE));
+            }
+            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL));
+            VALIDATE(WriteJsonObjectEnd(DEFAULT_CHANNEL));
         }
     }
-    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -824,6 +837,39 @@ Status CallGetMeasurementProperties(const JsonNode* parameters, Status* status)
         *status = INVALID_PARAMETER;
     }
     return transportStatus;
+}
+
+
+Status CallSetMeasurementSimulation(const JsonNode* parameters, Status* status)
+{
+    char* measurementName;
+    float value;
+    if ((GetFloat(parameters, SIMULATION_VALUE, &value) == JSON_OK) && (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK))
+    {
+        *status = SetMeasurementSimulation(measurementName, value);
+        free(measurementName);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return OK;
+}
+
+
+Status CallResetMeasurementSimulation(const JsonNode* parameters, Status* status)
+{
+    char* measurementName;
+    if (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK)
+    {
+        *status = ResetMeasurementSimulation(measurementName);
+        free(measurementName);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return OK;
 }
 
 
@@ -918,24 +964,54 @@ Status CallSetMeasurementTableField(const JsonNode* parameters, Status* status)
 }
 
 
+Status CallGetEngineProperties(const JsonNode* parameters, Status* status)
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()));
+    VALIDATE(PutCogwheel());
+    VALIDATE(PutDeadPoints());
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
+Status CallSetCylinderCount(const JsonNode* parameters, Status* status)
+{
+    int count;
+    if (GetInt(parameters, CYLINDER_COUNT, &count) == JSON_OK)
+    {
+        *status = SetCylinderCount(count);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return OK;
+}
+
+
 Function functions[] =
 {
-    { "GetMeasurementNames", &CallGetMeasurementNames },
+    { "GetMeasurements", &CallGetMeasurements },
     { "GetMeasurementProperties", &CallGetMeasurementProperties },
+    { "SetMeasurementSimulation", &CallSetMeasurementSimulation },
+    { "ResetMeasurementSimulation", &CallResetMeasurementSimulation },
     { "GetMeasurementTableNames", &CallGetMeasurementTableNames },
     { "GetMeasurementTableProperties", &CallGetMeasurementTableProperties },
     { "GetMeasurementTableFields", &CallGetMeasurementTableFields },
     { "SetMeasurementTableEnabled", &CallSetMeasurementTableEnabled },
-    { "SetMeasurementTableField", &CallSetMeasurementTableField }
+    { "SetMeasurementTableField", &CallSetMeasurementTableField },
+    { "GetEngineProperties", &CallGetEngineProperties },
+    { "SetCylinderCount", &CallSetCylinderCount }
 };
 
 #define FUNCTION_COUNT (sizeof(functions) / sizeof(Function))
 
 
-char* EMPTY_OBJECT = "{}";
 JsonStatus EmptyObject(JsonNode* node)
 {
-    node->source = EMPTY_OBJECT;
+    node->source = "{}";
     node->type = JSON_OBJECT;
     node->length = 2;
     return JSON_OK;
@@ -1015,7 +1091,7 @@ void HandleMessage(const char* jsonString)
 {
     JsonNode message;
     char* direction;
-    Status error = UNINITIALIZED;
+    Status status = UNINITIALIZED;
     Status transportStatus = WriteJsonRootStart(DEFAULT_CHANNEL);
     if (transportStatus == OK)
     {
@@ -1027,22 +1103,22 @@ void HandleMessage(const char* jsonString)
                 transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, RETURN);
                 if (transportStatus == OK) 
                 {
-                    transportStatus = HandleCall(&message, &error);
+                    transportStatus = HandleCall(&message, &status);
                 }
             }
             else
             {
-                error = "InvalidDirection";
+                status = "InvalidDirection";
             }
             free(direction);
         }
         else
         {
-            error =  "NoDirection";
+            status =  "NoDirection";
         }
-        if ((transportStatus == OK) && (error != UNINITIALIZED))
+        if ((transportStatus == OK) && (status != UNINITIALIZED))
         {
-            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, ((error == OK) ? STATUS : ERROR), error);
+            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status);
         }
         if (transportStatus == OK)
         {
