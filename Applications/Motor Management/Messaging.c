@@ -87,373 +87,323 @@ typedef struct
 } Function;
 
 
-bool NameRequested(const JsonNode* attributes, const char* attributeName)
-{
-    int index;
-    return (attributes == NULL) || (IndexOfString(attributes, attributeName, &index) == JSON_OK);
-}
-
-
-Status PutMeasurementValue(const Measurement* measurement, Status* error)
-{
-    float value;
-    Status status = OK;
-    Status measurementStatus = GetMeasurementValue(measurement, &value);
-    if (measurementStatus == OK)
-    {
-        status = WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
-    }
-    else
-    {
-        *error = measurementStatus;
-    }
-    return status;
-}
-
-
-Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* attributes, Status* error)
-{
-    Status status = OK;
-    if (NameRequested(attributes, VALUE))
-    {
-       status = PutMeasurementValue(measurement, error); 
-    }
-    if (NameRequested(attributes, SIMULATION))
-    {
-       status = WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
-    }
-    return status;
-}
-
-
-Status PutMeasurement(const JsonNode* message, const Measurement* measurement, Status* error)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurement->name);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            JsonNode attributes;
-            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-            if (jsonStatus == JSON_OK)
-            {
-                status = PutMeasurementAttributes(measurement, &attributes, error);
-            }
-            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
-            {
-                status = PutMeasurementAttributes(measurement, NULL, error);
-            }
-        }
-        if (status == OK)
-        {
-            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-        }
-    }
-    return status;
-}
-
-
-Status PutMeasurements(const JsonNode* message, Status* error)
-{
-    JsonNode instanceArray;
-    Status status = OK;
-    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
-    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
-    {
-        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
-        int count = GetMeasurementCount();
-        int i;
-        for (i = 0; (i < count) && (status == OK); ++i)
-        {
-            Measurement* measurement;
-            if (GetMeasurement(i, &measurement) == OK)
-            {
-                if (NameRequested(instances, measurement->name))
-                {
-                    status = PutMeasurement(message, measurement, error);
-                }
-            }
-        }
-    }
-    else
-    {
-        *error = "InvalidInstances";
-    }
-    return status;
-}
-
-
-Status HandleMeasurementRequest(const JsonNode* message, Status* error)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            status = PutMeasurements(message, error);
-            if (status == OK)
-            {
-                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-            }
-        }
-    }
-    return status;
-}
-
-
-Status PutMeasurmentTableFields(const MeasurementTable* measurementTable, Status* error) 
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, TABLE);
-    if (status == OK)
-    {
-        byte column, row;
-        status = WriteJsonArrayStart(DEFAULT_CHANNEL);
-        for (row = 0; (row < measurementTable->table.rows) && (status == OK); ++row)
-        {
-            status = WriteJsonArrayStart(DEFAULT_CHANNEL);
-            for (column = 0; (column < measurementTable->table.columns) && (status == OK); ++column)
-            {
-                float value;
-                Status valueStatus = GetMeasurementTableField(measurementTable, column, row, &value);
-                if (valueStatus == OK)
-                {
-                    status = WriteJsonRealElement(DEFAULT_CHANNEL, value);
-                }
-                else 
-                {
-                    *error = valueStatus;
-                    status = WriteJsonNullElement(DEFAULT_CHANNEL);
-                }
-            }
-            if (status == OK)
-            {
-                status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
-            }
-        }
-        if (status == OK)
-        {
-            status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
-        }
-    }
-    return status; 
-}
-
-
-Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, const JsonNode* attributes, Status* error)
-{
-    Status status = OK;
-    if (NameRequested(attributes, CURRENT_ROW))
-    {
-        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex);
-    }
-    if ((status == OK) && NameRequested(attributes, CURRENT_COLUMN))
-    {
-        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex);
-    }
-    if ((status == OK) && NameRequested(attributes, TABLE))
-    {
-        status = PutMeasurmentTableFields(measurementTable, error);
-    }
-    if ((status == OK) && NameRequested(attributes, ENABLED))
-    {
-        bool enabled;
-        *error = GetMeasurementTableEnabled(measurementTable->name, &enabled);
-        if (*error == OK)
-        {
-            status = WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled);
-        }
-    }
-    return status;
-}
-
-
-Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* measurementTable, Status* error)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurementTable->name);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            JsonNode attributes;
-            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-            if (jsonStatus == JSON_OK)
-            {
-                status = PutMeasurementTableAttributes(measurementTable, &attributes, error);
-            }
-            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
-            {
-                status = PutMeasurementTableAttributes(measurementTable, NULL, error);
-            }
-        }
-    }
-    if (status == OK)
-    {
-        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-    }
-    return status;
-}
-
-
-Status PutMeasurementTables(const JsonNode* message, Status* error)
-{
-    JsonNode instanceArray;
-    Status status = OK;
-    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
-    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
-    {
-        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
-        int count = GetMeasurementTableCount();
-        int i;
-        for (i = 0; (i < count) && (status == OK); ++i)
-        {
-            MeasurementTable* measurementTable;
-            if (GetMeasurementTable(i, &measurementTable) == OK)
-            {
-                if (NameRequested(instances, measurementTable->name))
-                {
-                    status = PutMeasurementTable(message, measurementTable, error);
-                }
-            }
-        }
-    }
-    else
-    {
-        *error = "InvalidInstances";
-    }
-    return status;
-}
-
-
-Status HandleMeasurementTableRequest(const JsonNode* message, Status* error)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            status = PutMeasurementTables(message, error);
-            if (status == OK)
-            {
-                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-            }
-        }
-    }
-    return status;
-}
-
-
-Status PutDeadPoints()
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, DEAD_POINTS);
-    if (status == OK)
-    {
-        status = WriteJsonArrayStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            int i;
-            for (i = 0; (i < GetDeadPointCount()) && (status == OK); ++i)
-            {
-                status = WriteJsonIntegerElement(DEFAULT_CHANNEL, GetDeadPointCog(i));
-            }
-        }            
-        if (status == OK)
-        {
-            status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
-        }
-    }
-    return status;
-}
-
-
-Status PutCogwheel()
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, COGWHEEL);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            status = WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, GetCogTotal());
-            if (status == OK)
-            {
-                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, GAP_SIZE, GetGapSize());
-                if (status == OK)
-                {
-                    status = WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, GetDeadPointOffset());
-                    if (status == OK)
-                    {
-                        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-                    }
-                }
-            }
-        }
-    }
-    return status;
-}
-
-
-Status PutEngineAttributes(const JsonNode* attributes)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, "");
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK) 
-        {
-            if (NameRequested(attributes, CYLINDER_COUNT))
-            {
-                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount());
-            }
-            if ((status == OK) && NameRequested(attributes, DEAD_POINTS))
-            {
-                status = PutDeadPoints();
-            }
-            if ((status == OK) && NameRequested(attributes, COGWHEEL))
-            {
-                status = PutCogwheel();
-            }
-            if (status == OK)
-            {
-                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-            }
-        }
-    }
-    return status;
-}
-
-
-Status HandleEngineRequest(const JsonNode* message)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            JsonNode attributes;
-            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-            if (jsonStatus == JSON_OK)
-            {
-                status = PutEngineAttributes(&attributes);
-            }
-            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
-            {
-                status = PutEngineAttributes(NULL);
-            }
-        }    
-        if (status == OK)
-        {
-            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-        }
-    }
-    return status;
-}
-
-
+//bool NameRequested(const JsonNode* attributes, const char* attributeName)
+//{
+//    int index;
+//    return (attributes == NULL) || (IndexOfString(attributes, attributeName, &index) == JSON_OK);
+//}
+//
+//
+//Status PutMeasurementValue(const Measurement* measurement, Status* error)
+//{
+//    float value;
+//    Status status = OK;
+//    Status measurementStatus = GetMeasurementValue(measurement, &value);
+//    if (measurementStatus == OK)
+//    {
+//        status = WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value);
+//    }
+//    else
+//    {
+//        *error = measurementStatus;
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurementAttributes(const Measurement* measurement, const JsonNode* attributes, Status* error)
+//{
+//    Status status = OK;
+//    if (NameRequested(attributes, VALUE))
+//    {
+//       status = PutMeasurementValue(measurement, error); 
+//    }
+//    if (NameRequested(attributes, SIMULATION))
+//    {
+//       status = WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, measurement->simulationValue != NULL);
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurement(const JsonNode* message, const Measurement* measurement, Status* error)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurement->name);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            JsonNode attributes;
+//            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+//            if (jsonStatus == JSON_OK)
+//            {
+//                status = PutMeasurementAttributes(measurement, &attributes, error);
+//            }
+//            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+//            {
+//                status = PutMeasurementAttributes(measurement, NULL, error);
+//            }
+//        }
+//        if (status == OK)
+//        {
+//            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurements(const JsonNode* message, Status* error)
+//{
+//    JsonNode instanceArray;
+//    Status status = OK;
+//    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+//    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
+//    {
+//        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
+//        int count = GetMeasurementCount();
+//        int i;
+//        for (i = 0; (i < count) && (status == OK); ++i)
+//        {
+//            Measurement* measurement;
+//            if (GetMeasurement(i, &measurement) == OK)
+//            {
+//                if (NameRequested(instances, measurement->name))
+//                {
+//                    status = PutMeasurement(message, measurement, error);
+//                }
+//            }
+//        }
+//    }
+//    else
+//    {
+//        *error = "InvalidInstances";
+//    }
+//    return status;
+//}
+//
+//
+//Status HandleMeasurementRequest(const JsonNode* message, Status* error)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            status = PutMeasurements(message, error);
+//            if (status == OK)
+//            {
+//                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//            }
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurmentTableFields(const MeasurementTable* measurementTable, Status* error) 
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, TABLE);
+//    if (status == OK)
+//    {
+//        byte column, row;
+//        status = WriteJsonArrayStart(DEFAULT_CHANNEL);
+//        for (row = 0; (row < measurementTable->table.rows) && (status == OK); ++row)
+//        {
+//            status = WriteJsonArrayStart(DEFAULT_CHANNEL);
+//            for (column = 0; (column < measurementTable->table.columns) && (status == OK); ++column)
+//            {
+//                float value;
+//                Status valueStatus = GetMeasurementTableField(measurementTable, column, row, &value);
+//                if (valueStatus == OK)
+//                {
+//                    status = WriteJsonRealElement(DEFAULT_CHANNEL, value);
+//                }
+//                else 
+//                {
+//                    *error = valueStatus;
+//                    status = WriteJsonNullElement(DEFAULT_CHANNEL);
+//                }
+//            }
+//            if (status == OK)
+//            {
+//                status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+//            }
+//        }
+//        if (status == OK)
+//        {
+//            status = WriteJsonArrayEnd(DEFAULT_CHANNEL);
+//        }
+//    }
+//    return status; 
+//}
+//
+//
+//Status PutMeasurementTableAttributes(const MeasurementTable* measurementTable, const JsonNode* attributes, Status* error)
+//{
+//    Status status = OK;
+//    if (NameRequested(attributes, CURRENT_ROW))
+//    {
+//        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex);
+//    }
+//    if ((status == OK) && NameRequested(attributes, CURRENT_COLUMN))
+//    {
+//        status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex);
+//    }
+//    if ((status == OK) && NameRequested(attributes, TABLE))
+//    {
+//        status = PutMeasurmentTableFields(measurementTable, error);
+//    }
+//    if ((status == OK) && NameRequested(attributes, ENABLED))
+//    {
+//        bool enabled;
+//        *error = GetMeasurementTableEnabled(measurementTable->name, &enabled);
+//        if (*error == OK)
+//        {
+//            status = WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled);
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurementTable(const JsonNode* message, const MeasurementTable* measurementTable, Status* error)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, measurementTable->name);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            JsonNode attributes;
+//            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+//            if (jsonStatus == JSON_OK)
+//            {
+//                status = PutMeasurementTableAttributes(measurementTable, &attributes, error);
+//            }
+//            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+//            {
+//                status = PutMeasurementTableAttributes(measurementTable, NULL, error);
+//            }
+//        }
+//    }
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//    }
+//    return status;
+//}
+//
+//
+//Status PutMeasurementTables(const JsonNode* message, Status* error)
+//{
+//    JsonNode instanceArray;
+//    Status status = OK;
+//    JsonStatus jsonStatus = GetArray(message, INSTANCES, &instanceArray);
+//    if ((jsonStatus == JSON_OK) || (jsonStatus == JSON_NAME_NOT_PRESENT))
+//    {
+//        JsonNode* instances = (jsonStatus == JSON_OK) ? &instanceArray : NULL;
+//        int count = GetMeasurementTableCount();
+//        int i;
+//        for (i = 0; (i < count) && (status == OK); ++i)
+//        {
+//            MeasurementTable* measurementTable;
+//            if (GetMeasurementTable(i, &measurementTable) == OK)
+//            {
+//                if (NameRequested(instances, measurementTable->name))
+//                {
+//                    status = PutMeasurementTable(message, measurementTable, error);
+//                }
+//            }
+//        }
+//    }
+//    else
+//    {
+//        *error = "InvalidInstances";
+//    }
+//    return status;
+//}
+//
+//
+//Status HandleMeasurementTableRequest(const JsonNode* message, Status* error)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            status = PutMeasurementTables(message, error);
+//            if (status == OK)
+//            {
+//                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//            }
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status PutEngineAttributes(const JsonNode* attributes)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, "");
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK) 
+//        {
+//            if (NameRequested(attributes, CYLINDER_COUNT))
+//            {
+//                status = WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount());
+//            }
+//            if ((status == OK) && NameRequested(attributes, DEAD_POINTS))
+//            {
+//                status = PutDeadPoints();
+//            }
+//            if ((status == OK) && NameRequested(attributes, COGWHEEL))
+//            {
+//                status = PutCogwheel();
+//            }
+//            if (status == OK)
+//            {
+//                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//            }
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status HandleEngineRequest(const JsonNode* message)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            JsonNode attributes;
+//            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+//            if (jsonStatus == JSON_OK)
+//            {
+//                status = PutEngineAttributes(&attributes);
+//            }
+//            else if (jsonStatus == JSON_NAME_NOT_PRESENT)
+//            {
+//                status = PutEngineAttributes(NULL);
+//            }
+//        }    
+//        if (status == OK)
+//        {
+//            status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//        }
+//    }
+//    return status;
+//}
+//
+//
 Status PutElement(TypeId typeId, Reference reference, ElementSize size)
 {
     Status status = WriteJsonObjectStart(DEFAULT_CHANNEL);
@@ -520,194 +470,194 @@ Status PutPersistentElements()
 }
 
 
-Status HandleElementsRequest(const JsonNode* message)
-{
-    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
-    if (status == OK)
-    {
-        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
-        if (status == OK)
-        {
-            JsonNode attributes;
-            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
-            if ((jsonStatus == JSON_NAME_NOT_PRESENT) || ((jsonStatus == JSON_OK) && NameRequested(&attributes, PERSISTENT)))
-            {
-                status = PutPersistentElements();
-            }
-            if (status == OK)
-            {
-                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
-            }
-        }
-    }
-    return status;
-}
-
-
-Status HandleRequest(const JsonNode* message, Status* error)
-{
-    char* dataType;
-    Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, REQUEST);
-    if (status == OK)
-    {
-        if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
-        {
-            status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
-            if (status == OK)
-            {
-                if (strcmp(dataType, MEASUREMENT) == 0)
-                {
-                    status = HandleMeasurementRequest(message, error);
-                }
-                else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
-                {
-                    status = HandleMeasurementTableRequest(message, error);
-                }
-                else if (strcmp(dataType, ENGINE) == 0)
-                {
-                    status = HandleEngineRequest(message);
-                }
-                else if (strcmp(dataType, ELEMENTS) == 0)
-                {
-                    status = HandleElementsRequest(message);
-                }
-                else
-                {
-                    *error = "InvalidDataType";
-                }
-            }
-            free(dataType);
-        }
-        else
-        {
-            *error = "NoDataType";
-        }
-    }
-    return status;
-}
-
-
-Status HandleMeasurementModification(const JsonNode* instances, const JsonNode* values, Status* error)
-{
-    return NOT_IMPLEMENTED;
-}
-
-
-void ModifyFields(const MeasurementTable* measurementTable, const JsonNode* values, Status* error) 
-{
-    JsonNode fields;
-    if (GetArray(values, FIELDS, &fields) == JSON_OK)
-    {
-        int i = 0;
-        JsonStatus next;
-        do 
-        {
-            float value;
-            int column, row;
-            JsonNode field;
-            next = GetObjectAt(&fields, i, &field);
-            if (next == JSON_OK)
-            {
-                if ((GetInt(&field, COLUMN, &column) == JSON_OK) && (GetInt(&field, ROW, &row) == JSON_OK) && (GetFloat(&field, VALUE, &value) == JSON_OK))
-                {
-                    *error = SetMeasurementTableField(measurementTable->name, column, row, value);
-                }
-                else
-                {
-                    *error = "InvalidField";
-                }
-            }
-            ++i;
-        } while ((*error == OK) && (next == JSON_OK));
-    }
-}
-
-
-void HandleMeasurementTableModification(const JsonNode* instances, const JsonNode* values, Status* error)
-{
-    int instanceCount;
-    JsonStatus jsonStatus = GetCount(instances, &instanceCount);
-    if ((jsonStatus == JSON_OK) && (instanceCount == 1))
-    {
-        char* tableName;
-        jsonStatus = AllocateStringAt(instances, 0, &tableName);
-        if (jsonStatus == JSON_OK)
-        {
-            MeasurementTable* measurementTable;
-            *error = FindMeasurementTable(tableName, &measurementTable);
-            if (*error == OK)
-            {
-                ModifyFields(measurementTable, values, error); 
-            }
-            free(tableName);
-        }
-    }
-    else
-    {
-        *error = "InvalidInstanceCount";
-    }
-}
-
-
-Status HandleEngineModification(const JsonNode* instances, const JsonNode* values, Status* error)
-{
-    return NOT_IMPLEMENTED;
-}
-
-
-Status HandleModify(const JsonNode* message, Status* error)
-{
-    Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, MODIFY);
-    if (status == OK)
-    {
-        JsonNode instances;        
-        if (GetArray(message, INSTANCES, &instances) == JSON_OK)
-        {
-            JsonNode values;
-            if (GetObject(message, VALUES, &values) == JSON_OK)
-            {
-                char* dataType;
-                if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
-                {
-                    status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
-                    if (status == OK)
-                    {
-                        if (strcmp(dataType, MEASUREMENT) == 0)
-                        {
-                            status = HandleMeasurementModification(&instances, &values, error);
-                        }
-                        else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
-                        {
-                            HandleMeasurementTableModification(&instances, &values, error);
-                        }
-                        else if (strcmp(dataType, ENGINE) == 0)
-                        {
-                            status = HandleEngineModification(&instances, &values, error);
-                        }
-                        else
-                        {
-                            *error = "InvalidDataType";
-                        }
-                    }
-                    free(dataType);
-                }
-                else
-                {
-                    *error = "NoDataType";
-                }
-            }
-            else
-            {
-                *error = "NoValues";
-            }
-        }
-        else
-        {
-            *error = "NoInstances";
-        }
-    }
-    return status;
-}
+//Status HandleElementsRequest(const JsonNode* message)
+//{
+//    Status status = WriteJsonMemberName(DEFAULT_CHANNEL, VALUES);
+//    if (status == OK)
+//    {
+//        status = WriteJsonObjectStart(DEFAULT_CHANNEL);
+//        if (status == OK)
+//        {
+//            JsonNode attributes;
+//            JsonStatus jsonStatus = GetArray(message, ATTRIBUTES, &attributes);
+//            if ((jsonStatus == JSON_NAME_NOT_PRESENT) || ((jsonStatus == JSON_OK) && NameRequested(&attributes, PERSISTENT)))
+//            {
+//                status = PutPersistentElements();
+//            }
+//            if (status == OK)
+//            {
+//                status = WriteJsonObjectEnd(DEFAULT_CHANNEL);
+//            }
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status HandleRequest(const JsonNode* message, Status* error)
+//{
+//    char* dataType;
+//    Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, REQUEST);
+//    if (status == OK)
+//    {
+//        if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
+//        {
+//            status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
+//            if (status == OK)
+//            {
+//                if (strcmp(dataType, MEASUREMENT) == 0)
+//                {
+//                    status = HandleMeasurementRequest(message, error);
+//                }
+//                else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
+//                {
+//                    status = HandleMeasurementTableRequest(message, error);
+//                }
+//                else if (strcmp(dataType, ENGINE) == 0)
+//                {
+//                    status = HandleEngineRequest(message);
+//                }
+//                else if (strcmp(dataType, ELEMENTS) == 0)
+//                {
+//                    status = HandleElementsRequest(message);
+//                }
+//                else
+//                {
+//                    *error = "InvalidDataType";
+//                }
+//            }
+//            free(dataType);
+//        }
+//        else
+//        {
+//            *error = "NoDataType";
+//        }
+//    }
+//    return status;
+//}
+//
+//
+//Status HandleMeasurementModification(const JsonNode* instances, const JsonNode* values, Status* error)
+//{
+//    return NOT_IMPLEMENTED;
+//}
+//
+//
+//void ModifyFields(const MeasurementTable* measurementTable, const JsonNode* values, Status* error) 
+//{
+//    JsonNode fields;
+//    if (GetArray(values, FIELDS, &fields) == JSON_OK)
+//    {
+//        int i = 0;
+//        JsonStatus next;
+//        do 
+//        {
+//            float value;
+//            int column, row;
+//            JsonNode field;
+//            next = GetObjectAt(&fields, i, &field);
+//            if (next == JSON_OK)
+//            {
+//                if ((GetInt(&field, COLUMN, &column) == JSON_OK) && (GetInt(&field, ROW, &row) == JSON_OK) && (GetFloat(&field, VALUE, &value) == JSON_OK))
+//                {
+//                    *error = SetMeasurementTableField(measurementTable->name, column, row, value);
+//                }
+//                else
+//                {
+//                    *error = "InvalidField";
+//                }
+//            }
+//            ++i;
+//        } while ((*error == OK) && (next == JSON_OK));
+//    }
+//}
+//
+//
+//void HandleMeasurementTableModification(const JsonNode* instances, const JsonNode* values, Status* error)
+//{
+//    int instanceCount;
+//    JsonStatus jsonStatus = GetCount(instances, &instanceCount);
+//    if ((jsonStatus == JSON_OK) && (instanceCount == 1))
+//    {
+//        char* tableName;
+//        jsonStatus = AllocateStringAt(instances, 0, &tableName);
+//        if (jsonStatus == JSON_OK)
+//        {
+//            MeasurementTable* measurementTable;
+//            *error = FindMeasurementTable(tableName, &measurementTable);
+//            if (*error == OK)
+//            {
+//                ModifyFields(measurementTable, values, error); 
+//            }
+//            free(tableName);
+//        }
+//    }
+//    else
+//    {
+//        *error = "InvalidInstanceCount";
+//    }
+//}
+//
+//
+//Status HandleEngineModification(const JsonNode* instances, const JsonNode* values, Status* error)
+//{
+//    return NOT_IMPLEMENTED;
+//}
+//
+//
+//Status HandleModify(const JsonNode* message, Status* error)
+//{
+//    Status status = WriteJsonStringMember(DEFAULT_CHANNEL, PROCEDURE, MODIFY);
+//    if (status == OK)
+//    {
+//        JsonNode instances;        
+//        if (GetArray(message, INSTANCES, &instances) == JSON_OK)
+//        {
+//            JsonNode values;
+//            if (GetObject(message, VALUES, &values) == JSON_OK)
+//            {
+//                char* dataType;
+//                if (AllocateString(message, DATA_TYPE, &dataType) == JSON_OK)
+//                {
+//                    status = WriteJsonStringMember(DEFAULT_CHANNEL, DATA_TYPE, dataType);
+//                    if (status == OK)
+//                    {
+//                        if (strcmp(dataType, MEASUREMENT) == 0)
+//                        {
+//                            status = HandleMeasurementModification(&instances, &values, error);
+//                        }
+//                        else if (strcmp(dataType, MEASUREMENT_TABLE) == 0)
+//                        {
+//                            HandleMeasurementTableModification(&instances, &values, error);
+//                        }
+//                        else if (strcmp(dataType, ENGINE) == 0)
+//                        {
+//                            status = HandleEngineModification(&instances, &values, error);
+//                        }
+//                        else
+//                        {
+//                            *error = "InvalidDataType";
+//                        }
+//                    }
+//                    free(dataType);
+//                }
+//                else
+//                {
+//                    *error = "NoDataType";
+//                }
+//            }
+//            else
+//            {
+//                *error = "NoValues";
+//            }
+//        }
+//        else
+//        {
+//            *error = "NoInstances";
+//        }
+//    }
+//    return status;
+//}
 
 
 Status PutMeasurementTableProperties(const char* tableName, Status* status)
@@ -788,6 +738,32 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
         }
     }
     return (WriteJsonArrayEnd(DEFAULT_CHANNEL));    
+}
+
+
+Status PutDeadPoints()
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, DEAD_POINTS));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    int i;
+    for (i = 0; i < GetDeadPointCount(); ++i)
+    {
+        VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, GetDeadPointCog(i)));
+    }
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+}
+
+
+Status PutCogwheel()
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, COGWHEEL));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, GetCogTotal()));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, GAP_SIZE, GetGapSize()));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, GetDeadPointOffset()));
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
 
@@ -991,6 +967,21 @@ Status CallSetCylinderCount(const JsonNode* parameters, Status* status)
 }
 
 
+Status CallSetCogwheelProperties(const JsonNode* parameters, Status* status)
+{
+    int cogTotal, gapSize, offset;
+    if ((GetInt(parameters, COG_TOTAL, &cogTotal) == JSON_OK) && (GetInt(parameters, GAP_SIZE, &gapSize) == JSON_OK) && (GetInt(parameters, OFFSET, &offset) == JSON_OK))
+    {
+        *status = SetGogwheelProperties(cogTotal, gapSize, offset);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return OK;
+}
+
+
 Function functions[] =
 {
     { "GetMeasurements", &CallGetMeasurements },
@@ -1003,7 +994,8 @@ Function functions[] =
     { "SetMeasurementTableEnabled", &CallSetMeasurementTableEnabled },
     { "SetMeasurementTableField", &CallSetMeasurementTableField },
     { "GetEngineProperties", &CallGetEngineProperties },
-    { "SetCylinderCount", &CallSetCylinderCount }
+    { "SetCylinderCount", &CallSetCylinderCount },
+    { "SetCogwheelProperties", &CallSetCogwheelProperties }
 };
 
 #define FUNCTION_COUNT (sizeof(functions) / sizeof(Function))
@@ -1036,23 +1028,24 @@ Status HandleCall(const JsonNode* message, Status* error)
 {
     Status transportStatus = OK;
     char* functionName;
-    if (AllocateString(message, PROCEDURE, &functionName) == JSON_OK)
-    {
-        if (strcmp(functionName, REQUEST) == 0)
-        {
-            transportStatus = HandleRequest(message, error);
-        }
-        else if (strcmp(functionName, MODIFY) == 0)
-        {
-            transportStatus = HandleModify(message, error);
-        }
-        else
-        {
-            *error = "InvalidProcedure";
-        }
-        free(functionName);
-    }
-    else if (AllocateString(message, FUNCTION, &functionName) == JSON_OK)
+//    if (AllocateString(message, PROCEDURE, &functionName) == JSON_OK)
+//    {
+//        if (strcmp(functionName, REQUEST) == 0)
+//        {
+//            transportStatus = HandleRequest(message, error);
+//        }
+//        else if (strcmp(functionName, MODIFY) == 0)
+//        {
+//            transportStatus = HandleModify(message, error);
+//        }
+//        else
+//        {
+//            *error = "InvalidProcedure";
+//        }
+//        free(functionName);
+//    }
+//    else
+    if (AllocateString(message, FUNCTION, &functionName) == JSON_OK)
     {
         transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, FUNCTION, functionName);
         Function* function = FindFunction(functionName);
