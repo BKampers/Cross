@@ -6,6 +6,7 @@
 #include "PersistentMemoryDriver.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -15,7 +16,7 @@
 char* RUNTIME_DIRECTORY = "runtime_data";
 char* FILE_PATH = "runtime_data/persistent_memory";
 
-byte MEMORY[MEMORY_SIZE];
+byte* memory;
 Status creationStatus = UNINITIALIZED;
 bool loaded = FALSE;
 
@@ -30,15 +31,16 @@ Status load()
     if (! loaded)
     {
         FILE* file = fopen(FILE_PATH, "rb");
+        memory = malloc(MEMORY_SIZE);
         if (file != NULL)
         {
-            fread(MEMORY, sizeof(byte), sizeof(MEMORY), file);
+            fread(memory, sizeof(byte), MEMORY_SIZE, file);
             int closed = fclose(file);
             status = (closed == 0) ? OK : "LOAD_CLOSE_ERROR";
         }
         else
         {
-            memset(MEMORY, 0, sizeof(MEMORY));
+            memset(memory, 0, MEMORY_SIZE);
         }
         loaded = TRUE;
     }
@@ -73,7 +75,7 @@ Status save()
         FILE* file = fopen(FILE_PATH, "w+b");
         if (file != NULL)
         {
-            fwrite(MEMORY, sizeof(byte), MEMORY_SIZE * sizeof(byte), file);
+            fwrite(memory, sizeof(byte), MEMORY_SIZE * sizeof(byte), file);
             int closed = fclose(file);
             status = (closed == 0) ? OK : "SAVE_CLOSE_ERROR";
         }
@@ -107,7 +109,7 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
     if ((length > 0) && (reference + length <= MEMORY_SIZE))
     {
         Status status = load();
-        memcpy(buffer, &(MEMORY[reference]), length);
+        memcpy(buffer, &(memory[reference]), length);
         return status;
     }
     else 
@@ -125,7 +127,7 @@ Status WritePersistentMemory(Reference reference, int length, void* buffer)
         status = load();
         if (status == OK)
         {
-            memcpy(&(MEMORY[reference]), buffer, length);
+            memcpy(&(memory[reference]), buffer, length);
             status = save();
         }
    }
@@ -147,7 +149,7 @@ Status FillPersistentMemory(Reference reference, int count, byte data)
         status = load();
         if (status == OK)
         {
-            memset(&(MEMORY[reference]), data, count);
+            memset(&(memory[reference]), data, count);
             status = save();
         }
     }
