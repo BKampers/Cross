@@ -22,7 +22,7 @@ char* CONNECTED = "Connected";
 
 void LogChannelStatus(Channel* channel)
 {
-    printf("%d %s: %d \r\n", channel->port, channel->status, errno);
+    printf("%d %s: %d \r\n", (int) (channel->port), (char*) (channel->status), errno);
 }
 
 
@@ -109,7 +109,7 @@ void* SocketTask(void* threadArgs)
     
     ((Channel*) threadArgs)->clientSocketId = -1; /* Any negative value means uninitialized */
     ((Channel*) threadArgs)->status = UNINITIALIZED;    
-    printf("=== SocketTask: port %d ===\n", ((Channel*) threadArgs)->port);
+    printf("=== SocketTask: port %d ===\n", (int) (((Channel*) threadArgs)->port));
 
     /* Create socket for incoming connections */
     serverSocketId = socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -141,7 +141,7 @@ void* SocketTask(void* threadArgs)
         LogChannelStatus((Channel*) threadArgs);
     }
     
-    printf("=== Unexpected thread end: %s ===\n", ((Channel*) threadArgs)->status);
+    printf("=== Unexpected thread end: %s ===\n", (char*) (((Channel*) threadArgs)->status));
     return NULL;
 }
 

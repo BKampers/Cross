@@ -60,7 +60,7 @@ const char* TYPE_ID = "TypeId";
 const char* REFERENCE = "Reference";
 const char* SIZE = "Size";
 
-const char* NOTIFICATION = "Notification";
+const char* FIRE = "Fire";
 const char* ERROR = "Error";
 
 
@@ -530,7 +530,7 @@ Status HandleCall(const JsonNode* message, Status* error)
 ** Interface
 */
 
-void HandleMessage(const char* jsonString)
+Status HandleMessage(const char* jsonString)
 {
     JsonNode message;
     char* direction;
@@ -551,13 +551,15 @@ void HandleMessage(const char* jsonString)
             }
             else
             {
+                transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE);
                 status = "InvalidDirection";
             }
             free(direction);
         }
         else
         {
-            status =  "NoDirection";
+            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE);
+            status =  "InvalidMessageReceived";
         }
         if ((transportStatus == OK) && (status != UNINITIALIZED))
         {
@@ -568,40 +570,41 @@ void HandleMessage(const char* jsonString)
             transportStatus = WriteJsonRootEnd(DEFAULT_CHANNEL);
         }
     }
+    return transportStatus;
 }
 
 
-Status SendTextNotification(const char* name, const char* value)
+Status FireTextEvent(const char* name, const char* value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, NOTIFICATION))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, name, value))
     return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-Status SendIntegerNotification(const char* name, int value)
+Status FireIntegerEvent(const char* name, int value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, NOTIFICATION))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, name, value))
     return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-Status SendRealNotification(const char* name, double value)
+Status FireRealEvent(const char* name, double value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, NOTIFICATION))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, name, value))
     return WriteJsonRootEnd(DEFAULT_CHANNEL);
 }
 
 
-Status SendErrorNotification(const char* error)
+Status FireErrorEvent(const char* error)
 {
-    return SendTextNotification(ERROR, error);
+    return FireTextEvent(ERROR, error);
 }

@@ -115,12 +115,13 @@ void ShowIfError(Status status)
 
 void ShowStatus(char* name, Status status)
 {
-    SendTextNotification(name, status);
+    FireTextEvent(name, status);
     if (status != OK)
     {
         StatusToDisplay(status);
     }
 }
+
 
 int main(void)
 {
@@ -128,8 +129,8 @@ int main(void)
     InitOutputPins();
     InitLcd();
 
-    SendTextNotification("System", SYSTEM_NAME);
-    SendTextNotification("Memory", PersistentMemoryType());
+    FireTextEvent("System", SYSTEM_NAME);
+    FireTextEvent("Memory", PersistentMemoryType());
     PutLcdLine(0, SYSTEM_NAME);
     UpdateLcd();
 
@@ -167,10 +168,11 @@ int main(void)
 
     for (;;)
     {
+        ShowIfError(communicationStatus);
         communicationStatus = ReadString(input);
         if ((communicationStatus == OK) && (strlen(input) > 0))
         {
-            HandleMessage(input);
+            communicationStatus = HandleMessage(input);
         }
 
         if (memoryStatus == OK)
@@ -179,7 +181,7 @@ int main(void)
             ShowIfError(status);
             if (status != ignitionStatus)
             {
-                SendTextNotification(IGNITION, status);
+                FireTextEvent(IGNITION, status);
                 ignitionStatus = status;
             }
 
@@ -187,7 +189,7 @@ int main(void)
             ShowIfError(status);
             if (status != injectionStatus)
             {
-                SendTextNotification(INJECTION, status);
+                FireTextEvent(INJECTION, status);
                 injectionStatus = status;
             }
 
