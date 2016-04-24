@@ -23,7 +23,7 @@ typedef uint32_t Address;
 #define FLASH_END_ADDRESS  ((Address) FLASH_BASE_ADDRESS + FLASH_LIMIT)
 
 #ifndef FLASH_PAGE_SIZE
-#define FLASH_PAGE_SIZE 0x400
+#define FLASH_PAGE_SIZE 0x800
 #endif
 
 char statusText[32];
