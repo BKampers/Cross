@@ -138,6 +138,7 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
     FLASH_LockBank1();
     while ((length > 0) && (result == OK))
     {
+        int boundDistance = FLASH_END_ADDRESS - address;
         if (boundDistance > 0)
         {
             FlashWord data;
