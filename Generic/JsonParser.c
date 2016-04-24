@@ -621,26 +621,35 @@ JsonStatus ProcessEscapeCharacter(const JsonNode* node, size_t* index, char* cha
 }
 
 
+JsonStatus AllocateQuotedValue(const JsonNode* node, char** value)
+{
+    JsonStatus status = JSON_OK;
+    size_t size = node->length - 1;
+    size_t i;
+    size_t j = 0;
+    *value = malloc(size);
+    for (i = 1; (i < size) && (status == JSON_OK); ++i)
+    {
+        char character = *(node->source + i);
+        if (character == '\\')
+        {
+            status = ProcessEscapeCharacter(node, &i, &character);
+        }
+        (*value)[j] = character;
+        j++;
+    }
+    (*value)[j] = '\0';
+    return status;
+}
+
+
 JsonStatus AllocateString(const JsonNode* object, const char* name, char** value)
 {
     JsonNode node;
     JsonStatus status = GetNode(object, name, JSON_STRING, &node);
     if (status == JSON_OK)
     {
-        size_t i;
-        size_t j = 0;
-        *value = malloc(node.length - 2);
-        for (i = 1; (i < node.length - 1) && status == JSON_OK; ++i)
-        {
-            char character = *(node.source + i);
-            if (character == '\\')
-            {
-                status = ProcessEscapeCharacter(&node, &i, &character);
-            }
-            (*value)[j] = character;
-            j++;
-        }
-        (*value)[j] = '\0';
+        status = AllocateQuotedValue(&node, value);
     }
     else
     {
@@ -741,6 +750,22 @@ JsonStatus GetCount(const JsonNode* array, int* count)
     {
         return JSON_ARRAY_EXPECTED;
     }    
+}
+
+
+JsonStatus AllocateStringAt(const JsonNode* array, int index, char** element)
+{
+    JsonNode node;
+    JsonStatus status = GetNodeAt(array, index, JSON_STRING, &node);
+    if (status == JSON_OK)
+    {
+        status = AllocateQuotedValue(&node, element);
+    }
+    else
+    {
+        *element = NULL;
+    }
+    return status;
 }
 
 

@@ -23,7 +23,7 @@ typedef uint32_t Address;
 #define FLASH_END_ADDRESS  ((Address) FLASH_BASE_ADDRESS + FLASH_LIMIT)
 
 #ifndef FLASH_PAGE_SIZE
-#define FLASH_PAGE_SIZE 0x800
+#define FLASH_PAGE_SIZE 0x400
 #endif
 
 char statusText[32];
@@ -80,7 +80,7 @@ Status StorePage(Address pageBase)
     FLASH_Status flashStatus = FLASH_ErasePage(pageBase);
     if (flashStatus == FLASH_COMPLETE)
     {
-        //	status = FLASH_WaitForLastOperation(EraseTimeout); // Can cause eternal wait
+        /* status = FLASH_WaitForLastOperation(EraseTimeout); // Can cause eternal wait */
         FlashWord* workAddress = (FlashWord*) workMemory;
         Address flashAddress = pageBase;
         while ((flashStatus == FLASH_COMPLETE) && (flashAddress < pageBase + FLASH_PAGE_SIZE))
@@ -138,10 +138,18 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
     FLASH_LockBank1();
     while ((length > 0) && (result == OK))
     {
-        if (address <= FLASH_END_ADDRESS)
+        int boundDistance = FLASH_END_ADDRESS - address;
+        if (boundDistance > 0)
         {
-            FlashWord data = (*(__IO FlashWord*) address);
+            FlashWord data;
             int i = 0;
+            if (boundDistance < sizeof(FlashWord))
+            {
+                int delta = sizeof(FlashWord) - boundDistance;
+                address -= delta;
+                i += delta;
+            }
+            data = (*(__IO FlashWord*) address);
             while ((i < sizeof(FlashWord)) && (length > 0))
             {
                 *bufferAddress = ((byte*) &data)[i];

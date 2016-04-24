@@ -121,6 +121,27 @@ Status GetRpmValue(float* value)
 ** Interface
 */
 
+
+int GetMeasurementCount()
+{
+    return MEASUREMENT_COUNT;
+}
+
+
+Status GetMeasurement(int index, Measurement** measurement)
+{
+    if ((0 <= index) && (index < MEASUREMENT_COUNT))
+    {
+        *measurement = &(measurements[index]);
+        return OK;
+    }
+    else
+    {
+        return INVALID_PARAMETER;
+    }
+}
+
+
 Status FindMeasurement(const char* name, Measurement** measurement)
 {
     int i;

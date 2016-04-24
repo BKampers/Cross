@@ -25,6 +25,8 @@ typedef struct
 } Measurement;
 
 
+int GetMeasurementCount();
+Status GetMeasurement(int index, Measurement** measurement);
 Status FindMeasurement(const char* name, Measurement** measurement);
 
 Status GetMeasurementValue(const Measurement* measurement, float* value);

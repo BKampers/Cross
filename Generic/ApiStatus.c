@@ -3,12 +3,12 @@
 
 char UNINITIALIZED[] = "Uninitialized";
 char OK[] = "OK";
-char NOT_IMPLEMENTED[] = "Not implemented";
-char INVALID_PARAMETER[] = "Invalid parameter";
-char INVALID_ID[] = "Invalid id";
-char OUT_OF_MEMORY[] = "Out of memory";
-char BUFFER_OVERFLOW[] = "Buffer overflow";
-char WRITE_ERROR[] = "Write error";
+char NOT_IMPLEMENTED[] = "NotImplemented";
+char INVALID_PARAMETER[] = "InvalidParameter";
+char INVALID_ID[] = "InvalidId";
+char OUT_OF_MEMORY[] = "OutOfMemory";
+char BUFFER_OVERFLOW[] = "BufferOverflow";
+char WRITE_ERROR[] = "WriteError";
 
 
 #define MIN(a, b) (a < b) ? a : b

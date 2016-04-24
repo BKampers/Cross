@@ -386,30 +386,29 @@ Status CheckPersistentMemory(void (*notify)(Reference))
         status = ReadType(&check, &id, &size);
         if (size > 0)
         {
-            // Element with valid id.
             check += size;
             if (check <= limit)
             {
-                // Element with valid size.
+                /* Element with valid size. */
                 reference = check;
                 status = EraseClearArea(&clearStart, &clearEnd);
             }
             else 
             {
-                // Size out of boundaries. Clear id to remove element.
+                /* Size out of boundaries. Clear id to remove element. */
                 PrepareClearArea(&clearStart, &clearEnd, reference);
                 reference += sizeof(TypeId);
             }
         }
         else if (id != EMPTY)
         {
-            // Element with invalid size or unknown id. Clear id to remove element.
+            /* Element with invalid size or unknown id. Clear id to remove element. */
             PrepareClearArea(&clearStart, &clearEnd, reference);
             reference = check;
         }
         else
         {
-            // Available memory
+            /* Available memory. */
             if (clearStart != NULL_REFERENCE)
             {
                 PrepareClearArea(&clearStart, &clearEnd, reference);
