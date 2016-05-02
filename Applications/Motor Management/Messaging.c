@@ -77,11 +77,12 @@ Status PutMeasurementTableProperties(const char* tableName, Status* status)
     MeasurementTable* measurementTable;
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     *status = FindMeasurementTable(tableName, &measurementTable);
     if (*status == OK)
     {
         bool enabled;
-        *status = GetMeasurementTableEnabled(measurementTable->name, &enabled);
+        *status = GetMeasurementTableEnabled(tableName, &enabled);
         if (*status == OK)
         {
             VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled));
