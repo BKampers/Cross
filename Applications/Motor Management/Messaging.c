@@ -38,6 +38,7 @@ const char* STATUS = "Status";
 
 const char* MEASUREMENT_NAME = "MeasurmentName";
 const char* TABLE_NAME = "TableName";
+const char* FIELDS = "Fields";
 const char* VALUE = "Value";
 const char* SIMULATION = "Simulation";
 const char* COLUMN = "Column";
@@ -124,6 +125,9 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
     RETURN_WHEN_INVALID
     MeasurementTable* measurementTable;
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, FIELDS));
     VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
     *status = FindMeasurementTable(tableName, &measurementTable);
     if (*status == OK)
@@ -148,7 +152,8 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
             VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
         }
     }
-    return (WriteJsonArrayEnd(DEFAULT_CHANNEL));    
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
+    return (WriteJsonObjectEnd(DEFAULT_CHANNEL));
 }
 
 
