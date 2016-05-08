@@ -464,6 +464,12 @@ Status CallGetEngineProperties(const JsonNode* parameters, Status* status)
 }
 
 
+Status CallIsEngineRunning(const JsonNode* parameters, Status* status)
+{
+    return WriteJsonBooleanMember(DEFAULT_CHANNEL, RETURN_VALUE, EngineIsRunning());
+}
+
+
 Status CallSetCylinderCount(const JsonNode* parameters, Status* status)
 {
     int count;
@@ -515,6 +521,7 @@ Function functions[] =
     { "SetTableEnabled", &CallSetTableEnabled },
     { "SetTableField", &CallSetTableField },
     { "GetEngineProperties", &CallGetEngineProperties },
+    { "IsEngineRunning", &CallIsEngineRunning },
     { "SetCylinderCount", &CallSetCylinderCount },
     { "SetCogwheelProperties", &CallSetCogwheelProperties },
     { "GetPersistentElements", &CallGetPersistentElements }
