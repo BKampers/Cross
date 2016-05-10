@@ -188,6 +188,18 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
 }
 
 
+Status PutMeasurementTableField(const char* tableName, int column, int row, float value) {
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, column));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, row));
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, value));
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
 Status PutDeadPoints()
 {
     RETURN_WHEN_INVALID
@@ -433,6 +445,7 @@ Status CallSetTableEnabled(const JsonNode* parameters, Status* status)
 
 Status CallSetTableField(const JsonNode* parameters, Status* status)
 {
+    Status transportStatus = OK;
     char* tableName;
     int column, row;
     float value;
@@ -442,13 +455,14 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
         (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK))
     {
         *status = SetMeasurementTableField(tableName, column, row, value);
+        transportStatus = PutMeasurementTableField(tableName, column, row, value);
         free(tableName);
     }
     else
     {
         *status = INVALID_PARAMETER;
     }
-    return OK;
+    return transportStatus;
 }
 
 
