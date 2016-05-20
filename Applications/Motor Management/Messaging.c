@@ -36,7 +36,7 @@ const char* PARAMETERS = "Parameters";
 const char* RETURN_VALUE = "ReturnValue";
 const char* STATUS = "Status";
 
-const char* MEASUREMENT_NAME = "MeasurmentName";
+const char* MEASUREMENT_NAME = "MeasurementName";
 const char* TABLE_NAME = "TableName";
 const char* COLUMN_MEASUREMENT_NAME = "ColumnMeasurementName";
 const char* ROW_MEASUREMENT_NAME = "RowMeasurementName";
@@ -76,15 +76,16 @@ typedef struct
 } Function;
 
 
-Status PutMeasurementProperties(const char* measurmentName, Status* status)
+Status PutMeasurementProperties(const char* measurementName, Status* status)
 {
     RETURN_WHEN_INVALID
     Measurement* measurement;
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
-    *status = FindMeasurement(measurmentName, &measurement);
+    *status = FindMeasurement(measurementName, &measurement);
     if (*status == OK)
     {
+        VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, MEASUREMENT_NAME, measurementName));
         VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurement->minimum));
         VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurement->maximum));
         VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, FORMAT, measurement->format));
