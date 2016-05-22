@@ -265,11 +265,33 @@ Status PutPersistentElements(Status* status)
     RETURN_WHEN_INVALID
     int i;
     int count = GetTypeCount();
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
-    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
-    for (i = 0; i < count; ++i)
+    for (i = 1; i <= count; ++i)
     {
-        VALIDATE( PutElementTypes((TypeId) i, status));
+        VALIDATE(PutElementTypes((TypeId) i, status));
+    }
+    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
+}
+
+
+#define MEMORY_BUFFER_SIZE 0x100
+Status PutPersistentMemoryBytes(Status* status)
+{
+    RETURN_WHEN_INVALID
+    byte bytes[MEMORY_BUFFER_SIZE];
+    Reference limit = PersistentMemoryLimit();
+    Reference reference = 0;
+    *status = OK;
+    for (reference = 0; (reference < limit) && (*status == OK); reference += MEMORY_BUFFER_SIZE)
+    {
+        *status = ReadPersistentMemory(reference, MEMORY_BUFFER_SIZE, bytes);
+        if (*status == OK)
+        {
+            int i;
+            for (i = 0; i < MEMORY_BUFFER_SIZE; ++i)
+            {
+                VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, bytes[i]));
+            }
+        }
     }
     return WriteJsonArrayEnd(DEFAULT_CHANNEL);
 }
@@ -518,7 +540,19 @@ Status CallSetCogwheelProperties(const JsonNode* parameters, Status* status)
 Status CallGetPersistentElements(const JsonNode* parameters, Status* status)
 {
     RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
     VALIDATE(PutPersistentElements(status));
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
+Status CallGetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
+{    
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    VALIDATE(PutPersistentMemoryBytes(status));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
@@ -539,7 +573,8 @@ Function functions[] =
     { "IsEngineRunning", &CallIsEngineRunning },
     { "SetCylinderCount", &CallSetCylinderCount },
     { "SetCogwheelProperties", &CallSetCogwheelProperties },
-    { "GetPersistentElements", &CallGetPersistentElements }
+    { "GetPersistentElements", &CallGetPersistentElements },
+    { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes }
 };
 
 #define FUNCTION_COUNT (sizeof(functions) / sizeof(Function))
