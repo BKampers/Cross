@@ -112,6 +112,12 @@ Status PutMeasurementTableProperties(const char* tableName, Status* status)
     *status = FindMeasurementTable(tableName, &measurementTable);
     if (*status == OK)
     {
+        bool enabled;
+        *status = GetMeasurementTableEnabled(tableName, &enabled);
+        if (*status == OK)
+        {
+            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled));
+        }
         VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, measurementTable->minimum));
         VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, measurementTable->maximum));
         VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, PRECISION, measurementTable->precision));
@@ -139,12 +145,6 @@ Status PutMeasurementTableActualValues(const char* tableName, Status* status)
     *status = FindMeasurementTable(tableName, &measurementTable);
     if (*status == OK)
     {
-        bool enabled;
-        *status = GetMeasurementTableEnabled(tableName, &enabled);
-        if (*status == OK)
-        {
-            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled));
-        }
         VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex));
         VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex));
     }
@@ -281,6 +281,7 @@ Status PutPersistentMemoryBytes(Status* status)
     Reference limit = PersistentMemoryLimit();
     Reference reference = 0;
     *status = OK;
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
     for (reference = 0; (reference < limit) && (*status == OK); reference += MEMORY_BUFFER_SIZE)
     {
         *status = ReadPersistentMemory(reference, MEMORY_BUFFER_SIZE, bytes);
@@ -551,7 +552,6 @@ Status CallGetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
 {    
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
-    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
     VALIDATE(PutPersistentMemoryBytes(status));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
