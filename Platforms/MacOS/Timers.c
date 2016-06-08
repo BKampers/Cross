@@ -14,6 +14,7 @@
 */
 
 void (*HandlePulse) (int capture) = NULL;
+void (*HandleStop) () = NULL;
 
 int timerValue = 0;
 bool timerTaskRunning = FALSE;
@@ -25,9 +26,17 @@ void* TimerTask(void* threadArgs)
     {
         struct timespec pulseWidth;
         GetPulseWidth(&pulseWidth);
-        nanosleep(&pulseWidth, NULL);
-        timerValue = (timerValue + pulseWidth.tv_nsec / 278) % 0x10000;
-        HandlePulse(timerValue);
+        if (pulseWidth.tv_nsec <= MAX_PULSE_NANOS)
+        {
+            nanosleep(&pulseWidth, NULL);
+            timerValue = (timerValue + pulseWidth.tv_nsec / 278) % 0x10000;
+            HandlePulse(timerValue);
+        }
+        else
+        {
+            HandleStop();
+            nanosleep(&pulseWidth, NULL);
+        }
     }
     return NULL;
 }
@@ -72,6 +81,7 @@ void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*Overf
 {
     InitControl();
     HandlePulse = InterruptService;
+    HandleStop = OverflowService;
     StartTimerThread();
 }
 
