@@ -237,6 +237,18 @@ Status PutCogwheel()
 }
 
 
+Status PutEngineProperties()
+{
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()));
+    VALIDATE(PutCogwheel());
+    VALIDATE(PutDeadPoints());
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
 Status PutElement(TypeId typeId, Reference reference, ElementSize size)
 {
     RETURN_WHEN_INVALID
@@ -504,13 +516,7 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
 
 Status CallGetEngineProperties(const JsonNode* parameters, Status* status)
 {
-    RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
-    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
-    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()));
-    VALIDATE(PutCogwheel());
-    VALIDATE(PutDeadPoints());
-    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+    return PutEngineProperties();
 }
 
 
@@ -522,31 +528,41 @@ Status CallIsEngineRunning(const JsonNode* parameters, Status* status)
 
 Status CallSetCylinderCount(const JsonNode* parameters, Status* status)
 {
+    Status transportStatus = OK;
     int count;
     if (GetInt(parameters, CYLINDER_COUNT, &count) == JSON_OK)
     {
         *status = SetCylinderCount(count);
+        if (*status == OK)
+        {
+            transportStatus = PutEngineProperties();
+        }
     }
     else
     {
         *status = INVALID_PARAMETER;
     }
-    return OK;
+    return transportStatus;
 }
 
 
 Status CallSetCogwheelProperties(const JsonNode* parameters, Status* status)
 {
+    Status transportStatus = OK;
     int cogTotal, gapSize, offset;
     if ((GetInt(parameters, COG_TOTAL, &cogTotal) == JSON_OK) && (GetInt(parameters, GAP_SIZE, &gapSize) == JSON_OK) && (GetInt(parameters, OFFSET, &offset) == JSON_OK))
     {
         *status = SetGogwheelProperties(cogTotal, gapSize, offset);
+        if (*status == OK)
+        {
+            transportStatus = PutEngineProperties();
+        }
     }
     else
     {
         *status = INVALID_PARAMETER;
     }
-    return OK;
+    return transportStatus;
 }
 
 
