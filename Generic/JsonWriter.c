@@ -14,38 +14,6 @@
 bool valueWritten = FALSE;
 
 
-Status WriteJsonNull(int channelId)
-{
-    valueWritten = TRUE;
-    return WriteString(channelId, JSON_NULL_LITERAL);
-}
-
-
-Status WriteJsonBoolean(int channelId, bool value)
-{
-    valueWritten = TRUE;
-    return WriteString(channelId, value ? JSON_TRUE_LITERAL : JSON_FALSE_LITERAL);
-}
-
-
-Status WriteJsonInteger(int channelId, int value)
-{
-    char valueString[16];
-    sprintf(valueString, "%d", value);
-    valueWritten = TRUE;
-    return WriteString(channelId, valueString);
-}
-
-
-Status WriteJsonReal(int channelId, double value)
-{
-    char valueString[32];
-    sprintf(valueString, "%.15g", value);
-    valueWritten = TRUE;
-    return WriteString(channelId, valueString);
-}
-
-
 Status WriteUnicode(int channelId, char character)
 {
     char unicode[7];
@@ -103,15 +71,6 @@ Status WriteStringContent(int channelId, const char* string)
     return OK;
 }
 
-Status WriteQuotedString(int channelId, const char* string)
-{
-    RETURN_WHEN_INVALID
-    valueWritten = TRUE;
-    VALIDATE(WriteCharacter(channelId, STRING_START))
-    VALIDATE(WriteString(channelId, string))
-    return WriteCharacter(channelId, STRING_END);
-}
-
 
 Status WriteJsonSeparator(int channelId)
 {
@@ -129,6 +88,48 @@ Status WriteJsonSeparator(int channelId)
 /*
 ** Interface
 */
+
+Status WriteJsonNull(int channelId)
+{
+    valueWritten = TRUE;
+    return WriteString(channelId, JSON_NULL_LITERAL);
+}
+
+
+Status WriteJsonBoolean(int channelId, bool value)
+{
+    valueWritten = TRUE;
+    return WriteString(channelId, value ? JSON_TRUE_LITERAL : JSON_FALSE_LITERAL);
+}
+
+
+Status WriteJsonInteger(int channelId, int value)
+{
+    char valueString[16];
+    sprintf(valueString, "%d", value);
+    valueWritten = TRUE;
+    return WriteString(channelId, valueString);
+}
+
+
+Status WriteJsonReal(int channelId, double value)
+{
+    char valueString[32];
+    sprintf(valueString, "%.15g", value);
+    valueWritten = TRUE;
+    return WriteString(channelId, valueString);
+}
+
+
+Status WriteJsonString(int channelId, const char* string)
+{
+    RETURN_WHEN_INVALID
+    valueWritten = TRUE;
+    VALIDATE(WriteCharacter(channelId, STRING_START))
+    VALIDATE(WriteString(channelId, string))
+    return WriteCharacter(channelId, STRING_END);
+}
+
 
 Status WriteJsonRootStart(int channelId)
 {
@@ -165,7 +166,7 @@ Status WriteJsonMemberName(int channelId, const char* name)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
-    VALIDATE(WriteQuotedString(channelId, name))
+    VALIDATE(WriteJsonString(channelId, name))
     valueWritten = FALSE;
     return WriteCharacter(channelId, NAME_VALUE_SEPARATOR);
 }
@@ -207,7 +208,7 @@ Status WriteJsonStringMember(int channelId, const char* name, const char* value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonMemberName(channelId, name))
-    return WriteQuotedString(channelId, value);
+    return WriteJsonString(channelId, value);
 }
 
 
@@ -263,5 +264,5 @@ Status WriteJsonStringElement(int channelId, const char* value)
 {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonSeparator(channelId))
-    return WriteQuotedString(channelId, value);
+    return WriteJsonString(channelId, value);
 }

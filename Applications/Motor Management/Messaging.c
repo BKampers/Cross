@@ -27,15 +27,6 @@
 ** Private
 */
 
-const char* DIRECTION = "Direction";
-const char* CALL = "Call";
-const char* RETURN = "Return";
-
-const char* FUNCTION = "Function";
-const char* PARAMETERS = "Parameters";
-const char* RETURN_VALUE = "ReturnValue";
-const char* STATUS = "Status";
-
 const char* MEASUREMENT_NAME = "MeasurementName";
 const char* TABLE_NAME = "TableName";
 const char* COLUMN_MEASUREMENT_NAME = "ColumnMeasurementName";
@@ -65,22 +56,33 @@ const char* TYPE_ID = "TypeId";
 const char* REFERENCE = "Reference";
 const char* SIZE = "Size";
 
-const char* FIRE = "Fire";
-const char* ERROR = "Error";
 
-
-typedef struct
+Status PutMeasurementSimulation(const char* measurementName, Status* status)
 {
-    const char* name;
-    Status (*Call) (const JsonNode* parameters, Status* status);
-} Function;
+    RETURN_WHEN_INVALID
+    Measurement* measurement;
+    *status = FindMeasurement(measurementName, &measurement);
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    if (*status == OK)
+    {
+        if (measurement->simulationValue != NULL)
+        {
+            VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, SIMULATION_VALUE, *(measurement->simulationValue)));
+            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, TRUE));
+        }
+        else
+        {
+            VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, SIMULATION, FALSE));
+        }
+    }
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
 
 
 Status PutMeasurementProperties(const char* measurementName, Status* status)
 {
     RETURN_WHEN_INVALID
     Measurement* measurement;
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     *status = FindMeasurement(measurementName, &measurement);
     if (*status == OK)
@@ -106,7 +108,6 @@ Status PutMeasurementTableProperties(const char* tableName, Status* status)
 {
     RETURN_WHEN_INVALID
     MeasurementTable* measurementTable;
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     *status = FindMeasurementTable(tableName, &measurementTable);
@@ -139,7 +140,6 @@ Status PutMeasurementTableActualValues(const char* tableName, Status* status)
 {
     RETURN_WHEN_INVALID
     MeasurementTable* measurementTable;
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     *status = FindMeasurementTable(tableName, &measurementTable);
@@ -156,7 +156,6 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
 {
     RETURN_WHEN_INVALID
     MeasurementTable* measurementTable;
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName))
     VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, FIELDS));
@@ -191,7 +190,6 @@ Status PutMeasurementTableFields(const char* tableName, Status* status)
 
 Status PutMeasurementTableField(const char* tableName, int column, int row, float value) {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, column));
@@ -203,7 +201,6 @@ Status PutMeasurementTableField(const char* tableName, int column, int row, floa
 
 Status PutMeasurementTableEnabled(const char* tableName, bool enabled) {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled));
@@ -240,7 +237,6 @@ Status PutCogwheel()
 Status PutEngineProperties()
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CYLINDER_COUNT, GetCylinderCount()));
     VALIDATE(PutCogwheel());
@@ -282,50 +278,11 @@ Status PutElementTypes(TypeId typeId, Status* status)
 }
 
 
-Status PutPersistentElements(Status* status)
-{
-    RETURN_WHEN_INVALID
-    int i;
-    int count = GetTypeCount();
-    for (i = 1; i <= count; ++i)
-    {
-        VALIDATE(PutElementTypes((TypeId) i, status));
-    }
-    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
-}
-
-
-#define MEMORY_BUFFER_SIZE 0x100
-Status PutPersistentMemoryBytes(Status* status)
-{
-    RETURN_WHEN_INVALID
-    byte bytes[MEMORY_BUFFER_SIZE];
-    Reference limit = PersistentMemoryLimit();
-    Reference reference = 0;
-    *status = OK;
-    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
-    for (reference = 0; (reference < limit) && (*status == OK); reference += MEMORY_BUFFER_SIZE)
-    {
-        *status = ReadPersistentMemory(reference, MEMORY_BUFFER_SIZE, bytes);
-        if (*status == OK)
-        {
-            int i;
-            for (i = 0; i < MEMORY_BUFFER_SIZE; ++i)
-            {
-                VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, bytes[i]));
-            }
-        }
-    }
-    return WriteJsonArrayEnd(DEFAULT_CHANNEL);
-}
-
-
 Status CallGetMeasurements(const JsonNode* parameters, Status* status)
 {
     RETURN_WHEN_INVALID
     int i;
     int count = GetMeasurementCount();
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     for (i = 0; i < count; ++i)
     {
@@ -364,6 +321,7 @@ Status CallGetMeasurementProperties(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
     }
     return transportStatus;
 }
@@ -382,7 +340,7 @@ Status CallSetMeasurementSimulation(const JsonNode* parameters, Status* status)
     {
         *status = INVALID_PARAMETER;
     }
-    return OK;
+    return PutMeasurementSimulation(measurementName, status);
 }
 
 
@@ -398,7 +356,7 @@ Status CallResetMeasurementSimulation(const JsonNode* parameters, Status* status
     {
         *status = INVALID_PARAMETER;
     }
-    return OK;
+    return PutMeasurementSimulation(measurementName, status);
 }
 
 
@@ -407,7 +365,6 @@ Status CallGetTableNames(const JsonNode* parameters, Status* status)
     RETURN_WHEN_INVALID
     int count = GetMeasurementTableCount();
     int i;
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
     VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
     for (i = 0; i < count; ++i)
     {
@@ -433,6 +390,7 @@ Status CallGetTableProperties(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
     }
     return transportStatus;
 }
@@ -450,6 +408,7 @@ Status CallGetTableActualValues(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
     }
     return transportStatus;
 }
@@ -467,7 +426,8 @@ Status CallGetTableFields(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
-    }
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+  }
     return transportStatus;
 }
 
@@ -486,6 +446,7 @@ Status CallSetTableEnabled(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
     }
     return transportStatus;
 }
@@ -509,6 +470,7 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
     else
     {
         *status = INVALID_PARAMETER;
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
     }
     return transportStatus;
 }
@@ -522,65 +484,77 @@ Status CallGetEngineProperties(const JsonNode* parameters, Status* status)
 
 Status CallIsEngineRunning(const JsonNode* parameters, Status* status)
 {
-    return WriteJsonBooleanMember(DEFAULT_CHANNEL, RETURN_VALUE, EngineIsRunning());
+    return WriteJsonBoolean(DEFAULT_CHANNEL, EngineIsRunning());
 }
 
 
 Status CallSetCylinderCount(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
     int count;
     if (GetInt(parameters, CYLINDER_COUNT, &count) == JSON_OK)
     {
         *status = SetCylinderCount(count);
-        if (*status == OK)
-        {
-            transportStatus = PutEngineProperties();
-        }
     }
     else
     {
         *status = INVALID_PARAMETER;
     }
-    return transportStatus;
+    return PutEngineProperties();
 }
 
 
 Status CallSetCogwheelProperties(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
     int cogTotal, gapSize, offset;
     if ((GetInt(parameters, COG_TOTAL, &cogTotal) == JSON_OK) && (GetInt(parameters, GAP_SIZE, &gapSize) == JSON_OK) && (GetInt(parameters, OFFSET, &offset) == JSON_OK))
     {
         *status = SetGogwheelProperties(cogTotal, gapSize, offset);
-        if (*status == OK)
-        {
-            transportStatus = PutEngineProperties();
-        }
     }
     else
     {
         *status = INVALID_PARAMETER;
     }
-    return transportStatus;
+    return PutEngineProperties();
 }
 
 
 Status CallGetPersistentElements(const JsonNode* parameters, Status* status)
 {
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
+    int i;
     VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
-    VALIDATE(PutPersistentElements(status));
+    int count = GetTypeCount();
+    for (i = 1; i <= count; ++i)
+    {
+        VALIDATE(PutElementTypes((TypeId) i, status));
+    }
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
 
+#define MEMORY_BUFFER_SIZE 0x100
 Status CallGetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
 {    
     RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, RETURN_VALUE));
-    VALIDATE(PutPersistentMemoryBytes(status));
+    byte bytes[MEMORY_BUFFER_SIZE];
+    Reference limit = PersistentMemoryLimit();
+    Reference reference = 0;
+    *status = OK;
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+    for (reference = 0; (reference < limit) && (*status == OK); reference += MEMORY_BUFFER_SIZE)
+    {
+        *status = ReadPersistentMemory(reference, MEMORY_BUFFER_SIZE, bytes);
+        if (*status == OK)
+        {
+            int i;
+            for (i = 0; i < MEMORY_BUFFER_SIZE; ++i)
+            {
+                VALIDATE(WriteJsonIntegerElement(DEFAULT_CHANNEL, bytes[i]));
+            }
+        }
+    }
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
@@ -605,146 +579,13 @@ Function functions[] =
     { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes }
 };
 
-#define FUNCTION_COUNT (sizeof(functions) / sizeof(Function))
-
-
-JsonStatus EmptyObject(JsonNode* node)
-{
-    node->source = "{}";
-    node->type = JSON_OBJECT;
-    node->length = 2;
-    return JSON_OK;
-}
-
-
-Function* FindFunction(const char* name) 
-{
-    int i;
-    for (i = 0; i < FUNCTION_COUNT; ++i)
-    {
-        if (strcmp(name, functions[i].name) == 0)
-        {
-            return &(functions[i]);
-        }
-    }
-    return NULL;
-}
-
-
-Status HandleCall(const JsonNode* message, Status* error) 
-{
-    Status transportStatus = OK;
-    char* functionName;
-    if (AllocateString(message, FUNCTION, &functionName) == JSON_OK)
-    {
-        transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, FUNCTION, functionName);
-        Function* function = FindFunction(functionName);
-        if ((transportStatus == OK) && (function != NULL))
-        {
-            JsonNode parameters;
-            JsonStatus jsonStatus = GetObject(message, PARAMETERS, &parameters);
-            if (jsonStatus == JSON_NAME_NOT_PRESENT)
-            {
-                jsonStatus = EmptyObject(&parameters);
-            }
-            if (jsonStatus == JSON_OK) 
-            {
-                transportStatus = function->Call(&parameters, error);
-            }
-            free(functionName);
-        }
-        else 
-        {
-            *error = "UnknownFunction";
-        }
-    }
-    else
-    {
-        *error = "NoFunction";
-    }
-    return transportStatus;
-}
-
 
 /*
 ** Interface
 */
 
-Status HandleMessage(const char* jsonString)
+JsonRpcApi motorManagementApi =
 {
-    JsonNode message;
-    char* direction;
-    Status status = UNINITIALIZED;
-    Status transportStatus = WriteJsonRootStart(DEFAULT_CHANNEL);
-    if (transportStatus == OK)
-    {
-        Initialize(jsonString, &message);
-        if (AllocateString(&message, DIRECTION, &direction) == JSON_OK)
-        {
-            if (strcmp(direction, CALL) == 0)
-            {
-                transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, RETURN);
-                if (transportStatus == OK) 
-                {
-                    transportStatus = HandleCall(&message, &status);
-                }
-            }
-            else
-            {
-                transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE);
-                status = "InvalidDirection";
-            }
-            free(direction);
-        }
-        else
-        {
-            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE);
-            status =  "InvalidMessageReceived";
-        }
-        if ((transportStatus == OK) && (status != UNINITIALIZED))
-        {
-            transportStatus = WriteJsonStringMember(DEFAULT_CHANNEL, STATUS, status);
-        }
-        if (transportStatus == OK)
-        {
-            transportStatus = WriteJsonRootEnd(DEFAULT_CHANNEL);
-        }
-    }
-    return transportStatus;
-}
-
-
-Status FireTextEvent(const char* name, const char* value)
-{
-    RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, name, value))
-    return WriteJsonRootEnd(DEFAULT_CHANNEL);
-}
-
-
-Status FireIntegerEvent(const char* name, int value)
-{
-    RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
-    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, name, value))
-    return WriteJsonRootEnd(DEFAULT_CHANNEL);
-}
-
-
-Status FireRealEvent(const char* name, double value)
-{
-    RETURN_WHEN_INVALID
-    VALIDATE(WriteJsonRootStart(DEFAULT_CHANNEL))
-    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, DIRECTION, FIRE))
-    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, name, value))
-    return WriteJsonRootEnd(DEFAULT_CHANNEL);
-}
-
-
-Status FireErrorEvent(const char* error)
-{
-    return FireTextEvent(ERROR, error);
-}
+    functions,
+    sizeof(functions) / sizeof(Function)
+};
