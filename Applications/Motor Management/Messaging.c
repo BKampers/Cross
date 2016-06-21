@@ -311,7 +311,7 @@ Status CallGetMeasurements(const JsonNode* parameters, Status* status)
 
 Status CallGetMeasurementProperties(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* measurementName;
     if (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK)
     {
@@ -320,8 +320,8 @@ Status CallGetMeasurementProperties(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
     }
     return transportStatus;
 }
@@ -380,7 +380,7 @@ Status CallGetTableNames(const JsonNode* parameters, Status* status)
 
 Status CallGetTableProperties(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* tableName;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
@@ -389,8 +389,8 @@ Status CallGetTableProperties(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
     }
     return transportStatus;
 }
@@ -398,7 +398,7 @@ Status CallGetTableProperties(const JsonNode* parameters, Status* status)
 
 Status CallGetTableActualValues(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* tableName;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
@@ -407,8 +407,8 @@ Status CallGetTableActualValues(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
     }
     return transportStatus;
 }
@@ -416,7 +416,7 @@ Status CallGetTableActualValues(const JsonNode* parameters, Status* status)
 
 Status CallGetTableFields(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* tableName;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
@@ -425,8 +425,8 @@ Status CallGetTableFields(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
   }
     return transportStatus;
 }
@@ -434,7 +434,7 @@ Status CallGetTableFields(const JsonNode* parameters, Status* status)
 
 Status CallSetTableEnabled(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* tableName;
     bool enabled;
     if ((GetBoolean(parameters, ENABLED, &enabled) == JSON_OK) && (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK))
@@ -445,8 +445,8 @@ Status CallSetTableEnabled(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
     }
     return transportStatus;
 }
@@ -454,7 +454,7 @@ Status CallSetTableEnabled(const JsonNode* parameters, Status* status)
 
 Status CallSetTableField(const JsonNode* parameters, Status* status)
 {
-    Status transportStatus = OK;
+    Status transportStatus;
     char* tableName;
     int column, row;
     float value;
@@ -469,8 +469,8 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
     }
     else
     {
-        *status = INVALID_PARAMETER;
         transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
     }
     return transportStatus;
 }

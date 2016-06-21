@@ -136,14 +136,14 @@ Status InitInjection()
     }
     if (status == OK)
     {
-        Status uartStatus = OK;
+        Status channelStatus = OK;
         Status timerStatus = OK;
         if ((injectionMode & UART_INJECTION) != 0)
         {
-            uartStatus = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
-            if (uartStatus == OK)
+            channelStatus = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
+            if (channelStatus == OK)
             {
-                uartStatus = UpdateInjectionTimeUart();
+                channelStatus = UpdateInjectionTimeUart();
             }
         }
         if ((injectionMode & TIMER_INJECTION) != 0)
@@ -154,7 +154,7 @@ Status InitInjection()
                 timerStatus = SetInjectionTimer(injectionTime);
             }
         }
-        status = (uartStatus != OK) ? uartStatus : timerStatus;
+        status = (channelStatus != OK) ? channelStatus : timerStatus;
     }
     return status;
 }
