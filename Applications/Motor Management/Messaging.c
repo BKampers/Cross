@@ -559,6 +559,21 @@ Status CallGetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
 }
 
 
+Status CallSetPersistentMemoryByte(const JsonNode* parameters, Status* status)
+{
+    int reference, value;
+    if ((GetInt(parameters, REFERENCE, &reference) == JSON_OK) && (GetInt(parameters, VALUE, &value) == JSON_OK) && (0x0000 <= reference) && (reference <= 0xFFFF) && (0x00 <= value) && (value <= 0xFF))
+    {
+        *status = WritePersistentMemoryByte((Reference) reference, (byte) value);
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return WriteJsonNull(DEFAULT_CHANNEL);
+}
+
+
 Function functions[] =
 {
     { "GetMeasurements", &CallGetMeasurements },
@@ -576,7 +591,8 @@ Function functions[] =
     { "SetCylinderCount", &CallSetCylinderCount },
     { "SetCogwheelProperties", &CallSetCogwheelProperties },
     { "GetPersistentElements", &CallGetPersistentElements },
-    { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes }
+    { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes },
+    { "SetPersistentMemoryByte", &CallSetPersistentMemoryByte }
 };
 
 
