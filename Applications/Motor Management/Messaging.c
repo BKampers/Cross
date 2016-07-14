@@ -57,6 +57,18 @@ const char* REFERENCE = "Reference";
 const char* SIZE = "Size";
 
 
+bool FitsByte(int value)
+{
+    return (0x00 <= value) && (value <= 0xFF);
+}
+
+
+bool FitsWord(int value)
+{
+    return (0x0000 <= value) && (value <= 0xFFFF);
+}
+
+
 Status PutMeasurementSimulation(const char* measurementName, Status* status)
 {
     RETURN_WHEN_INVALID
@@ -574,6 +586,68 @@ Status CallSetPersistentMemoryByte(const JsonNode* parameters, Status* status)
 }
 
 
+
+Status FillByteArray(const JsonNode* jsonArray, byte** byteArray, int count)
+{
+    int i;
+    for (i = 0; i < count; ++i)
+    {
+        int value;
+        if ((GetIntAt(jsonArray, i, &value) == JSON_OK) && FitsByte(value))
+        {
+            (*byteArray)[i] = (byte) value;
+        }
+        else
+        {
+            return "InvalidByte";
+        }
+    }
+    return OK;
+}
+
+
+Status AllocateByteArray(const JsonNode* jsonArray, byte** byteArray, int* count)
+{
+    Status status = INVALID_PARAMETER;
+    if (GetCount(jsonArray, count) == JSON_OK)
+    {
+        *byteArray = malloc(*count);
+        if (*byteArray != NULL)
+        {
+            status = FillByteArray(jsonArray, byteArray, *count);
+            if (status != OK)
+            {
+                free(*byteArray);
+            }
+        }
+    }
+    return status;
+}
+
+
+Status CallSetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
+{
+    JsonNode values;
+    int reference;
+    if ((GetInt(parameters, REFERENCE, &reference) == JSON_OK) && FitsWord(reference) && (GetArray(parameters, VALUE, &values) == JSON_OK))
+    {
+        byte* buffer;
+        int length;
+        *status = AllocateByteArray(&values, &buffer, &length);
+        if (*status == OK)
+        {
+            *status = WritePersistentMemory((Reference) reference, length, buffer);
+            free(buffer);
+        }           
+    }
+    else
+    {
+        *status = INVALID_PARAMETER;
+    }
+    return WriteJsonNull(DEFAULT_CHANNEL);
+}
+
+
 Function functions[] =
 {
     { "GetMeasurements", &CallGetMeasurements },
@@ -592,7 +666,8 @@ Function functions[] =
     { "SetCogwheelProperties", &CallSetCogwheelProperties },
     { "GetPersistentElements", &CallGetPersistentElements },
     { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes },
-    { "SetPersistentMemoryByte", &CallSetPersistentMemoryByte }
+    { "SetPersistentMemoryByte", &CallSetPersistentMemoryByte },
+    { "SetPersistentMemoryBytes", &CallSetPersistentMemoryBytes }
 };
 
 

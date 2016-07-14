@@ -13,6 +13,8 @@
 
 #define MEMORY_SIZE 0x1000
 
+char* INVALID_REFERENCE = "InvalidReference";
+
 char* RUNTIME_DIRECTORY = "runtime_data";
 char* FILE_PATH = "runtime_data/persistent_memory";
 
@@ -114,14 +116,14 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
     }
     else 
     {
-        return INVALID_PARAMETER;
+        return INVALID_REFERENCE;
     }
 }
 
 
 Status WritePersistentMemory(Reference reference, int length, void* buffer)
 {
-    Status status = ((length > 0) && (reference + length <= MEMORY_SIZE)) ? OK : INVALID_PARAMETER;
+    Status status = ((length > 0) && (reference + length <= MEMORY_SIZE)) ? OK : INVALID_REFERENCE;
     if (status == OK)
     {
         status = load();
@@ -143,7 +145,7 @@ Status WritePersistentMemoryByte(Reference reference, byte data)
 
 Status FillPersistentMemory(Reference reference, int count, byte data)
 {
-    Status status = ((reference + count <= MEMORY_SIZE) && (count >= 0)) ? OK : INVALID_PARAMETER;
+    Status status = ((reference + count <= MEMORY_SIZE) && (count >= 0)) ? OK : INVALID_REFERENCE;
     if (status == OK)
     {
         status = load();
