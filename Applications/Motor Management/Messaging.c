@@ -343,7 +343,7 @@ Status CallSetMeasurementSimulation(const JsonNode* parameters, Status* status)
 {
     char* measurementName;
     float value;
-	Status transportStatus = OK;
+    Status transportStatus = OK;
     if ((GetFloat(parameters, SIMULATION_VALUE, &value) == JSON_OK) && (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK))
     {
         *status = SetMeasurementSimulation(measurementName, value);
@@ -361,7 +361,7 @@ Status CallSetMeasurementSimulation(const JsonNode* parameters, Status* status)
 Status CallResetMeasurementSimulation(const JsonNode* parameters, Status* status)
 {
     char* measurementName;
-	Status transportStatus = OK;
+    Status transportStatus = OK;
     if (AllocateString(parameters, MEASUREMENT_NAME, &measurementName) == JSON_OK)
     {
         *status = ResetMeasurementSimulation(measurementName);
