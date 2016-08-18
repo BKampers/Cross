@@ -6,6 +6,7 @@
 #include "PersistentMemoryDriver.h"
 
 #include "stm32f10x_flash.h"
+#include "core_cm3.h"
 
 #include <stdio.h>
 
@@ -39,7 +40,7 @@ void GenerateFlashStatusText(const char* message, FLASH_Status flashStatus, Addr
 
 void GenerateAddressStatusText(const char* message, Address address)
 {
-    sprintf(statusText, "%-16s %08X", message, (int) address);
+    sprintf(statusText, "%-8s %08X", message, (int) address);
 }
 
 
@@ -161,7 +162,6 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
         }
         else
         {
-            GenerateAddressStatusText("FlashReadError", address);
             result = statusText;
         }
     }
@@ -191,7 +191,7 @@ Status WritePersistentMemory(Reference reference, int length, void* buffer)
         }
         else
         {
-            GenerateAddressStatusText("FlashWriteError", pageBase);
+            GenerateAddressStatusText("FlsWrErr", pageBase);
             result = statusText;
         }
     }
