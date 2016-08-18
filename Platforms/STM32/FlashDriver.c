@@ -162,6 +162,7 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
         }
         else
         {
+        	GenerateAddressStatusText("FlsRdErr", address);
             result = statusText;
         }
     }
