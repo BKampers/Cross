@@ -24,7 +24,7 @@ typedef uint32_t Address;
 #define FLASH_END_ADDRESS  ((Address) FLASH_BASE_ADDRESS + FLASH_LIMIT)
 
 #ifndef FLASH_PAGE_SIZE
-#define FLASH_PAGE_SIZE 0x800
+#define FLASH_PAGE_SIZE 0x400
 #endif
 
 char statusText[32];
@@ -162,6 +162,7 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
         }
         else
         {
+        	GenerateAddressStatusText("FlsRdErr", address);
             result = statusText;
         }
     }
