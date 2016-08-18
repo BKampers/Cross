@@ -145,7 +145,7 @@ Status GetMeasurementTable(int index, MeasurementTable** table)
     }
     else
     {
-        return INVALID_PARAMETER;
+        return "InvalidTableIndex";
     }
 }
 

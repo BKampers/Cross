@@ -12,6 +12,8 @@
 #define EXTERNAL_PULSE_TIMER_PRESCALER 20
 #define PERIOD_TIMER_PRESCALER 40
 
+#define MAX_PULSE_NANOS 25000000L
+
 
 void InitPeriodTimer(void (*InterruptService) ());
 void InitCompareTimer(void (*InterruptService) (int channel));

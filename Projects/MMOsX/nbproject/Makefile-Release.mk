@@ -48,6 +48,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/8dbad817/ApiStatus.o \
 	${OBJECTDIR}/_ext/8dbad817/Communication.o \
 	${OBJECTDIR}/_ext/8dbad817/Json.o \
+	${OBJECTDIR}/_ext/8dbad817/JsonMessaging.o \
 	${OBJECTDIR}/_ext/8dbad817/JsonParser.o \
 	${OBJECTDIR}/_ext/8dbad817/JsonWriter.o \
 	${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o \
@@ -150,6 +151,11 @@ ${OBJECTDIR}/_ext/8dbad817/Json.o: ../../Generic/Json.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/Json.o ../../Generic/Json.c
+
+${OBJECTDIR}/_ext/8dbad817/JsonMessaging.o: ../../Generic/JsonMessaging.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/JsonMessaging.o ../../Generic/JsonMessaging.c
 
 ${OBJECTDIR}/_ext/8dbad817/JsonParser.o: ../../Generic/JsonParser.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817

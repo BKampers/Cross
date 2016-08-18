@@ -137,7 +137,7 @@ Status GetMeasurement(int index, Measurement** measurement)
     }
     else
     {
-        return INVALID_PARAMETER;
+        return "InvalidMeasurementIndex";
     }
 }
 

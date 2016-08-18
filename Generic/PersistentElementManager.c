@@ -405,6 +405,7 @@ Status CheckPersistentMemory(void (*notify)(Reference))
             /* Element with invalid size or unknown id. Clear id to remove element. */
             PrepareClearArea(&clearStart, &clearEnd, reference);
             reference = check;
+            status = OK;
         }
         else
         {

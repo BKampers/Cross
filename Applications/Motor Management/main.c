@@ -29,7 +29,7 @@
 #define DISPLAY_STATE_INJECTION 1
 #define DISPLAY_STATE_COUNT 2
 
-#define DISPLAY_REFRESH_RATE 1000
+#define DISPLAY_REFRESH_RATE 100
 #define DISPLAY_CYCLE_MAX (DISPLAY_REFRESH_RATE * DISPLAY_STATE_COUNT)
 
 
@@ -115,7 +115,7 @@ void ShowIfError(Status status)
 
 void ShowStatus(char* name, Status status)
 {
-    FireTextEvent(name, status);
+    FireTextEvent(name, status, DEFAULT_CHANNEL);
     if (status != OK)
     {
         StatusToDisplay(status);
@@ -129,8 +129,8 @@ int main(void)
     InitOutputPins();
     InitLcd();
 
-    FireTextEvent("System", SYSTEM_NAME);
-    FireTextEvent("Memory", PersistentMemoryType());
+    FireTextEvent("System", SYSTEM_NAME, DEFAULT_CHANNEL);
+    FireTextEvent("Memory", PersistentMemoryType(), DEFAULT_CHANNEL);
     PutLcdLine(0, SYSTEM_NAME);
     UpdateLcd();
 
@@ -172,7 +172,7 @@ int main(void)
         communicationStatus = ReadString(input);
         if ((communicationStatus == OK) && (strlen(input) > 0))
         {
-            communicationStatus = HandleMessage(input);
+            communicationStatus = HandleMessage(input, &motorManagementApi, DEFAULT_CHANNEL);
         }
 
         if (memoryStatus == OK)
@@ -181,7 +181,7 @@ int main(void)
             ShowIfError(status);
             if (status != ignitionStatus)
             {
-                FireTextEvent(IGNITION, status);
+                FireTextEvent(IGNITION, status, DEFAULT_CHANNEL);
                 ignitionStatus = status;
             }
 
@@ -189,7 +189,7 @@ int main(void)
             ShowIfError(status);
             if (status != injectionStatus)
             {
-                FireTextEvent(INJECTION, status);
+                FireTextEvent(INJECTION, status, DEFAULT_CHANNEL);
                 injectionStatus = status;
             }
 
