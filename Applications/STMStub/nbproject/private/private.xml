@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
+        <activeConfTypeElem>3</activeConfTypeElem>
+        <activeConfIndexElem>0</activeConfIndexElem>
+    </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/Users/bartkampers/Cross/Applications/STMStub/core_cm3.h</file>
+            <file>file:/Users/bartkampers/Cross/Test/Simple.h</file>
+            <file>file:/Users/bartkampers/Cross/Platforms/STM32/FlashDriver.c</file>
+            <file>file:/Users/bartkampers/Cross/API/PersistentMemoryDriver.h</file>
+            <file>file:/Users/bartkampers/Cross/Applications/STMStub/stm32f10x_flash_stub.c</file>
+            <file>file:/Users/bartkampers/Cross/Applications/STMStub/tests/FlashDriverTest.c</file>
+            <file>file:/Users/bartkampers/Cross/Applications/STMStub/stm32f10x_flash.h</file>
+        </group>
+    </open-files>
+</project-private>
