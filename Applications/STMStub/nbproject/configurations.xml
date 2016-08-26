@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>../../API/ApiStatus.h</itemPath>
+      <itemPath>FlashDefinitions.h</itemPath>
       <itemPath>../../API/PersistentMemoryDriver.h</itemPath>
       <itemPath>../../API/Types.h</itemPath>
       <itemPath>core_cm3.h</itemPath>
@@ -74,6 +75,8 @@
       </item>
       <item path="../../Test/Simple.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="FlashDefinitions.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="core_cm3.h" ex="false" tool="3" flavor2="0">
       </item>
       <folder path="TestFiles/f1">
@@ -134,6 +137,8 @@
             flavor2="0">
       </item>
       <item path="../../Test/Simple.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FlashDefinitions.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="core_cm3.h" ex="false" tool="3" flavor2="0">
       </item>
