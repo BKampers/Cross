@@ -2,8 +2,8 @@
 ** Interface for Persistent Memory Driver
 ** Copyright 2014, Bart Kampers
 */
-#ifndef __PERSISTENMEMORYDRIVER_H__
-#define __PERSISTENMEMORYDRIVER_H__
+#ifndef __PERSISTENTMEMORYDRIVER_H__
+#define __PERSISTENTMEMORYDRIVER_H__
 
 #include <stdint.h>
 #include "Types.h"
@@ -18,7 +18,7 @@ char* PersistentMemoryType();
 
 Reference PersistentMemoryLimit();
 
-Status ReadPersistentMemory(Reference refenece, int length, void* buffer);
+Status ReadPersistentMemory(Reference reference, int length, void* buffer);
 
 Status WritePersistentMemory(Reference reference, int length, void* buffer);
 Status WritePersistentMemoryByte(Reference reference, byte data);
