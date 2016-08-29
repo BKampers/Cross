@@ -21,8 +21,6 @@ typedef enum
 }FLASH_Status;
 
 
-typedef int FLASH_Status;
-
 extern byte flashMemory[];
 
 uint32_t ReadFlashWord(uint32_t reference);

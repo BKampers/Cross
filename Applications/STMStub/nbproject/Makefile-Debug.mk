@@ -79,17 +79,17 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libstmstub.a: ${OBJECTFILES}
 ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o: ../../Generic/ApiStatus.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I. -I../../API -I../../Test -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ../../Generic/ApiStatus.c
+	$(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ../../Generic/ApiStatus.c
 
 ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o: ../../Platforms/STM32/FlashDriver.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/b24da73c
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I. -I../../API -I../../Test -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ../../Platforms/STM32/FlashDriver.c
+	$(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ../../Platforms/STM32/FlashDriver.c
 
 ${OBJECTDIR}/stm32f10x_flash_stub.o: stm32f10x_flash_stub.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I. -I../../API -I../../Test -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/stm32f10x_flash_stub.o stm32f10x_flash_stub.c
+	$(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/stm32f10x_flash_stub.o stm32f10x_flash_stub.c
 
 # Subprojects
 .build-subprojects:
@@ -106,7 +106,7 @@ ${TESTDIR}/TestFiles/f1: ${TESTDIR}/tests/FlashDriverTest.o ${OBJECTFILES:%.o=%_
 ${TESTDIR}/tests/FlashDriverTest.o: tests/FlashDriverTest.c 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -I. -I../../API -I../../Test -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FlashDriverTest.o tests/FlashDriverTest.c
+	$(COMPILE.c) -g -I. -I../../API -I../../Test -I. -include FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FlashDriverTest.o tests/FlashDriverTest.c
 
 
 ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o: ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ../../Generic/ApiStatus.c 
@@ -117,7 +117,7 @@ ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o: ${OBJECTDIR}/_ext/8dbad817/ApiSta
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -I. -I../../API -I../../Test -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o ../../Generic/ApiStatus.c;\
+	    $(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o ../../Generic/ApiStatus.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o;\
 	fi
@@ -130,7 +130,7 @@ ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o: ${OBJECTDIR}/_ext/b24da73c/Flas
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -I. -I../../API -I../../Test -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o ../../Platforms/STM32/FlashDriver.c;\
+	    $(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o ../../Platforms/STM32/FlashDriver.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o;\
 	fi
@@ -143,7 +143,7 @@ ${OBJECTDIR}/stm32f10x_flash_stub_nomain.o: ${OBJECTDIR}/stm32f10x_flash_stub.o 
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -I. -I../../API -I../../Test -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/stm32f10x_flash_stub_nomain.o stm32f10x_flash_stub.c;\
+	    $(COMPILE.c) -g -I. -I../../API -I../../Test -include FlashDefinitions.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/stm32f10x_flash_stub_nomain.o stm32f10x_flash_stub.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/stm32f10x_flash_stub.o ${OBJECTDIR}/stm32f10x_flash_stub_nomain.o;\
 	fi

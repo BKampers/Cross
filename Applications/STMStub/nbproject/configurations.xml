@@ -56,6 +56,9 @@
             <pElem>../../API</pElem>
             <pElem>../../Test</pElem>
           </incDir>
+          <incFile>
+            <pElem>FlashDefinitions.h</pElem>
+          </incFile>
         </cTool>
         <archiverTool>
         </archiverTool>

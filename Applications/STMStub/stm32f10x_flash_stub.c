@@ -30,6 +30,6 @@ FLASH_Status WriteFlashWord(uint32_t reference, uint32_t data)
     }
     else
     {
-        return FLASH_ERROR;
+        return FLASH_ERROR_PG;
     }
 }
