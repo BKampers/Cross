@@ -5,12 +5,20 @@
 #include "Types.h"
 
 
-#define FLASH_COMPLETE 1
-#define FLASH_ERROR -1
+#define FLASH_FLAG_BSY      ((uint32_t) 0x00000001) /*!< FLASH Busy flag */
+#define FLASH_FLAG_EOP      ((uint32_t) 0x00000020) /*!< FLASH End of Operation flag */
+#define FLASH_FLAG_PGERR    ((uint32_t) 0x00000004) /*!< FLASH Program error flag */
+#define FLASH_FLAG_WRPRTERR ((uint32_t) 0x00000010) /*!< FLASH Write protected error flag */
+#define FLASH_FLAG_OPTERR   ((uint32_t) 0x00000001) /*!< FLASH Option Byte error flag */
 
-#define FLASH_FLAG_EOP 0x1
-#define FLASH_FLAG_PGERR 0x2
-#define FLASH_FLAG_WRPRTERR 0x4
+typedef enum
+{ 
+  FLASH_BUSY = 1,
+  FLASH_ERROR_PG,
+  FLASH_ERROR_WRP,
+  FLASH_COMPLETE,
+  FLASH_TIMEOUT
+}FLASH_Status;
 
 
 typedef int FLASH_Status;
