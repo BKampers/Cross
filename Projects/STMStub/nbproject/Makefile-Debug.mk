@@ -37,6 +37,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub.o \
 	${OBJECTDIR}/_ext/8dbad817/ApiStatus.o \
+	${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o \
 	${OBJECTDIR}/_ext/b24da73c/FlashDriver.o
 
 # Test Directory
@@ -44,11 +45,13 @@ TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
 
 # Test Files
 TESTFILES= \
-	${TESTDIR}/TestFiles/f1
+	${TESTDIR}/TestFiles/f1 \
+	${TESTDIR}/TestFiles/f2
 
 # Test Object Files
 TESTOBJECTFILES= \
-	${TESTDIR}/_ext/513a94e0/FlashDriverTest.o
+	${TESTDIR}/_ext/513a94e0/FlashDriverTest.o \
+	${TESTDIR}/tests/PersistentMemoryManagerTest.o
 
 # C Compiler Flags
 CFLAGS=
@@ -86,6 +89,11 @@ ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o: ../../Generic/ApiStatus.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../Applications/STM\ Stub -I../../API -I../../Test -include ../../Applications/STM\ Stub/FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ../../Generic/ApiStatus.c
 
+${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o: ../../Generic/PersistentElementManager.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../Applications/STM\ Stub -I../../API -I../../Test -include ../../Applications/STM\ Stub/FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o ../../Generic/PersistentElementManager.c
+
 ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o: ../../Platforms/STM32/FlashDriver.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/b24da73c
 	${RM} "$@.d"
@@ -102,11 +110,21 @@ ${TESTDIR}/TestFiles/f1: ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o ${OBJECTFILE
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.c}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} 
 
+${TESTDIR}/TestFiles/f2: ${TESTDIR}/tests/PersistentMemoryManagerTest.o ${OBJECTFILES:%.o=%_nomain.o}
+	${MKDIR} -p ${TESTDIR}/TestFiles
+	${LINK.c}   -o ${TESTDIR}/TestFiles/f2 $^ ${LDLIBSOPTIONS} 
+
 
 ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o: ../../Applications/STM\ Stub/tests/FlashDriverTest.c 
 	${MKDIR} -p ${TESTDIR}/_ext/513a94e0
 	${RM} "$@.d"
 	$(COMPILE.c) -g -I../../Applications/STM\ Stub -I../../API -I../../Test -I. -include ../../Applications/STM\ Stub/FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o ../../Applications/STM\ Stub/tests/FlashDriverTest.c
+
+
+${TESTDIR}/tests/PersistentMemoryManagerTest.o: tests/PersistentMemoryManagerTest.c 
+	${MKDIR} -p ${TESTDIR}/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -g -I../../Applications/STM\ Stub -I../../API -I../../Test -I. -include ../../Applications/STM\ Stub/FlashDefinitions.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PersistentMemoryManagerTest.o tests/PersistentMemoryManagerTest.c
 
 
 ${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub_nomain.o: ${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub.o ../../Applications/STM\ Stub/stm32f10x_flash_stub.c 
@@ -135,6 +153,19 @@ ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o: ${OBJECTDIR}/_ext/8dbad817/ApiSta
 	    ${CP} ${OBJECTDIR}/_ext/8dbad817/ApiStatus.o ${OBJECTDIR}/_ext/8dbad817/ApiStatus_nomain.o;\
 	fi
 
+${OBJECTDIR}/_ext/8dbad817/PersistentElementManager_nomain.o: ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o ../../Generic/PersistentElementManager.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/8dbad817
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -I../../Applications/STM\ Stub -I../../API -I../../Test -include ../../Applications/STM\ Stub/FlashDefinitions.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager_nomain.o ../../Generic/PersistentElementManager.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o ${OBJECTDIR}/_ext/8dbad817/PersistentElementManager_nomain.o;\
+	fi
+
 ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o: ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ../../Platforms/STM32/FlashDriver.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/b24da73c
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o`; \
@@ -153,6 +184,7 @@ ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o: ${OBJECTDIR}/_ext/b24da73c/Flas
 	@if [ "${TEST}" = "" ]; \
 	then  \
 	    ${TESTDIR}/TestFiles/f1 || true; \
+	    ${TESTDIR}/TestFiles/f2 || true; \
 	else  \
 	    ./${TEST} || true; \
 	fi
