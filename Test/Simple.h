@@ -1,6 +1,7 @@
 #ifndef _SIMPLE_H_
 #define	_SIMPLE_H_
 
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -11,8 +12,8 @@
 time_t suitStartTime;
 time_t testStartTime;
 
-char* currentSuiteName = NULL; 
-char* currentTestName = NULL;
+const char* currentSuiteName = NULL; 
+const char* currentTestName = NULL;
 
 
 #define EXPECT_TRUE(ACTUAL) expectTrue(ACTUAL, __LINE__)
@@ -20,6 +21,7 @@ char* currentTestName = NULL;
 #define EXPECT_NULL(ACTUAL) expectNull(ACTUAL, __LINE__)
 #define EXPECT_NOT_NULL(ACTUAL) expectNotNull(ACTUAL, __LINE__)
 #define EXPECT_EQUAL_INT(EXPECTED, ACTUAL) expectEqualInt(EXPECTED, ACTUAL, __LINE__)
+#define EXPECT_UNEQUAL_INT(UNEXPECTED, ACTUAL) expectUnequalInt(UNEXPECTED, ACTUAL, __LINE__)
 #define EXPECT_EQUAL_DOUBLE(EXPECTED, ACTUAL, PRECISION) expectEqualDouble(EXPECTED, ACTUAL, PRECISION, __LINE__)
 #define EXPECT_EQUAL_STRING(EXPECTED, ACTUAL) expectEqualString(EXPECTED, ACTUAL, __LINE__)
 #define EXPECT_STATUS(EXPECTED, ACTUAL) expectEqualStatus(EXPECTED, ACTUAL, __LINE__)
@@ -30,6 +32,7 @@ char* currentTestName = NULL;
 #define ASSERT_NULL(ACTUAL) if (! EXPECT_NULL(ACTUAL)) {return;}
 #define ASSERT_NOT_NULL(ACTUAL) if (! EXPECT_NOT_NULL(ACTUAL)) {return;}
 #define ASSERT_EQUAL_INT(EXPECTED, ACTUAL) if (! EXPECT_EQUAL_INT(EXPECTED, ACTUAL)) {return;}
+#define ASSERT_UNEQUAL_INT(UNEXPECTED, ACTUAL) if (! EXPECT_UNEQUAL_INT(UNEXPECTED, ACTUAL)) {return;}
 #define ASSERT_EQUAL_DOUBLE(EXPECTED, ACTUAL, PRECISION) if (! EXPECT_EQUAL_DOUBLE(EXPECTED, ACTUAL, PRECISION)) {return;}
 #define ASSERT_EQUAL_STRING(EXPECTED, ACTUAL) if (! EXPECT_EQUAL_STRING(EXPECTED, ACTUAL)) {return;}
 #define ASSERT_STATUS(EXPECTED, ACTUAL) if (! EXPECT_STATUS(EXPECTED, ACTUAL)) {return;}
@@ -48,7 +51,7 @@ double testTime()
 }
 
 
-void startSuite(char* suiteName)
+void startSuite(const char* suiteName)
 {
     currentSuiteName = suiteName;
     printf("%%SUITE_STARTING%% %s\n", suiteName);
@@ -64,7 +67,7 @@ void finishSuite()
 }
 
 
-void start(char* testName)
+void start(const char* testName)
 {
     currentTestName = testName;
     printf("%%TEST_STARTED%% %s (%s)\n", currentTestName, currentSuiteName);
@@ -80,7 +83,7 @@ void finish()
 
 
 
-void printTestLine(bool pass, int line, char* message)
+void printTestLine(bool pass, int line, const char* message)
 {
     printf("%s time=%f testname=%s (%s) message=(%d) %s\n",
         (pass) ? "%TEST_PASSED%" : "%TEST_FAILED%",
@@ -137,6 +140,23 @@ bool expectEqualInt(int expected, int actual, int line)
     else
     {
         sprintf(message, "expected: %d, actual: %d", expected, actual);
+    }
+    printTestLine(pass, line, message);
+    return pass;
+}
+
+
+bool expectUnequalInt(int unexpected, int actual, int line)
+{
+    char message[64];
+    bool pass = (unexpected != actual);
+    if (pass)
+    {
+        sprintf(message, "%d", actual);
+    }
+    else
+    {
+        sprintf(message, "unexpected: %d, actual: %d", unexpected, actual);
     }
     printTestLine(pass, line, message);
     return pass;
