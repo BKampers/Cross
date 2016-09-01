@@ -1,17 +1,12 @@
 #include "stm32f10x_flash.h"
 #include "Types.h"
 #include <stdlib.h>
+#include <string.h>
+
 
 #define MEMORY_SIZE 0x8000
 
-
 byte flashMemory[MEMORY_SIZE];
-
-
-//void initFlashMemory()
-//{
-//    flashMemory = malloc(MEMORY_SIZE);
-//}
 
 
 void ClearFlashMemory()
