@@ -22,6 +22,7 @@
       <itemPath>../../Generic/ApiStatus.c</itemPath>
       <itemPath>../../Platforms/STM32/FlashDriver.c</itemPath>
       <itemPath>../../Generic/PersistentElementManager.c</itemPath>
+      <itemPath>../../Test/Simple.c</itemPath>
       <itemPath>../../Applications/STM Stub/stm32f10x_flash_stub.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -112,6 +113,8 @@
             ex="false"
             tool="0"
             flavor2="0">
+      </item>
+      <item path="../../Test/Simple.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Test/Simple.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -215,6 +218,8 @@
             ex="false"
             tool="0"
             flavor2="0">
+      </item>
+      <item path="../../Test/Simple.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Test/Simple.h" ex="false" tool="3" flavor2="0">
       </item>

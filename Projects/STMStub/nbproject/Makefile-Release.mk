@@ -38,7 +38,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub.o \
 	${OBJECTDIR}/_ext/8dbad817/ApiStatus.o \
 	${OBJECTDIR}/_ext/8dbad817/PersistentElementManager.o \
-	${OBJECTDIR}/_ext/b24da73c/FlashDriver.o
+	${OBJECTDIR}/_ext/b24da73c/FlashDriver.o \
+	${OBJECTDIR}/_ext/6e711e52/Simple.o
 
 # Test Directory
 TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
@@ -98,6 +99,11 @@ ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o: ../../Platforms/STM32/FlashDriver.c
 	${MKDIR} -p ${OBJECTDIR}/_ext/b24da73c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ../../Platforms/STM32/FlashDriver.c
+
+${OBJECTDIR}/_ext/6e711e52/Simple.o: ../../Test/Simple.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/6e711e52
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/6e711e52/Simple.o ../../Test/Simple.c
 
 # Subprojects
 .build-subprojects:
@@ -177,6 +183,19 @@ ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o: ${OBJECTDIR}/_ext/b24da73c/Flas
 	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o ../../Platforms/STM32/FlashDriver.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/b24da73c/FlashDriver.o ${OBJECTDIR}/_ext/b24da73c/FlashDriver_nomain.o;\
+	fi
+
+${OBJECTDIR}/_ext/6e711e52/Simple_nomain.o: ${OBJECTDIR}/_ext/6e711e52/Simple.o ../../Test/Simple.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/6e711e52
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/_ext/6e711e52/Simple.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/6e711e52/Simple_nomain.o ../../Test/Simple.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/_ext/6e711e52/Simple.o ${OBJECTDIR}/_ext/6e711e52/Simple_nomain.o;\
 	fi
 
 # Run Test Targets

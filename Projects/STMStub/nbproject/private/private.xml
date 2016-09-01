@@ -9,6 +9,8 @@
         <group>
             <file>file:/Users/bartkampers/Cross/Applications/STM%20Stub/tests/FlashDriverTest.c</file>
             <file>file:/Users/bartkampers/Cross/Test/Simple.h</file>
+            <file>file:/Users/bartkampers/Cross/Applications/STM%20Stub/stm32f10x_flash.h</file>
+            <file>file:/Users/bartkampers/Cross/Applications/STM%20Stub/stm32f10x_flash_stub.c</file>
             <file>file:/Users/bartkampers/Cross/Platforms/STM32/FlashDriver.c</file>
             <file>file:/Users/bartkampers/Cross/Projects/STMStub/tests/PersistentMemoryManagerTest.c</file>
         </group>
