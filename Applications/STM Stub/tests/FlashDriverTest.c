@@ -158,15 +158,9 @@ void testInvalidReferences()
 
 int main(int argc, char** argv)
 {
-    int testId;
+    setBeforeTest(&ClearFlashMemory);
     startSuite("FlashDriverTest");
-    for (testId = 0; testId < TEST_COUNT; ++testId)
-    {
-        ClearFlashMemory();
-        start(testFunctions[testId].name);
-        testFunctions[testId].Call();
-        finish();
-    }
+    testAll(testFunctions, (sizeof(testFunctions) / sizeof(TestFunction)));
     finishSuite();
     return EXIT_SUCCESS;
 }

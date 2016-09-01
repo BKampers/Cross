@@ -34,6 +34,8 @@ typedef struct
 #define ASSERT_STATUS(EXPECTED, ACTUAL) if (! EXPECT_STATUS(EXPECTED, ACTUAL)) {return;}
 #define ASSERT_OK(ACTUAL) if (! EXPECT_OK(ACTUAL)) {return;}
 
+void setBeforeTest(void (*before));
+void testAll(TestFunction* testFunctions, int count);
 
 void startSuite(const char* suiteName);
 void finishSuite();

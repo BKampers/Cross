@@ -1,8 +1,8 @@
+#include "Simple.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-#include "Simple.h"
 
 
 /*
@@ -15,6 +15,8 @@ char message[MESSAGE_LENGTH];
 
 const char* currentSuiteName = NULL; 
 const char* currentTestName = NULL;
+
+void (*beforeTest) () = NULL;
 
 time_t suitStartTime;
 time_t testStartTime;
@@ -49,6 +51,29 @@ void printTestLine(bool pass, int line, const char* message)
 /*
 ** Interface
 */
+
+
+void setBeforeTest(void (*before))
+{
+    beforeTest = before;
+}
+
+
+void testAll(TestFunction* testFunctions, int count)
+{
+    int testId;
+    for (testId = 0; testId < count; ++testId)
+    {
+        if (beforeTest != NULL)
+        {
+            beforeTest();
+        }
+        start(testFunctions[testId].name);
+        testFunctions[testId].Call();
+        finish();
+    }
+}
+
 
 void startSuite(const char* suiteName)
 {
