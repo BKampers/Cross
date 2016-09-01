@@ -9,6 +9,13 @@
 #include "ApiStatus.h"
 
 
+typedef struct
+{
+    const char* name;
+    void (*Call) ();
+} TestFunction;
+
+
 time_t suitStartTime;
 time_t testStartTime;
 

@@ -23,6 +23,8 @@ typedef enum
 
 extern byte flashMemory[];
 
+void ClearFlashMemory();
+
 uint32_t ReadFlashWord(uint32_t reference);
 FLASH_Status WriteFlashWord(uint32_t, uint32_t);
 
