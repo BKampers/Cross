@@ -14,6 +14,12 @@ byte flashMemory[MEMORY_SIZE];
 //}
 
 
+void ClearFlashMemory()
+{
+    memset(flashMemory, 0, MEMORY_SIZE);
+}
+
+
 uint32_t ReadFlashWord(uint32_t reference)
 {
     return *((uint32_t*) (flashMemory + reference));
