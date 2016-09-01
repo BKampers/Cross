@@ -139,49 +139,34 @@ void testInvalidReferences()
 }
 
 
-int main(int argc, char** argv) {
+ TestFunction testFunctions[] =
+{
+    { "testPersistentMemoryType", &testPersistentMemoryType },
+    { "testPersistentMemoryLimit", &testPersistentMemoryLimit },
+    { "testReadPersistentMemoryByte", &testReadPersistentMemoryByte },
+    { "testWritePersistentMemoryByte", &testWritePersistentMemoryByte },
+    { "testReadPersistentMemoryInt", &testReadPersistentMemoryInt },
+    { "testWritePersistentMemoryInt", &testWritePersistentMemoryInt },
+    { "testReadPersistentMemoryStruct", &testReadPersistentMemoryStruct },
+    { "testWritePersistentMemoryStruct", &testWritePersistentMemoryStruct },
+    { "testFillPersistentMemory", &testFillPersistentMemory },
+    { "testInvalidReferences", &testInvalidReferences }
+};
+
+#define TEST_COUNT (sizeof(testFunctions) / sizeof(TestFunction))
+
+
+int main(int argc, char** argv)
+{
+    int testId;
     startSuite("FlashDriverTest");
-
-    start("testPersistentMemoryType");
-    testPersistentMemoryType();
-    finish();
-    
-    start("testPersistentMemoryLimit");
-    testPersistentMemoryLimit();
-    finish();
-
-    start("testReadPersistentMemoryByte");
-    testReadPersistentMemoryByte();
-    finish();
-
-    start("testWritePersistentMemoryByte");
-    testWritePersistentMemoryByte();
-    finish();
-
-    start("testReadPersistentMemoryInt");
-    testReadPersistentMemoryInt();
-    finish();
-
-    start("testWritePersistentMemoryInt");
-    testWritePersistentMemoryInt();
-    finish();
-
-    start("testReadPersistentMemoryStruct");
-    testReadPersistentMemoryStruct();
-    finish();
-    
-    start("testWritePersistentMemoryStruct");
-    testWritePersistentMemoryStruct();
-    finish();
-    
-    start("testFillPersistentMemory");
-    testFillPersistentMemory();
-    finish();
-    
-    start("testInvalidReferences");
-    testInvalidReferences();
-    finish();
-
+    for (testId = 0; testId < TEST_COUNT; ++testId)
+    {
+        ClearFlashMemory();
+        start(testFunctions[testId].name);
+        testFunctions[testId].Call();
+        finish();
+    }
     finishSuite();
     return EXIT_SUCCESS;
 }
