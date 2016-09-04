@@ -164,6 +164,24 @@ void testCheckPersistentMemoryTwoTypes()
 }
 
 
+void testCheckPersistentMemoryOutOfBounds()
+{
+    TypeId id1;
+    ElementSize size = 10;
+    Reference limit = PersistentMemoryLimit();
+    byte* expected = malloc(limit);
+    callbackCount = 0;
+    InitPersistentDataManager();
+    RegisterType(&id1);
+    void* base = flashMemory + limit - size - 5;
+    memcpy(base, &id1, sizeof(TypeId));
+    memcpy(base + sizeof(TypeId), &size, sizeof(ElementSize));
+    memset(base + sizeof(TypeId) + sizeof(ElementSize), 1, 100);
+    ASSERT_OK(CheckPersistentMemory(NULL));
+    free(expected);
+}
+
+
 TestFunction testFunctions[] =
 {
     { "testInitPersistentDataManager", &testInitPersistentDataManager },
@@ -174,7 +192,8 @@ TestFunction testFunctions[] =
     { "testStoreGetByte", &testStoreGetByte },
     { "testStoreGetBytes", &testStoreGetBytes },
     { "testCheckPersistentMemoryEmpty", &testCheckPersistentMemoryEmpty },
-    { "testCheckPersistentMemoryTwoTypes", &testCheckPersistentMemoryTwoTypes }
+    { "testCheckPersistentMemoryTwoTypes", &testCheckPersistentMemoryTwoTypes },
+    { "testCheckPersistentMemoryOutOfBounds", &testCheckPersistentMemoryOutOfBounds }
 };
 
 
