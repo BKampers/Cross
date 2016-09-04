@@ -3,6 +3,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "Simple.h"
 #include "stm32f10x_flash.h"
@@ -118,6 +119,23 @@ void testStoreGetBytes()
 }
 
 
+void testCheckPersistentMemory()
+{
+    TypeId id;
+    Reference limit = PersistentMemoryLimit();
+    byte* expected = malloc(limit);
+    memset(expected, 0, limit);
+    InitPersistentDataManager();
+    RegisterType(&id);
+    ASSERT_OK(CheckPersistentMemory(NULL));
+    ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
+    memset(flashMemory, 0xFF, limit);
+    ASSERT_OK(CheckPersistentMemory(NULL));
+    ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
+    free(expected);
+}
+
+
 TestFunction testFunctions[] =
 {
     { "testInitPersistentDataManager", &testInitPersistentDataManager },
@@ -126,7 +144,8 @@ TestFunction testFunctions[] =
     { "testFindRemove", &testFindRemove },
     { "testStoreGet", &testStoreGet },
     { "testStoreGetByte", &testStoreGetByte },
-    { "testStoreGetBytes", &testStoreGetBytes }
+    { "testStoreGetBytes", &testStoreGetBytes },
+    { "testCheckPersistentMemory", &testCheckPersistentMemory }
 };
 
 
