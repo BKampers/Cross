@@ -11,6 +11,14 @@
 #include "PersistentElementManager.h"
 
 
+int callbackCount;
+
+void checkCallback(Reference reference)
+{
+    callbackCount++;
+}
+
+
 void testInitPersistentDataManager()
 {
     InitPersistentDataManager();
@@ -119,19 +127,39 @@ void testStoreGetBytes()
 }
 
 
-void testCheckPersistentMemory()
+void testCheckPersistentMemoryEmpty()
 {
-    TypeId id;
     Reference limit = PersistentMemoryLimit();
     byte* expected = malloc(limit);
     memset(expected, 0, limit);
     InitPersistentDataManager();
-    RegisterType(&id);
     ASSERT_OK(CheckPersistentMemory(NULL));
     ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
     memset(flashMemory, 0xFF, limit);
     ASSERT_OK(CheckPersistentMemory(NULL));
     ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
+    free(expected);
+}
+
+
+void testCheckPersistentMemoryTwoTypes()
+{
+    TypeId id1, id2;
+    ElementSize size = 10;
+    Reference limit = PersistentMemoryLimit();
+    byte* expected = malloc(limit);
+    callbackCount = 0;
+    InitPersistentDataManager();
+    RegisterType(&id1);
+    RegisterType(&id2);
+    memcpy(flashMemory, &id1, sizeof(TypeId));
+    memcpy(flashMemory + sizeof(TypeId), &size, sizeof(ElementSize));
+    memcpy(flashMemory + sizeof(TypeId) + sizeof(ElementSize) + size, &id2, sizeof(TypeId));
+    memcpy(flashMemory + sizeof(TypeId) + sizeof(ElementSize) + size + sizeof(TypeId), &size, sizeof(ElementSize));
+    memcpy(expected, flashMemory, limit);
+    ASSERT_OK(CheckPersistentMemory(&checkCallback));
+    ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
+    ASSERT_UNEQUAL_INT(0, callbackCount);
     free(expected);
 }
 
@@ -145,7 +173,8 @@ TestFunction testFunctions[] =
     { "testStoreGet", &testStoreGet },
     { "testStoreGetByte", &testStoreGetByte },
     { "testStoreGetBytes", &testStoreGetBytes },
-    { "testCheckPersistentMemory", &testCheckPersistentMemory }
+    { "testCheckPersistentMemoryEmpty", &testCheckPersistentMemoryEmpty },
+    { "testCheckPersistentMemoryTwoTypes", &testCheckPersistentMemoryTwoTypes }
 };
 
 
