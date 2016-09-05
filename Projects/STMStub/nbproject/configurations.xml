@@ -39,7 +39,7 @@
                      displayName="Persistent Memory Manager test"
                      projectFiles="true"
                      kind="TEST">
-        <itemPath>tests/PersistentMemoryManagerTest.c</itemPath>
+        <itemPath>../../Applications/STM Stub/tests/PersistentMemoryManagerTest.c</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -102,6 +102,11 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Applications/STM Stub/tests/PersistentMemoryManagerTest.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Generic/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/PersistentElementManager.c"
@@ -148,11 +153,6 @@
           <output>${TESTDIR}/TestFiles/f2</output>
         </linkerTool>
       </folder>
-      <item path="tests/PersistentMemoryManagerTest.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
     </conf>
     <conf name="Release" type="3">
       <toolsSet>
@@ -207,6 +207,11 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="../../Applications/STM Stub/tests/PersistentMemoryManagerTest.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="../../Generic/ApiStatus.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../../Generic/PersistentElementManager.c"
@@ -253,11 +258,6 @@
           <output>${TESTDIR}/TestFiles/f2</output>
         </linkerTool>
       </folder>
-      <item path="tests/PersistentMemoryManagerTest.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

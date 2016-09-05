@@ -52,7 +52,7 @@ TESTFILES= \
 # Test Object Files
 TESTOBJECTFILES= \
 	${TESTDIR}/_ext/513a94e0/FlashDriverTest.o \
-	${TESTDIR}/tests/PersistentMemoryManagerTest.o
+	${TESTDIR}/_ext/513a94e0/PersistentMemoryManagerTest.o
 
 # C Compiler Flags
 CFLAGS=
@@ -116,7 +116,7 @@ ${TESTDIR}/TestFiles/f1: ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o ${OBJECTFILE
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.c}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} 
 
-${TESTDIR}/TestFiles/f2: ${TESTDIR}/tests/PersistentMemoryManagerTest.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f2: ${TESTDIR}/_ext/513a94e0/PersistentMemoryManagerTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.c}   -o ${TESTDIR}/TestFiles/f2 $^ ${LDLIBSOPTIONS} 
 
@@ -127,10 +127,10 @@ ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o: ../../Applications/STM\ Stub/tests/F
 	$(COMPILE.c) -O2 -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/_ext/513a94e0/FlashDriverTest.o ../../Applications/STM\ Stub/tests/FlashDriverTest.c
 
 
-${TESTDIR}/tests/PersistentMemoryManagerTest.o: tests/PersistentMemoryManagerTest.c 
-	${MKDIR} -p ${TESTDIR}/tests
+${TESTDIR}/_ext/513a94e0/PersistentMemoryManagerTest.o: ../../Applications/STM\ Stub/tests/PersistentMemoryManagerTest.c 
+	${MKDIR} -p ${TESTDIR}/_ext/513a94e0
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PersistentMemoryManagerTest.o tests/PersistentMemoryManagerTest.c
+	$(COMPILE.c) -O2 -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/_ext/513a94e0/PersistentMemoryManagerTest.o ../../Applications/STM\ Stub/tests/PersistentMemoryManagerTest.c
 
 
 ${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub_nomain.o: ${OBJECTDIR}/_ext/620440e/stm32f10x_flash_stub.o ../../Applications/STM\ Stub/stm32f10x_flash_stub.c 
