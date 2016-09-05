@@ -1,12 +1,10 @@
 /*
 ** Implementation of Persistent Memory Driver for STM32F10x internal flash
-** Copyright 2014, Bart Kampers
 */
 
 #include "PersistentMemoryDriver.h"
 
-#include "stm32f10x_flash.h"
-#include "core_cm3.h"
+#include "FlashDefinitions.h"
 
 #include <stdio.h>
 
@@ -16,46 +14,43 @@
 */
 
 typedef uint32_t FlashWord;
-typedef uint32_t Address;
 
 #define FLASH_LIMIT 0x1000
-
-#define FLASH_BASE_ADDRESS ((Address) 0x0801F000)
-#define FLASH_END_ADDRESS  ((Address) FLASH_BASE_ADDRESS + FLASH_LIMIT)
 
 #ifndef FLASH_PAGE_SIZE
 #define FLASH_PAGE_SIZE 0x400
 #endif
 
-char statusText[32];
+#define STATUS_TEXT_LENGTH 32
+char statusText[STATUS_TEXT_LENGTH];
+
 char workMemory[FLASH_PAGE_SIZE];
-Address loadedPage = 0x00000000;
+Reference loadedPage = NULL_REFERENCE;
 
 
-void GenerateFlashStatusText(const char* message, FLASH_Status flashStatus, Address address)
+void GenerateFlashStatusText(const char* message, FLASH_Status flashStatus, int address)
 {
-    sprintf(statusText, "%-16s %6d %08X", message, flashStatus, (int) address);
+    snprintf(statusText, STATUS_TEXT_LENGTH, "%-16s %6d %08X", message, flashStatus, (int) address);
 }
 
 
-void GenerateAddressStatusText(const char* message, Address address)
+void GenerateAddressStatusText(const char* message, int address)
 {
-    sprintf(statusText, "%-8s %08X", message, (int) address);
+    snprintf(statusText, STATUS_TEXT_LENGTH, "%-8s %08X", message, (int) address);
 }
 
-
-void LoadPage(Address pageBase)
+void LoadPage(Reference pageBase)
 {
     if (loadedPage != pageBase)
     {
         FlashWord* workAddress = (FlashWord*) workMemory;
-        Address flashAddress = pageBase;
-        FLASH_LockBank1();
-        while (flashAddress < pageBase + FLASH_PAGE_SIZE)
+        Reference reference = pageBase;
+        LOCK_FLASH_BANK();
+        while (reference < pageBase + FLASH_PAGE_SIZE)
         {
-            *workAddress = (*(__IO uint32_t*) flashAddress);
+            *workAddress = READ_FLASH_WORD(reference);
             workAddress++;
-            flashAddress += sizeof(FlashWord);
+            reference += sizeof(FlashWord);
         }
         loadedPage = pageBase;
      }
@@ -72,40 +67,40 @@ void ModifyPageData(int index, int length, void* buffer)
 }
 
 
-Status StorePage(Address pageBase)
+Status StorePage(Reference pageBase)
 {
-    FLASH_UnlockBank1();
+    UNLOCK_FLASH_BANK();
     /* Clear All pending flags */
-    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+    CLEAR_FLASH_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 
-    FLASH_Status flashStatus = FLASH_ErasePage(pageBase);
+    FLASH_Status flashStatus = ERASE_FLASH_PAGE(pageBase);
     if (flashStatus == FLASH_COMPLETE)
     {
-        /* status = FLASH_WaitForLastOperation(EraseTimeout); // Can cause eternal wait */
+        /* Do not call FLASH_WaitForLastOperation(EraseTimeout), this can cause eternal wait. */
         FlashWord* workAddress = (FlashWord*) workMemory;
-        Address flashAddress = pageBase;
-        while ((flashStatus == FLASH_COMPLETE) && (flashAddress < pageBase + FLASH_PAGE_SIZE))
+        Reference reference = pageBase;
+        while ((flashStatus == FLASH_COMPLETE) && (reference < pageBase + FLASH_PAGE_SIZE))
         {
-            flashStatus = FLASH_ProgramWord(flashAddress, *workAddress);
+            flashStatus = WRITE_FLASH_WORD(reference, *workAddress);
             workAddress++;
-            flashAddress += sizeof(FlashWord);
+            reference += sizeof(FlashWord);
         }
         if (flashStatus != FLASH_COMPLETE)
         {
-            GenerateFlashStatusText("FLASH_WRITE_ERR", flashStatus, flashAddress);
+            GenerateFlashStatusText("FLASH_WRITE_ERR", flashStatus, reference);
         }
     }
     else
     {
         GenerateFlashStatusText("FLASH_ERASE_ERR", flashStatus, pageBase);
     }
-    FLASH_LockBank1();
+    LOCK_FLASH_BANK();
 
     return (flashStatus == FLASH_COMPLETE) ? OK : statusText;
 }
 
 
-Status WritePage(Address pageBase, int index, int length, void* buffer, int* written)
+Status WritePage(Reference pageBase, int index, int length, void* buffer, int* written)
 {
     LoadPage(pageBase);
     *written = (index + length <= FLASH_PAGE_SIZE) ? length : FLASH_PAGE_SIZE - index;
@@ -120,7 +115,7 @@ Status WritePage(Address pageBase, int index, int length, void* buffer, int* wri
 
 char* PersistentMemoryType()
 {
-    sprintf(statusText, "Flash (page size = %X)", FLASH_PAGE_SIZE);
+    snprintf(statusText, STATUS_TEXT_LENGTH, "Flash (page size = %X)", FLASH_PAGE_SIZE);
     return statusText;
 }
 
@@ -135,11 +130,10 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
 {
     Status result = OK;
     byte* bufferAddress = buffer;
-    Address address = reference + FLASH_BASE_ADDRESS;
-    FLASH_LockBank1();
+    UNLOCK_FLASH_BANK();
     while ((length > 0) && (result == OK))
     {
-        int boundDistance = FLASH_END_ADDRESS - address;
+        int boundDistance = FLASH_LIMIT - reference;
         if (boundDistance > 0)
         {
             FlashWord data;
@@ -147,10 +141,10 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
             if (boundDistance < sizeof(FlashWord))
             {
                 int delta = sizeof(FlashWord) - boundDistance;
-                address -= delta;
+                reference -= delta;
                 i += delta;
             }
-            data = (*(__IO FlashWord*) address);
+            data = READ_FLASH_WORD(reference);
             while ((i < sizeof(FlashWord)) && (length > 0))
             {
                 *bufferAddress = ((byte*) &data)[i];
@@ -158,15 +152,15 @@ Status ReadPersistentMemory(Reference reference, int length, void* buffer)
                 i++;
                 length--;
             }
-            address = address + sizeof(FlashWord);
+            reference += sizeof(FlashWord);
         }
         else
         {
-        	GenerateAddressStatusText("FlsRdErr", address);
+            GenerateAddressStatusText("FlsRdErr", reference);
             result = statusText;
         }
     }
-    FLASH_UnlockBank1();
+    UNLOCK_FLASH_BANK();
     return result;
 }
 
@@ -176,12 +170,11 @@ Status WritePersistentMemory(Reference reference, int length, void* buffer)
     Status result = OK;
     int pageIndex = reference / FLASH_PAGE_SIZE;
     int pageOffset = pageIndex * FLASH_PAGE_SIZE;
-    Address pageBase = FLASH_BASE_ADDRESS + pageOffset;
+    Reference pageBase = pageOffset;
     int workIndex = reference - pageOffset;
-
     while ((length > 0) && (result == OK))
     {
-        if (pageBase < FLASH_END_ADDRESS)
+        if (pageBase < FLASH_LIMIT)
         {
             int written;
             result = WritePage(pageBase, workIndex, length, buffer, &written);
@@ -196,7 +189,6 @@ Status WritePersistentMemory(Reference reference, int length, void* buffer)
             result = statusText;
         }
     }
-
     return result;
 }
 
@@ -212,7 +204,7 @@ Status FillPersistentMemory(Reference reference, int count, byte data)
     Status result = OK;
     int pageIndex = reference / FLASH_PAGE_SIZE;
     int pageOffset = pageIndex * FLASH_PAGE_SIZE;
-    Address pageBase = FLASH_BASE_ADDRESS + pageOffset;
+    Reference pageBase = pageOffset;
     int workIndex = reference - pageOffset;
 
     while ((result == OK) && (count > 0))
