@@ -11,6 +11,7 @@
 #include "PersistentElementManager.h"
 
 
+char* expected;
 int callbackCount;
 
 void checkCallback(Reference reference)
@@ -130,7 +131,6 @@ void testStoreGetBytes()
 void testCheckPersistentMemoryEmpty()
 {
     Reference limit = PersistentMemoryLimit();
-    byte* expected = malloc(limit);
     memset(expected, 0, limit);
     InitPersistentDataManager();
     ASSERT_OK(CheckPersistentMemory(NULL));
@@ -138,7 +138,6 @@ void testCheckPersistentMemoryEmpty()
     memset(flashMemory, 0xFF, limit);
     ASSERT_OK(CheckPersistentMemory(NULL));
     ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
-    free(expected);
 }
 
 
@@ -147,7 +146,6 @@ void testCheckPersistentMemoryTwoTypes()
     TypeId id1, id2;
     ElementSize size = 10;
     Reference limit = PersistentMemoryLimit();
-    byte* expected = malloc(limit);
     callbackCount = 0;
     InitPersistentDataManager();
     RegisterType(&id1);
@@ -160,25 +158,19 @@ void testCheckPersistentMemoryTwoTypes()
     ASSERT_OK(CheckPersistentMemory(&checkCallback));
     ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
     ASSERT_UNEQUAL_INT(0, callbackCount);
-    free(expected);
 }
 
 
 void testCheckPersistentMemoryOutOfBounds()
 {
     TypeId id1;
-    ElementSize size = 10;
     Reference limit = PersistentMemoryLimit();
-    byte* expected = malloc(limit);
-    callbackCount = 0;
     InitPersistentDataManager();
     RegisterType(&id1);
-    void* base = flashMemory + limit - size - 5;
-    memcpy(base, &id1, sizeof(TypeId));
-    memcpy(base + sizeof(TypeId), &size, sizeof(ElementSize));
-    memset(base + sizeof(TypeId) + sizeof(ElementSize), 1, 100);
+    memset(flashMemory + limit - 2, id1, 2);
     ASSERT_OK(CheckPersistentMemory(NULL));
-    free(expected);
+    memset(expected, 0, limit);
+    ASSERT_EQUAL_INT(0, memcmp(expected, flashMemory, limit));
 }
 
 
@@ -199,9 +191,11 @@ TestFunction testFunctions[] =
 
 int main(int argc, char** argv) 
 {
+    expected = malloc(PersistentMemoryLimit());
     setBeforeTest(&ClearFlashMemory);
     startSuite("FlashDriverTest");
     testAll(testFunctions, (sizeof(testFunctions) / sizeof(TestFunction)));
     finishSuite();
+    free(expected);
     return EXIT_SUCCESS;
 }
