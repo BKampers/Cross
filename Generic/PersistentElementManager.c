@@ -384,37 +384,46 @@ Status CheckPersistentMemory(void (*notify)(Reference))
             notify(check);
         }
         status = ReadType(&check, &id, &size);
-        if (size > 0)
+        if (status == OK) 
         {
-            check += size;
-            if (check <= limit)
+            if (size > 0)
             {
-                /* Element with valid size. */
-                reference = check;
-                status = EraseClearArea(&clearStart, &clearEnd);
+                check += size;
+                if (check <= limit)
+                {
+                    /* Element with valid size. */
+                    reference = check;
+                    status = EraseClearArea(&clearStart, &clearEnd);
+                }
+                else 
+                {
+                    /* Size out of boundaries. Clear id to remove element. */
+                    PrepareClearArea(&clearStart, &clearEnd, reference);
+                    reference += sizeof(TypeId);
+                }
             }
-            else 
+            else if (id != EMPTY)
             {
-                /* Size out of boundaries. Clear id to remove element. */
+                /* Element with invalid size or unknown id. Clear id to remove element. */
                 PrepareClearArea(&clearStart, &clearEnd, reference);
-                reference += sizeof(TypeId);
+                reference = check;
+                status = OK;
             }
-        }
-        else if (id != EMPTY)
-        {
-            /* Element with invalid size or unknown id. Clear id to remove element. */
-            PrepareClearArea(&clearStart, &clearEnd, reference);
-            reference = check;
-            status = OK;
+            else
+            {
+                /* Available memory. */
+                if (clearStart != NULL_REFERENCE)
+                {
+                    PrepareClearArea(&clearStart, &clearEnd, reference);
+                }
+                reference = check;
+            }
         }
         else
         {
-            /* Available memory. */
-            if (clearStart != NULL_REFERENCE)
-            {
-                PrepareClearArea(&clearStart, &clearEnd, reference);
-            }
-            reference = check;
+            PrepareClearArea(&clearStart, &clearEnd, reference);
+            reference++;
+            status = OK;
         }
     }
     if (status == OK)
