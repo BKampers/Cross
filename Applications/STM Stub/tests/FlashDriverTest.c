@@ -159,7 +159,7 @@ void testInvalidReferences()
 int main(int argc, char** argv)
 {
     setBeforeTest(&ClearFlashMemory);
-    startSuite("FlashDriverTest");
+    startSuite("Flash Driver Test");
     testAll(testFunctions, (sizeof(testFunctions) / sizeof(TestFunction)));
     finishSuite();
     return EXIT_SUCCESS;
