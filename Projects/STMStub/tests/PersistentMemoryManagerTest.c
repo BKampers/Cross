@@ -193,7 +193,7 @@ int main(int argc, char** argv)
 {
     expected = malloc(PersistentMemoryLimit());
     setBeforeTest(&ClearFlashMemory);
-    startSuite("FlashDriverTest");
+    startSuite("Persistent Memory Manager test");
     testAll(testFunctions, (sizeof(testFunctions) / sizeof(TestFunction)));
     finishSuite();
     free(expected);
