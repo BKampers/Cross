@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-#define MEMORY_SIZE 0x8000
+#define MEMORY_SIZE 0x1000
 
 byte flashMemory[MEMORY_SIZE];
 
