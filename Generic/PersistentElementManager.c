@@ -42,28 +42,32 @@ Status ReadType(Reference* reference, TypeId* id, ElementSize* size)
 
 Status FindId(TypeId id, Reference* reference)
 {
-    bool found = FALSE;
-    Reference limit = PersistentMemoryLimit();
-    Status status = OK;
-    while ((! found) && (*reference < limit) && (status == OK))
+    Status status = INVALID_ID;    
+    if ((id != EMPTY) && (id <= lastId))
     {
-        Reference search = *reference;
-        TypeId idRead;
-        ElementSize sizeRead;
-        status = ReadType(&search, &idRead, &sizeRead);
-        if (id == idRead)
+        bool found = FALSE;
+        Reference limit = PersistentMemoryLimit();
+        status = OK;
+        while ((! found) && (*reference < limit) && (status == OK))
         {
-            found = TRUE;
+            Reference search = *reference;
+            TypeId idRead;
+            ElementSize sizeRead;
+            status = ReadType(&search, &idRead, &sizeRead);
+            if (id == idRead)
+            {
+                found = TRUE;
+            }
+            else
+            {
+                *reference = search + sizeRead;
+            }
         }
-        else
+        if (! found)
         {
-            *reference = search + sizeRead;
+            status = INVALID_ID;
+            *reference = NULL_REFERENCE;
         }
-    }
-    if (! found)
-    {
-        status = INVALID_ID;
-        *reference = NULL_REFERENCE;
     }
     return status;
 }
@@ -328,27 +332,20 @@ Status FindFirst(TypeId id, Reference* reference)
 Status FindNext(TypeId id, Reference* reference)
 {
     Status status = OK;
-    if ((id != EMPTY) && (id <= lastId))
+    if (*reference < PersistentMemoryLimit())
     {
-        if (*reference < PersistentMemoryLimit())
+        TypeId idRead;
+        ElementSize sizeRead;
+        status = ReadType(reference, &idRead, &sizeRead);
+        if (status == OK)
         {
-            TypeId idRead;
-            ElementSize sizeRead;
-            status = ReadType(reference, &idRead, &sizeRead);
-            if (status == OK)
-            {
-                *reference += sizeRead;
-                status = FindId(id, reference);
-            }
-        }
-        else
-        {
-            status = "InvalidSearchReference";
+            *reference += sizeRead;
+            status = FindId(id, reference);
         }
     }
     else
     {
-        status = INVALID_ID;
+        status = "InvalidSearchReference";
     }
     return status;
 }
