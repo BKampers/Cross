@@ -1,6 +1,5 @@
 /*
 ** Implementation of the Persistent Data Manager
-** Copyright 2014, Bart Kampers
 */
 
 #include "PersistentElementManager.h"
@@ -15,6 +14,8 @@
 #define EMPTY   0x00
 #define UNKNOWN 0xFF
 
+char ELEMENT_ID_NOT_FOUND[] = "ElementIdNotFound";
+char INVALID_REFERENCE[] = "InvalidReference";
 
 TypeId lastId;
 
@@ -42,27 +43,32 @@ Status ReadType(Reference* reference, TypeId* id, ElementSize* size)
 
 Status FindId(TypeId id, Reference* reference)
 {
-    bool found = FALSE;
     Reference limit = PersistentMemoryLimit();
-    Status status = OK;
-    while ((! found) && (*reference < limit) && (status == OK))
+    Status status = ((id != EMPTY) && (id <= lastId)) ? ELEMENT_ID_NOT_FOUND : INVALID_ID;    
+    while ((status == ELEMENT_ID_NOT_FOUND) && (*reference < limit))
     {
         Reference search = *reference;
         TypeId idRead;
         ElementSize sizeRead;
-        status = ReadType(&search, &idRead, &sizeRead);
-        if (id == idRead)
+        Status readStatus = ReadType(&search, &idRead, &sizeRead);
+        if (readStatus == OK)
         {
-            found = TRUE;
+            if (id == idRead)
+            {
+                status = OK;
+            }
+            else
+            {
+                *reference = search + sizeRead;
+            }
         }
         else
         {
-            *reference = search + sizeRead;
+            status = readStatus;
         }
     }
-    if (! found)
+    if (status == ELEMENT_ID_NOT_FOUND)
     {
-        status = INVALID_ID;
         *reference = NULL_REFERENCE;
     }
     return status;
@@ -328,27 +334,20 @@ Status FindFirst(TypeId id, Reference* reference)
 Status FindNext(TypeId id, Reference* reference)
 {
     Status status = OK;
-    if ((id != EMPTY) && (id <= lastId))
+    if (*reference < PersistentMemoryLimit())
     {
-        if (*reference < PersistentMemoryLimit())
+        TypeId idRead;
+        ElementSize sizeRead;
+        status = ReadType(reference, &idRead, &sizeRead);
+        if (status == OK)
         {
-            TypeId idRead;
-            ElementSize sizeRead;
-            status = ReadType(reference, &idRead, &sizeRead);
-            if (status == OK)
-            {
-                *reference += sizeRead;
-                status = FindId(id, reference);
-            }
-        }
-        else
-        {
-            status = "InvalidSearchReference";
+            *reference += sizeRead;
+            status = FindId(id, reference);
         }
     }
     else
     {
-        status = INVALID_ID;
+        status = INVALID_REFERENCE;
     }
     return status;
 }

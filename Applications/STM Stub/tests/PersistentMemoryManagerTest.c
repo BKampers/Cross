@@ -41,6 +41,25 @@ void testRegisterType()
 }
 
 
+void testFindUnavailableId()
+{
+    Reference found;
+    TypeId id;
+    InitPersistentDataManager();
+    ASSERT_STATUS(INVALID_ID, FindFirst(0, &found));
+    ASSERT_STATUS(INVALID_ID, FindFirst(2, &found));
+    found = 0;
+    ASSERT_STATUS(INVALID_ID, FindNext(2, &found));
+    RegisterType(&id);
+    ASSERT_STATUS(ELEMENT_ID_NOT_FOUND, FindFirst(id, &found));
+    ASSERT_EQUAL_INT(NULL_REFERENCE, found);
+    found = NULL_REFERENCE;
+    ASSERT_STATUS(INVALID_REFERENCE, FindNext(id, &found));
+    found = PersistentMemoryLimit();
+    ASSERT_STATUS(INVALID_REFERENCE, FindNext(id, &found));
+}
+
+
 void testAllocate()
 {
     TypeId id, read;
@@ -69,13 +88,13 @@ void testFindRemove()
     ASSERT_EQUAL_INT(first, found);
     ASSERT_OK(FindNext(id, &found));
     ASSERT_EQUAL_INT(second, found);
-    ASSERT_STATUS(INVALID_ID, FindNext(id, &found));
+    ASSERT_STATUS(ELEMENT_ID_NOT_FOUND, FindNext(id, &found));
     ASSERT_EQUAL_INT(NULL_REFERENCE, found);
     ASSERT_OK(RemoveElement(first));
     ASSERT_OK(FindFirst(id, &found));
     ASSERT_EQUAL_INT(second, found);
     ASSERT_OK(RemoveElement(second));
-    ASSERT_STATUS(INVALID_ID, FindFirst(id, &found));
+    ASSERT_STATUS(ELEMENT_ID_NOT_FOUND, FindFirst(id, &found));
     ASSERT_EQUAL_INT(NULL_REFERENCE, found);
 }
 
@@ -178,6 +197,7 @@ TestFunction testFunctions[] =
 {
     { "testInitPersistentDataManager", &testInitPersistentDataManager },
     { "testRegisterType", &testRegisterType },
+    { "testFindUnavailableId", &testFindUnavailableId },
     { "testAllocate", &testAllocate },
     { "testFindRemove", &testFindRemove },
     { "testStoreGet", &testStoreGet },

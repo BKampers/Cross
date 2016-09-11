@@ -11,6 +11,11 @@
 
 #define MESSAGE_LENGTH 128
 
+const char* TRUE_STRING = "TRUE";
+const char* FALSE_STRING = "FALSE";
+const char* NULL_STRING = "NULL";
+const char* NOT_NULL_STRING = "NOT NULL";
+
 char message[MESSAGE_LENGTH];
 
 const char* currentSuiteName = NULL; 
@@ -109,7 +114,7 @@ void finish()
 bool expectTrue(bool actual, int line)
 {
     bool pass = actual != FALSE;
-    printTestLine(pass, line, (pass) ? "TRUE" : "FALSE");
+    printTestLine(pass, line, (pass) ? TRUE_STRING : FALSE_STRING);
     return actual;
 }
 
@@ -117,7 +122,7 @@ bool expectTrue(bool actual, int line)
 bool expectFalse(bool actual, int line)
 {
     bool pass = actual == FALSE;
-    printTestLine(pass, line, (pass) ? "FALSE" : "TRUE");
+    printTestLine(pass, line, (pass) ? FALSE_STRING : TRUE_STRING);
     return pass;
 }
 
@@ -125,7 +130,7 @@ bool expectFalse(bool actual, int line)
 bool expectNull(void* actual, int line)
 {
     bool pass = (actual == NULL);
-    printTestLine(pass, line, (pass) ? "NULL" : "NOT NULL");
+    printTestLine(pass, line, (pass) ? NULL_STRING : NOT_NULL_STRING);
     return pass;
 }
 
@@ -133,7 +138,7 @@ bool expectNull(void* actual, int line)
 bool expectNotNull(void* actual, int line)
 {
     bool pass = (actual != NULL);
-    printTestLine(pass, line,  (pass) ? "NOT NULL" : "NULL");
+    printTestLine(pass, line,  (pass) ? NOT_NULL_STRING : NULL_STRING);
     return pass;
 }
 
