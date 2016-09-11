@@ -1,6 +1,5 @@
 /*
 ** Implementation of the Persistent Data Manager
-** Copyright 2014, Bart Kampers
 */
 
 #include "PersistentElementManager.h"
@@ -15,6 +14,8 @@
 #define EMPTY   0x00
 #define UNKNOWN 0xFF
 
+char ELEMENT_ID_NOT_FOUND[] = "ElementIdNotFound";
+char INVALID_REFERENCE[] = "InvalidReference";
 
 TypeId lastId;
 
@@ -42,32 +43,33 @@ Status ReadType(Reference* reference, TypeId* id, ElementSize* size)
 
 Status FindId(TypeId id, Reference* reference)
 {
-    Status status = INVALID_ID;    
-    if ((id != EMPTY) && (id <= lastId))
+    Reference limit = PersistentMemoryLimit();
+    Status status = ((id != EMPTY) && (id <= lastId)) ? ELEMENT_ID_NOT_FOUND : INVALID_ID;    
+    while ((status == ELEMENT_ID_NOT_FOUND) && (*reference < limit))
     {
-        bool found = FALSE;
-        Reference limit = PersistentMemoryLimit();
-        status = OK;
-        while ((! found) && (*reference < limit) && (status == OK))
+        Reference search = *reference;
+        TypeId idRead;
+        ElementSize sizeRead;
+        Status readStatus = ReadType(&search, &idRead, &sizeRead);
+        if (readStatus == OK)
         {
-            Reference search = *reference;
-            TypeId idRead;
-            ElementSize sizeRead;
-            status = ReadType(&search, &idRead, &sizeRead);
             if (id == idRead)
             {
-                found = TRUE;
+                status = OK;
             }
             else
             {
                 *reference = search + sizeRead;
             }
         }
-        if (! found)
+        else
         {
-            status = INVALID_ID;
-            *reference = NULL_REFERENCE;
+            status = readStatus;
         }
+    }
+    if (status == ELEMENT_ID_NOT_FOUND)
+    {
+        *reference = NULL_REFERENCE;
     }
     return status;
 }
@@ -345,7 +347,7 @@ Status FindNext(TypeId id, Reference* reference)
     }
     else
     {
-        status = "InvalidSearchReference";
+        status = INVALID_REFERENCE;
     }
     return status;
 }
