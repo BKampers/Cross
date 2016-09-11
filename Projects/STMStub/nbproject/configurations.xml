@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>../../API/ApiStatus.h</itemPath>
       <itemPath>../../Applications/STM Stub/FlashDefinitions.h</itemPath>
+      <itemPath>../../API/PersistentElementManager.h</itemPath>
       <itemPath>../../API/PersistentMemoryDriver.h</itemPath>
       <itemPath>../../Test/Simple.h</itemPath>
       <itemPath>../../API/Types.h</itemPath>
@@ -72,6 +73,11 @@
         </archiverTool>
       </compileType>
       <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/PersistentElementManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -177,6 +183,11 @@
         </archiverTool>
       </compileType>
       <item path="../../API/ApiStatus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../API/PersistentElementManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="../../API/PersistentMemoryDriver.h" ex="false" tool="3" flavor2="0">
       </item>
