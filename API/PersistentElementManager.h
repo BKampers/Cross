@@ -1,6 +1,5 @@
 /*
  ** Interface for the Persistent Data Manager
- ** Copyright 2014, Bart Kampers
  */
 
 #ifndef _PERSISTENTELEMENTMANAGER_H_
@@ -12,8 +11,13 @@
 
 #define INVALID_TYPE_ID 0xFF
 
+extern char ELEMENT_ID_NOT_FOUND[];
+extern char INVALID_REFERENCE[];
+
+
 typedef byte TypeId;
 typedef uint16_t ElementSize;
+
 
 void InitPersistentDataManager();
 
