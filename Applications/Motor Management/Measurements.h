@@ -6,13 +6,8 @@
 
 extern const char RPM[];
 extern const char LOAD[];
-extern const char WATER_TEMPERATURE[];
-extern const char AIR_TEMPERATURE[];
-extern const char BATTERY_VOLTAGE[];
 extern const char MAP_SENSOR[];
-extern const char LAMBDA[];
-extern const char AUX1[];
-extern const char AUX2[];
+extern const char SPARE[];
 
 typedef struct
 {

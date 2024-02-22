@@ -167,6 +167,10 @@ Status FindMeasurementTable(const char* name, MeasurementTable** table)
 
 Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue)
 {
+	if (measurementTable == NULL)
+	{
+		return UNINITIALIZED;
+	}
     TableField field;
     Status status = GetActualTableControllerField(measurementTable, &field);
     if (status == OK)

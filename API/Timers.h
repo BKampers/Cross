@@ -9,7 +9,7 @@
 #define TIMER_CHANNEL_3 0x08
 #define TIMER_CHANNEL_4 0x10
 
-#define EXTERNAL_PULSE_TIMER_PRESCALER 20
+#define EXTERNAL_PULSE_TIMER_PRESCALER 80
 #define PERIOD_TIMER_PRESCALER 40
 
 #define MAX_PULSE_NANOS 25000000L
@@ -21,7 +21,11 @@ void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*Overf
 
 Status StartPeriodTimer(int ticks);
 Status StartCompareTimer(int channel, int ticks);
+void StartPwmTimer();
+void SetPwmDutyCycle(float percentage);
+int GetPwmDutyCycle();
 
 int GetCompareTimerPeriod();
+
 
 #endif /* _TIMERS_H_ */

@@ -26,7 +26,8 @@
 #define CHANNEL_BUFFER_SIZE 64
 
 
-#define UART_INJECTION  0x01
+#define INJECTION_DISABLED 0x00
+#define UART_INJECTION 0x01
 #define TIMER_INJECTION 0x02
 
 
@@ -43,13 +44,8 @@ typedef struct
 
 CorrectionConfiguration corrections[] =
 {
-    { WATER_TEMPERATURE, NULL },
-    { AIR_TEMPERATURE, NULL },
-    { BATTERY_VOLTAGE, NULL},
     { MAP_SENSOR, NULL },
-    { LAMBDA, NULL },
-    { AUX1, NULL },
-    { AUX2, NULL }
+    { SPARE, NULL }
 };
 
 #define CORRECTION_COUNT (sizeof(corrections) / sizeof(CorrectionConfiguration))
@@ -57,11 +53,11 @@ CorrectionConfiguration corrections[] =
 
 char CORRECTION_POSTFIX[] = "Correction";
 
-MeasurementTable* injectionTable;
+MeasurementTable* injectionTable = NULL;
 
 float injectionTime = 0.0f;
 
-byte injectionMode = TIMER_INJECTION;
+byte injectionMode = INJECTION_DISABLED;
 
 
 Status UpdateInjectionTimeUart()
@@ -117,6 +113,10 @@ char INJECTION[] = "Injection";
 
 Status InitInjection()
 {
+	if (injectionMode == INJECTION_DISABLED)
+	{
+		return DISABLED;
+	}
     Status status = CreateMeasurementTable(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
     if (status == OK)
     {
@@ -168,6 +168,10 @@ float GetInjectionTime()
 
 Status UpdateInjection()
 {
+	if (injectionMode == INJECTION_DISABLED)
+	{
+		return DISABLED;
+	}
     float time;
     Status status = GetActualMeasurementTableField(injectionTable, &time);
     if (status == OK)

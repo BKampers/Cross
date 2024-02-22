@@ -170,6 +170,10 @@ int GetDeadPointOffset()
 
 int GetDeadPointCount()
 {
+	if (engine.cogwheel.gapSize == 0)
+	{
+		return 0;
+	}
     switch (engine.cylinderCount)
     {
         case 8:
@@ -212,7 +216,8 @@ Status SetGogwheelProperties(int cogTotal, int gapSize, int offset)
 {
     if (! EngineIsRunning())
     {
-        if ((3 <= cogTotal) && (cogTotal <= 255) && (1 <= gapSize) && (gapSize <= cogTotal - 2) && (1 <= offset) && (offset < cogTotal - gapSize))
+        if (((3 <= cogTotal) && (cogTotal <= 255) && (1 <= gapSize) && (gapSize <= cogTotal - 2) && (1 <= offset) && (offset < cogTotal - gapSize)) ||
+        	((2 <= cogTotal) && (cogTotal <= 255) && (gapSize == 0)))
         {
             engine.cogwheel.cogTotal = (uint8_t) cogTotal;
             engine.cogwheel.gapSize = (uint8_t) gapSize;

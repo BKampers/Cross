@@ -19,6 +19,8 @@ extern char IGNITION[];
 void RegisterIgnitionTypes();
 Status InitIgnition();
 
+float GetIgnitionDutyCycle();
+
 void GetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 Status SetIgnitionTimerSettings(TIMER_SETTINGS* timerSettings);
 

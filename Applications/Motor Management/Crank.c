@@ -19,6 +19,8 @@
 #include "Timers.h"
 #include "ExternalInterrupt.h"
 
+#define MINUTES_PER_MILLI 60000.0f
+#define SECONDS_PER_MINUTE 60.0f
 
 /*
 ** Private
@@ -38,6 +40,7 @@ int gapTicks = 0;
 
 int previousCapture = 0;
 int previousDelta = 0;
+int c=-1;
 bool captured = FALSE;
 
 
@@ -64,26 +67,34 @@ void PulseDetected(int capture)
         {
             delta += 0x10000;
         }
-        if (delta > 2 * previousDelta)
+        if (GetGapSize() > 0)
         {
-            gapTicks = delta;
-            cogCount = 1;
-            if (phase == 1)
-            {
-                phase = 0;
-            }
+			if (delta > 2 * previousDelta)
+			{
+				gapTicks = delta;
+				cogCount = 1;
+				if (phase == 1)
+				{
+					phase = 0;
+				}
+			}
+			else
+			{
+				cogTicks = delta;
+				if (cogCount > 0)
+				{
+					cogCount++;
+					if (cogCount == 0)
+					{
+						cogCount = 1;
+					}
+				}
+			}
         }
         else
         {
-            cogTicks = delta;
-            if (cogCount > 0)
-            {
-                cogCount++;
-                if (cogCount == 0)
-                {
-                    cogCount = 1;
-                }
-            }
+        	cogTicks = delta;
+        	cogCount = (cogCount % GetCogTotal()) + 1;
         }
         if ((0 < cogCount) && (cogCount <= GetEffectiveCogCount()))
         {
@@ -93,6 +104,7 @@ void PulseDetected(int capture)
                 callback(cogCount);
             }
         }
+        captured = FALSE;
         previousDelta = delta;
     }
     previousCapture = capture;
@@ -163,8 +175,9 @@ float GetRpm()
     int ticks = cogTicks;
     if (captured && (ticks > 0))
     {
-        float spr = ticks / 60000.0f;
-        return 60.0f / spr;
+//        float spr = ticks / 60000.0f;
+//        return 60.0f / spr;
+    	return (60000.0f * 60.0f) / ticks;
     }
     else
     {
@@ -176,6 +189,16 @@ float GetRpm()
 bool EngineIsRunning()
 {
     return captured;
+}
+
+
+int GetCapture()
+{
+	if (captured)
+	{
+		c = previousDelta;
+	}
+	return c;
 }
 
 

@@ -19,6 +19,8 @@ int GetGapTicks();
 float GetRpm();
 bool EngineIsRunning();
 
+int GetCapture();
+
 Status SetCogCountCallback(CogCountCallback callback, int cogNumber);
 
 #endif /* _CRANK_H_ */

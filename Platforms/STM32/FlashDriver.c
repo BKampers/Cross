@@ -30,7 +30,7 @@ Reference loadedPage = NULL_REFERENCE;
 
 void GenerateFlashStatusText(const char* message, FLASH_Status flashStatus, int address)
 {
-    snprintf(statusText, STATUS_TEXT_LENGTH, "%-16s %6d %08X", message, flashStatus, (int) address);
+    snprintf(statusText, STATUS_TEXT_LENGTH, "%-16s %4d %08X", message, flashStatus, (int) address);
 }
 
 

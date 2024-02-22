@@ -93,7 +93,7 @@ Status HandleCall(const JsonNode* message, JsonRpcApi* api, int channelId, Statu
 ** Interface
 */
 
-Status HandleMessage(const char* jsonString, JsonRpcApi* api, int channelId)
+Status HandleMessage(char* jsonString, JsonRpcApi* api, int channelId)
 {
     JsonNode message;
     char* direction;

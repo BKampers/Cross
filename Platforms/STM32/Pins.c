@@ -2,7 +2,7 @@
 
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
-
+#include "HardwareSettings.h"
 
 
 /*
@@ -23,28 +23,28 @@
 
 void InitOutputPins()
 {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
+    GPIO_InitTypeDef GPIO_InitStructure;
+    RCC_APB2PeriphClockCmd(OUTPUT_REGISTER, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOE, &GPIO_InitStructure);
+    GPIO_Init(OUTPUT_PORT, &GPIO_InitStructure);
 }
 
 
 void SetOutputPins(uint16_t pins)
 {
-    GPIO_SetBits(GPIOE, pins);
+    GPIO_SetBits(OUTPUT_PORT, pins);
 }
 
 
 void ResetOutputPins(uint16_t pins)
 {
-    GPIO_ResetBits(GPIOE, pins);
+    GPIO_ResetBits(OUTPUT_PORT, pins);
 }
 
 
 bool IsOutputPinSet(uint16_t pin)
 {
-    return GPIO_ReadOutputDataBit(GPIOE, pin);
+    return GPIO_ReadOutputDataBit(OUTPUT_PORT, pin);
 }

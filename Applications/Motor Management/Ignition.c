@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 
+#include "Types.h"
 #include "Pins.h"
 #include "Timers.h"
 
@@ -16,6 +17,13 @@
 #include "Crank.h"
 #include "AnalogInput.h"
 
+#include "stm32f10x.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_gpio.h"
+
+#define TIMER_IGNITION 0x01
+#define PWM_IGNITION 0x02
 
 #define IGNITION_ANGLE_BASE 60
 
@@ -37,6 +45,7 @@
 
 char INVALID_IGNITION_ANGLE[] = "InvalidIgnitionAngle";
 
+byte ignitionMode = PWM_IGNITION;
 
 uint16_t ignitionPins[DEAD_POINT_MAX][PHASE_MAX] =
 {
@@ -52,6 +61,7 @@ TypeId timerSettingsTypeId;
 Status ignitionTimeStatus = UNINITIALIZED;
 
 MeasurementTable* ignitionTable;
+float ignitionDutyCycle;
 int ignitionAngle;
 
 
@@ -94,6 +104,18 @@ Status SetIgnitionAngle(int angle)
 }
 
 
+bool PwmModeEnabled()
+{
+	return (ignitionMode & PWM_IGNITION) != 0;
+}
+
+
+bool TimerModeEnabled()
+{
+	return (ignitionMode & TIMER_IGNITION) != 0;
+}
+
+
 /*
 ** Interface
 */
@@ -112,11 +134,18 @@ Status InitIgnition()
     Status status;
     TIMER_SETTINGS timerSettings;
     
-    GetIgnitionTimerSettings(&timerSettings);
-    ignitionTicks = timerSettings.counter;
+    if (PwmModeEnabled())
+    {
+    	StartPwmTimer();
+    }
+    if (TimerModeEnabled())
+    {
+		GetIgnitionTimerSettings(&timerSettings);
+		ignitionTicks = timerSettings.counter;
+	    InitPeriodTimer(&StopIgnition);
+    }
     
     SetIgnitionAngle(0);
-    InitPeriodTimer(&StopIgnition);
 
     status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
@@ -128,6 +157,12 @@ Status InitIgnition()
         status = SetMeasurementTableEnabled(IGNITION, TRUE);
     }
     return status;
+}
+
+
+float GetIgnitionDutyCycle()
+{
+	return ignitionDutyCycle;
 }
 
 
@@ -181,8 +216,17 @@ Status UpdateIgnition()
 {
     float angle;
     Status status = GetActualMeasurementTableField(ignitionTable, &angle);
-    if (status == OK)
+    if (status != OK)
     {
+    	return status;
+    }
+    if (PwmModeEnabled())
+    {
+    	SetPwmDutyCycle(angle);
+    }
+    if (TimerModeEnabled())
+    {
+    	ignitionDutyCycle = angle;
         status = SetIgnitionAngle((int) angle);
     }
     return status;
@@ -191,16 +235,20 @@ Status UpdateIgnition()
 
 void StartIgnition(int cogNumber)
 {
-    int phase = GetPhase();
-    if ((0 <= phase) && (phase < PHASE_MAX))
-    {
-        int deadPointIndex = GetDeadPointIndex(cogNumber);
-        if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
-        {
-            uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
-            SetOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
-        }
-        ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
-        ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
-    }
+	if (!TimerModeEnabled())
+	{
+		return;
+	}
+	int phase = GetPhase();
+	if ((0 <= phase) && (phase < PHASE_MAX))
+	{
+		int deadPointIndex = GetDeadPointIndex(cogNumber);
+		if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
+		{
+			uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
+			SetOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
+		}
+		ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
+		ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
+	}
 }

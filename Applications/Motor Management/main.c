@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Timers.h"
 #include "Communication.h"
 #include "Lcd.h"
 #include "PersistentElementManager.h"
@@ -20,10 +21,14 @@
 #include "Table.h"
 #include "Measurements.h"
 
+#include "Crank.h"
 #include "Ignition.h"
 #include "Injection.h"
 
+#include "stm32f10x_gpio.h"
+
 #define INPUT_BUFFER_SIZE 0xFF
+#define MESSAGE_TEXT_LENGTH 64
 
 #define DISPLAY_STATE_IGNITION  0
 #define DISPLAY_STATE_INJECTION 1
@@ -34,8 +39,10 @@
 
 
 char SYSTEM_NAME[] = "Randd MM32";
+char VERSION[] = "2024-01";
 
 char input[INPUT_BUFFER_SIZE];
+char message[MESSAGE_TEXT_LENGTH];
 char text[LCD_LINE_LENGTH + 1];
 
 Status memoryStatus = UNINITIALIZED;
@@ -50,7 +57,7 @@ Measurement* rpmMeasurement;
 Measurement* loadMeasurement;
 
 
-void checkPersistentMemoryNotifyCallback(Reference reference)
+void CheckPersistentMemoryNotifyCallback(Reference reference)
 {
     if ((reference % 0x10) == 0)
     {
@@ -75,19 +82,27 @@ void UpdateDisplay()
         {
             GetMeasurementValue(loadMeasurement, &load);
         }
-        switch (displayCylceCount / DISPLAY_REFRESH_RATE)
-        {
-            case DISPLAY_STATE_IGNITION:
-                sprintf(text, "%5.0f%6.1f%5d", rpm, load, GetIgnitionAngle());
-                PutLcd(0, 0, "  RPM  LOAD  IGN");
-                break;
-            case DISPLAY_STATE_INJECTION:
-                sprintf(text, "%5.0f%6.1f%5.1f", rpm, load, GetInjectionTime());
-                PutLcd(0, 0, "  RPM  LOAD  INJ");
-                break;
-        }
+//        switch (displayCylceCount / DISPLAY_REFRESH_RATE)
+//        {
+//            case DISPLAY_STATE_IGNITION:
+//                sprintf(text, "%5.0f%6.1f%5d", rpm, load, GetIgnitionAngle());
+//                PutLcd(0, 0, "  RPM  LOAD  IGN");
+//                SetOutputPins(0x0000);
+//                break;
+//            case DISPLAY_STATE_INJECTION:
+//                sprintf(text, "%5.0f%6.1f%5.1f", rpm, load, GetInjectionTime());
+//                PutLcd(0, 0, "  RPM  LOAD  INJ");
+//                ResetOutputPins(0xFFFF);
+//                break;
+//        }
+//        PutLcd(0, 1, text);
+        sprintf(text, "%16f", GetIgnitionDutyCycle());
+        PutLcd(0, 0, text);
+        sprintf(text, " %7d %7d", GetCogTicks(), GetPwmDutyCycle());
         PutLcd(0, 1, text);
         UpdateLcd();
+        snprintf(message, MESSAGE_TEXT_LENGTH, "cog=%d; gap=%d; rpm=%.0f; %s", GetCogTicks(), GetGapTicks(), GetRpm(), ((EngineIsRunning()) ? "run" : "stop"));
+//        FireTextEvent("Ticks", message, DEFAULT_CHANNEL);
     }
     displayCylceCount = (displayCylceCount + 1) % DISPLAY_CYCLE_MAX;
 }
@@ -103,10 +118,15 @@ void StatusToDisplay(Status status)
     UpdateLcd();
 }
 
+bool IsValid(Status status)
+{
+	return (status == OK) || (status == DISABLED);
+}
+
 
 void ShowIfError(Status status)
 {
-    if (status != OK)
+    if (!IsValid(status))
     {
         StatusToDisplay(status);
     }
@@ -116,12 +136,10 @@ void ShowIfError(Status status)
 void ShowStatus(char* name, Status status)
 {
     FireTextEvent(name, status, DEFAULT_CHANNEL);
-    if (status != OK)
-    {
-        StatusToDisplay(status);
-    }
+    ShowIfError(status);
 }
 
+//uint8_t count = 0;
 
 int main(void)
 {
@@ -130,7 +148,12 @@ int main(void)
     InitLcd();
 
     FireTextEvent("System", SYSTEM_NAME, DEFAULT_CHANNEL);
+    FireTextEvent("Version", VERSION, DEFAULT_CHANNEL);
     FireTextEvent("Memory", PersistentMemoryType(), DEFAULT_CHANNEL);
+    sprintf(text, "%d", GetCogTotal());
+    FireTextEvent("Cogs", text, DEFAULT_CHANNEL);
+    sprintf(text, "%d", GetGapSize());
+    FireTextEvent("Gap",text, DEFAULT_CHANNEL);
     PutLcdLine(0, SYSTEM_NAME);
     UpdateLcd();
 
@@ -139,7 +162,7 @@ int main(void)
     RegisterTableTypes();
     RegisterEngineType();
     
-    memoryStatus = CheckPersistentMemory(&checkPersistentMemoryNotifyCallback);
+    memoryStatus = CheckPersistentMemory(&CheckPersistentMemoryNotifyCallback);
     ShowStatus("Check memory", memoryStatus);
 
     if (memoryStatus == OK)
@@ -168,6 +191,9 @@ int main(void)
 
     for (;;)
     {
+//    	uint16_t bits = count++;
+//    	bits <<= 8;
+//    	GPIO_Write(GPIOB, bits);
         ShowIfError(communicationStatus);
         communicationStatus = ReadString(input);
         if ((communicationStatus == OK) && (strlen(input) > 0))
@@ -193,7 +219,7 @@ int main(void)
                 injectionStatus = status;
             }
 
-            if ((ignitionStatus == OK) && (injectionStatus == OK))
+            if (IsValid(ignitionStatus) && IsValid(injectionStatus))
             {
                 UpdateDisplay();
             }

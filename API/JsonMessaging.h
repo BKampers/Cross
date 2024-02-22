@@ -19,7 +19,7 @@ typedef struct
 } JsonRpcApi;
 
 
-Status HandleMessage(const char* jsonString, JsonRpcApi* api, int channelId);
+Status HandleMessage(char* jsonString, JsonRpcApi* api, int channelId);
 
 Status FireTextEvent(const char* name, const char* value, int channelId);
 Status FireIntegerEvent(const char* name, int value, int channelId);
