@@ -21,8 +21,8 @@ void InitExternalPulseTimer(void (*InterruptService) (int capture), void (*Overf
 
 Status StartPeriodTimer(int ticks);
 Status StartCompareTimer(int channel, int ticks);
-void StartPwmTimer();
-void SetPwmDutyCycle(float percentage);
+Status StartPwmTimer(int period);
+Status SetPwmDutyCycle(int dutyCycle);
 int GetPwmDutyCycle();
 
 int GetCompareTimerPeriod();

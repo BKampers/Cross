@@ -35,23 +35,12 @@
 #define MAX_INJECTION_TIME 22.0f
 
 
-typedef struct
+CorrectionConfiguration injectionCorrections[] =
 {
-    const char* measurementName;
-    MeasurementTable* table;
-} CorrectionConfiguration;
-
-
-CorrectionConfiguration corrections[] =
-{
-    { MAP_SENSOR, NULL },
-    { SPARE, NULL }
 };
 
-#define CORRECTION_COUNT (sizeof(corrections) / sizeof(CorrectionConfiguration))
+#define CORRECTION_COUNT (sizeof(injectionCorrections) / sizeof(CorrectionConfiguration))
 
-
-char CORRECTION_POSTFIX[] = "Correction";
 
 MeasurementTable* injectionTable = NULL;
 
@@ -86,24 +75,6 @@ Status UpdateInjectionTime()
 }
 
 
-Status CreateCorrectionTable(const char* measurementName, MeasurementTable** correctionTable)
-{
-    size_t nameLength = strlen(measurementName) + strlen(CORRECTION_POSTFIX);
-    char* tableName = malloc(nameLength + 1);
-    strcpy(tableName, measurementName);
-    strcat(tableName, CORRECTION_POSTFIX);
-    Status status = CreateMeasurementTable(tableName, measurementName, NULL, 10, 1, correctionTable);
-    if (status == OK)
-    {
-        (*correctionTable)->precision = 1.0f;
-        (*correctionTable)->minimum = -150.0f;
-        (*correctionTable)->maximum = 150.0f;
-        (*correctionTable)->decimals = 0;
-    }
-    return status;
-}
-
-
 /*
 ** Interface
 */
@@ -130,7 +101,7 @@ Status InitInjection()
             injectionTable->decimals = 1;
             for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
             {
-                status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
+                status = CreateCorrectionTable(injectionCorrections[i].measurementName, &(injectionCorrections[i].table));
             }
         }
     }
@@ -180,7 +151,7 @@ Status UpdateInjection()
         float totalCorrectionPercentage = 0.0f;
         for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
         {
-            MeasurementTable* table = corrections[i].table;
+            MeasurementTable* table = injectionCorrections[i].table;
             if (table != NULL)
             {
                 bool enabled;

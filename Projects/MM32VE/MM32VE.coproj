@@ -87,12 +87,12 @@
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f10x_hd.c" path="cmsis_boot/startup/startup_stm32f10x_hd.c" type="1"/>
     <File name="stm_lib/src/misc.c" path="stm_lib/src/misc.c" type="1"/>
-    <File name="Motor Management/Messaging.c" path="../../Applications/Motor Management/Messaging.c" type="1"/>
-    <File name="Cross/API/PersistentMemoryDriver.h" path="../../API/PersistentMemoryDriver.h" type="1"/>
-    <File name="Cross/STM32/FlashDefinitions.h" path="../../Platforms/STM32/FlashDefinitions.h" type="1"/>
     <File name="Motor Management/Injection.h" path="../../Applications/Motor Management/Injection.h" type="1"/>
     <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
+    <File name="Motor Management/Messaging.c" path="../../Applications/Motor Management/Messaging.c" type="1"/>
+    <File name="Cross/API/PersistentMemoryDriver.h" path="../../API/PersistentMemoryDriver.h" type="1"/>
     <File name="Cross/API/Types.h" path="../../API/Types.h" type="1"/>
+    <File name="Cross/STM32/FlashDefinitions.h" path="../../Platforms/STM32/FlashDefinitions.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
     <File name="Cross/API/JsonMessaging.h" path="../../API/JsonMessaging.h" type="1"/>
     <File name="Cross/STM32/ExternalInterrupt.c" path="../../Platforms/STM32/ExternalInterrupt.c" type="1"/>
@@ -117,9 +117,9 @@
     <File name="stm_lib/src/stm32f10x_usart.c" path="stm_lib/src/stm32f10x_usart.c" type="1"/>
     <File name="Cross/API/AnalogInput.h" path="../../API/AnalogInput.h" type="1"/>
     <File name="Cross" path="" type="2"/>
+    <File name="Motor Management/Ignition.h" path="../../Applications/Motor Management/Ignition.h" type="1"/>
     <File name="stm_lib/src/stm32f10x_gpio.c" path="stm_lib/src/stm32f10x_gpio.c" type="1"/>
     <File name="Motor Management/Crank.c" path="../../Applications/Motor Management/Crank.c" type="1"/>
-    <File name="Motor Management/Ignition.h" path="../../Applications/Motor Management/Ignition.h" type="1"/>
     <File name="Cross/Generic/JsonMessaging.c" path="../../Generic/JsonMessaging.c" type="1"/>
     <File name="Motor Management/main.c" path="../../Applications/Motor Management/main.c" type="1"/>
     <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>

@@ -39,7 +39,7 @@
 
 
 char SYSTEM_NAME[] = "Randd MM32";
-char VERSION[] = "2024-01";
+char VERSION[] = "2024-02";
 
 char input[INPUT_BUFFER_SIZE];
 char message[MESSAGE_TEXT_LENGTH];
@@ -96,7 +96,7 @@ void UpdateDisplay()
 //                break;
 //        }
 //        PutLcd(0, 1, text);
-        sprintf(text, "%16f", GetIgnitionDutyCycle());
+        sprintf(text, "%5.1f", GetIgnitionDutyCycle());
         PutLcd(0, 0, text);
         sprintf(text, " %7d %7d", GetCogTicks(), GetPwmDutyCycle());
         PutLcd(0, 1, text);
@@ -191,9 +191,6 @@ int main(void)
 
     for (;;)
     {
-//    	uint16_t bits = count++;
-//    	bits <<= 8;
-//    	GPIO_Write(GPIOB, bits);
         ShowIfError(communicationStatus);
         communicationStatus = ReadString(input);
         if ((communicationStatus == OK) && (strlen(input) > 0))

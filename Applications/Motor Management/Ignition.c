@@ -5,6 +5,7 @@
 
 #include "Ignition.h"
 
+#include <math.h>
 #include <stdlib.h>
 
 #include "Types.h"
@@ -26,6 +27,8 @@
 #define PWM_IGNITION 0x02
 
 #define IGNITION_ANGLE_BASE 60
+#define IGNITION_PWM_PERIOD 100
+#define IGNITION_PWM_RESOLUTION 0.5f
 
 #define DEGREES_PER_COG (360.0f / GetCogTotal())
 
@@ -45,7 +48,14 @@
 
 char INVALID_IGNITION_ANGLE[] = "InvalidIgnitionAngle";
 
-byte ignitionMode = PWM_IGNITION;
+CorrectionConfiguration ignitionCorrections[] =
+{
+    { MAP_SENSOR, NULL },
+    { SPARE, NULL }
+};
+#define CORRECTION_COUNT (sizeof(ignitionCorrections) / sizeof(CorrectionConfiguration))
+
+
 
 uint16_t ignitionPins[DEAD_POINT_MAX][PHASE_MAX] =
 {
@@ -63,6 +73,7 @@ Status ignitionTimeStatus = UNINITIALIZED;
 MeasurementTable* ignitionTable;
 float ignitionDutyCycle;
 int ignitionAngle;
+byte ignitionMode = PWM_IGNITION;
 
 
 /*
@@ -133,11 +144,17 @@ Status InitIgnition()
 {
     Status status;
     TIMER_SETTINGS timerSettings;
+    int i;
     
     if (PwmModeEnabled())
     {
-    	StartPwmTimer();
+    	status = StartPwmTimer(IGNITION_PWM_PERIOD);
+    	if (status != OK)
+    	{
+    		return status;
+    	}
     }
+
     if (TimerModeEnabled())
     {
 		GetIgnitionTimerSettings(&timerSettings);
@@ -150,11 +167,15 @@ Status InitIgnition()
     status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
     {
-        ignitionTable->precision = 1.0f;
+        ignitionTable->precision = 0.5f;
         ignitionTable->minimum = 0.0f;
-        ignitionTable->maximum = 59.0f;
-        ignitionTable->decimals = 0;
+        ignitionTable->maximum = 50.0f;
+        ignitionTable->decimals = 1;
         status = SetMeasurementTableEnabled(IGNITION, TRUE);
+        for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
+        {
+            status = CreateCorrectionTable(ignitionCorrections[i].measurementName, &(ignitionCorrections[i].table));
+        }
     }
     return status;
 }
@@ -215,18 +236,38 @@ int GetIgnitionTicks()
 Status UpdateIgnition()
 {
     float angle;
+    int i;
     Status status = GetActualMeasurementTableField(ignitionTable, &angle);
+    for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
+    {
+        MeasurementTable* table = ignitionCorrections[i].table;
+        if (table != NULL)
+        {
+            bool enabled;
+            status = GetMeasurementTableEnabled(table->name, &enabled);
+            if ((status == OK) && enabled)
+            {
+                float correction;
+                status = GetActualMeasurementTableField(table, &correction);
+                if (status == OK)
+                {
+                    angle += correction;
+                }
+            }
+        }
+    }
+
     if (status != OK)
     {
     	return status;
     }
     if (PwmModeEnabled())
     {
-    	SetPwmDutyCycle(angle);
+    	ignitionDutyCycle = angle;
+    	status = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / IGNITION_PWM_RESOLUTION))));
     }
     if (TimerModeEnabled())
     {
-    	ignitionDutyCycle = angle;
         status = SetIgnitionAngle((int) angle);
     }
     return status;
