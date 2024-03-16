@@ -12,6 +12,7 @@
 #include "Pins.h"
 #include "Timers.h"
 
+#include "Configuration.h"
 #include "MeasurementTable.h"
 #include "HardwareSettings.h"
 #include "Engine.h"
@@ -22,9 +23,6 @@
 #include "stm32f10x_tim.h"
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_gpio.h"
-
-#define TIMER_IGNITION 0x01
-#define PWM_IGNITION 0x02
 
 #define IGNITION_ANGLE_BASE 60
 #define IGNITION_PWM_PERIOD 100
@@ -73,7 +71,6 @@ Status ignitionTimeStatus = UNINITIALIZED;
 MeasurementTable* ignitionTable;
 float ignitionDutyCycle;
 int ignitionAngle;
-byte ignitionMode = PWM_IGNITION;
 
 
 /*
@@ -115,18 +112,6 @@ Status SetIgnitionAngle(int angle)
 }
 
 
-bool PwmModeEnabled()
-{
-	return (ignitionMode & PWM_IGNITION) != 0;
-}
-
-
-bool TimerModeEnabled()
-{
-	return (ignitionMode & TIMER_IGNITION) != 0;
-}
-
-
 /*
 ** Interface
 */
@@ -146,7 +131,7 @@ Status InitIgnition()
     TIMER_SETTINGS timerSettings;
     int i;
     
-    if (PwmModeEnabled())
+    if (PwmIgnitionEnabled())
     {
     	status = StartPwmTimer(IGNITION_PWM_PERIOD);
     	if (status != OK)
@@ -155,7 +140,7 @@ Status InitIgnition()
     	}
     }
 
-    if (TimerModeEnabled())
+    if (TimerIgnitionEnabled())
     {
 		GetIgnitionTimerSettings(&timerSettings);
 		ignitionTicks = timerSettings.counter;
@@ -237,6 +222,8 @@ Status UpdateIgnition()
 {
     float angle;
     int i;
+    Status pwmStatus = OK;
+    Status timerStatus = OK;
     Status status = GetActualMeasurementTableField(ignitionTable, &angle);
     for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
     {
@@ -256,27 +243,26 @@ Status UpdateIgnition()
             }
         }
     }
-
     if (status != OK)
     {
     	return status;
     }
-    if (PwmModeEnabled())
+    if (PwmIgnitionEnabled())
     {
     	ignitionDutyCycle = angle;
-    	status = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / IGNITION_PWM_RESOLUTION))));
+    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / IGNITION_PWM_RESOLUTION))));
     }
-    if (TimerModeEnabled())
+    if (TimerIgnitionEnabled())
     {
-        status = SetIgnitionAngle((int) angle);
+        timerStatus = SetIgnitionAngle((int) angle);
     }
-    return status;
+    return (timerStatus != OK) ? timerStatus : pwmStatus;
 }
 
 
 void StartIgnition(int cogNumber)
 {
-	if (!TimerModeEnabled())
+	if (!TimerIgnitionEnabled())
 	{
 		return;
 	}

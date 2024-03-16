@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Configuration.h"
 #include "MeasurementTable.h"
 
 #include "HardwareSettings.h"
@@ -25,12 +26,6 @@
 #define INJECTION_CHANNEL 1
 #define CHANNEL_BUFFER_SIZE 64
 
-
-#define INJECTION_DISABLED 0x00
-#define UART_INJECTION 0x01
-#define TIMER_INJECTION 0x02
-
-
 #define MIN_INJECTION_TIME 0.0f
 #define MAX_INJECTION_TIME 22.0f
 
@@ -45,8 +40,6 @@ CorrectionConfiguration injectionCorrections[] =
 MeasurementTable* injectionTable = NULL;
 
 float injectionTime = 0.0f;
-
-byte injectionMode = INJECTION_DISABLED;
 
 
 Status UpdateInjectionTimeUart()
@@ -63,11 +56,11 @@ Status UpdateInjectionTime()
 {
     Status uartStatus = OK;
     Status timerStatus = OK;
-    if ((injectionMode & UART_INJECTION) != 0)
+    if ((GetInjectionMode() & UART_INJECTION) != 0)
     {
         uartStatus = UpdateInjectionTimeUart();
     }
-    if ((injectionMode & TIMER_INJECTION) != 0)
+    if ((GetInjectionMode() & TIMER_INJECTION) != 0)
     {
         timerStatus = SetInjectionTimer(injectionTime);
     }
@@ -84,7 +77,7 @@ char INJECTION[] = "Injection";
 
 Status InitInjection()
 {
-	if (injectionMode == INJECTION_DISABLED)
+	if (GetInjectionMode() == INJECTION_DISABLED)
 	{
 		return DISABLED;
 	}
@@ -109,7 +102,7 @@ Status InitInjection()
     {
         Status channelStatus = OK;
         Status timerStatus = OK;
-        if ((injectionMode & UART_INJECTION) != 0)
+        if ((GetInjectionMode() & UART_INJECTION) != 0)
         {
             channelStatus = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
             if (channelStatus == OK)
@@ -117,7 +110,7 @@ Status InitInjection()
                 channelStatus = UpdateInjectionTimeUart();
             }
         }
-        if ((injectionMode & TIMER_INJECTION) != 0)
+        if ((GetInjectionMode() & TIMER_INJECTION) != 0)
         {
             timerStatus = InitInjectionTimer();
             if (timerStatus == OK)
@@ -139,11 +132,11 @@ float GetInjectionTime()
 
 Status UpdateInjection()
 {
-	if (injectionMode == INJECTION_DISABLED)
+    float time;
+	if (GetInjectionMode() == INJECTION_DISABLED)
 	{
 		return DISABLED;
 	}
-    float time;
     Status status = GetActualMeasurementTableField(injectionTable, &time);
     if (status == OK)
     {

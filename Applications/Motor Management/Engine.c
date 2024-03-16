@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "Configuration.h"
 #include "PersistentElementManager.h"
 #include "Crank.h"
 #include "Ignition.h"
@@ -42,6 +43,13 @@ Engine engine;
 TypeId engineTypeId = INVALID_TYPE_ID;
 
 
+void InitDefaultCogwheel()
+{
+    engine.cogwheel.cogTotal = GetDefaultCogTotal();
+    engine.cogwheel.gapSize = GetDefaultGapSize();
+    engine.cogwheel.offset = GetDefaultDeadPointOffset();
+}
+
 int ValidCog(int number)
 {
     int total = GetCogTotal();
@@ -51,18 +59,15 @@ int ValidCog(int number)
     {
         return 1;
     }
-    else if (number <= effective)
+    if (number <= effective)
     {
         return number;
     }
-    else if (total - number < number - effective)
+    if (total - number < number - effective)
     {
         return 1;
     }
-    else
-    {
-        return effective;
-    }
+    return effective;
 }
 
 
@@ -86,6 +91,14 @@ Status InitDeadPointCallbacks()
         status = SetCogCountCallback(&DeadPointCallback, cogNumber);
     }
     return status;
+}
+
+
+bool ValidCogwheelProperties(int cogTotal, int gapSize, int offset)
+{
+	return
+        ((3 <= cogTotal) && (cogTotal <= 255) && (1 <= gapSize) && (gapSize <= cogTotal - 2) && (1 <= offset) && (offset < cogTotal - gapSize)) ||
+        ((2 <= cogTotal) && (cogTotal <= 255) && (gapSize == 0));
 }
 
 
@@ -119,22 +132,24 @@ Status InitEngine()
 {
     Reference reference;
     Status status = FindFirst(engineTypeId, &reference);
-    if (status == OK)
-    {
-        status = GetElement(reference, sizeof(engine), &engine);
+	if (status == OK)
+	{
+		status = GetElement(reference, sizeof(engine), &engine);
+	}
+	else
+	{
+		InitDefaultCogwheel();
+	    engine.cylinderCount = GetDefaultCylinderCount();
+		status = AllocateElement(engineTypeId, sizeof(engine), &reference);
+		if (status == OK)
+		{
+			status = StoreElement(&engine, reference, sizeof(engine));
+		}
     }
-    else
-    {
-        engine.cogwheel.cogTotal = 60;
-        engine.cogwheel.gapSize = 2;
-        engine.cogwheel.offset = 20;
-        engine.cylinderCount = 4;
-        status = AllocateElement(engineTypeId, sizeof(engine), &reference);
-        if (status == OK)
-        {
-            status = StoreElement(&engine, reference, sizeof(engine));
-        }
-    }
+	if (!IsCogwheelMutable())
+	{
+		InitDefaultCogwheel();
+	}
     InitCrank();
     if (status == OK)
     {
@@ -214,44 +229,35 @@ int GetCylinderCount()
 
 Status SetGogwheelProperties(int cogTotal, int gapSize, int offset)
 {
-    if (! EngineIsRunning())
-    {
-        if (((3 <= cogTotal) && (cogTotal <= 255) && (1 <= gapSize) && (gapSize <= cogTotal - 2) && (1 <= offset) && (offset < cogTotal - gapSize)) ||
-        	((2 <= cogTotal) && (cogTotal <= 255) && (gapSize == 0)))
-        {
-            engine.cogwheel.cogTotal = (uint8_t) cogTotal;
-            engine.cogwheel.gapSize = (uint8_t) gapSize;
-            engine.cogwheel.offset = (uint8_t) offset;
-            return StoreEngine();
-        }
-        else
-        {
-            return "InvalidCogwheelProperties";
-        }
-    }
-    else
+	if (!IsCogwheelMutable())
+	{
+		return DISABLED;
+	}
+    if (EngineIsRunning())
     {
         return ENGINE_IS_RUNNING;
     }
+    if (!ValidCogwheelProperties(cogTotal, gapSize, offset))
+    {
+    	return "InvalidCogwheelProperties";
+	}
+	engine.cogwheel.cogTotal = (uint8_t) cogTotal;
+	engine.cogwheel.gapSize = (uint8_t) gapSize;
+	engine.cogwheel.offset = (uint8_t) offset;
+	return StoreEngine();
 }
 
 
 Status SetCylinderCount(int count)
 {
-    if (! EngineIsRunning())
-    {
-        if ((count == 4) || (count == 6) || (count == 8))
-        {
-            engine.cylinderCount = (uint8_t) count;
-            return StoreEngine();
-        }
-        else
-        {
-            return "InvalidCylinderCount";
-        }
-    }
-    else
+    if (EngineIsRunning())
     {
         return ENGINE_IS_RUNNING;
     }
+    if ((count != 4) && (count != 6) && (count != 8))
+    {
+        return "InvalidCylinderCount";
+    }
+    engine.cylinderCount = (uint8_t) count;
+    return StoreEngine();
 }

@@ -15,6 +15,7 @@
 #include "JsonWriter.h"
 #include "JsonParser.h"
 
+#include "Configuration.h"
 #include "Engine.h"
 #include "Crank.h"
 #include "Ignition.h"
@@ -242,6 +243,7 @@ Status PutCogwheel()
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COG_TOTAL, GetCogTotal()));
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, GAP_SIZE, GetGapSize()));
     VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, OFFSET, GetDeadPointOffset()));
+    VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, "Mutable", IsCogwheelMutable()));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 

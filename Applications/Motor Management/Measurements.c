@@ -13,7 +13,7 @@
 
 const char RPM[] = "RPM";
 const char LOAD[] = "Load";
-const char MAP_SENSOR[] = "MapSensor";
+const char MAP_SENSOR[] = "Map";
 const char SPARE[] = "Spare";
 
 

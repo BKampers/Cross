@@ -248,6 +248,10 @@ Status StartPwmTimer(int period)
 
 Status SetPwmDutyCycle(int dutyCycle)
 {
+	if (TIM_OCInitStructure.TIM_Pulse == pwmDutyCycle)
+	{
+		return OK;
+	}
 	if ((dutyCycle < 0 ) || (TIM_TimeBaseStructure.TIM_Period < dutyCycle))
 	{
 		return INVALID_PARAMETER;
