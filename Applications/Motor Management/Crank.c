@@ -177,7 +177,8 @@ float GetRpm()
     {
 //        float spr = ticks / 60000.0f;
 //        return 60.0f / spr;
-    	return (60000.0f * 60.0f) / ticks;
+//    	return (60000.0f * 60.0f) / ticks;
+    	return 26901000.0f / ticks;
     }
     else
     {

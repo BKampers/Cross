@@ -233,7 +233,7 @@ Status StartPwmTimer(int period)
     /* PWM1 Mode configuration: Channel1 */
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 0;
+    TIM_OCInitStructure.TIM_Pulse = period;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
     TIM_OC1Init(TIM4, &TIM_OCInitStructure);
@@ -248,7 +248,7 @@ Status StartPwmTimer(int period)
 
 Status SetPwmDutyCycle(int dutyCycle)
 {
-	if (TIM_OCInitStructure.TIM_Pulse == pwmDutyCycle)
+	if (TIM_OCInitStructure.TIM_Pulse == dutyCycle)
 	{
 		return OK;
 	}
@@ -256,9 +256,11 @@ Status SetPwmDutyCycle(int dutyCycle)
 	{
 		return INVALID_PARAMETER;
 	}
+//	TIM_Cmd(TIM4, DISABLE);
 	pwmDutyCycle = (uint16_t) dutyCycle;
 	TIM_OCInitStructure.TIM_Pulse = pwmDutyCycle;
     TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+//    TIM_Cmd(TIM4, ENABLE);
     return OK;
 }
 

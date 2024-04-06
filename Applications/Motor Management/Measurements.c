@@ -55,19 +55,19 @@ Status GetLoadValue(float* value)
 
 Status GetWaterTemperatureValue(float* value)
 {
-    return GetAnalogMeasurement(1, value);
+    return GetAnalogMeasurement(3, value);
 }
 
 
 Status GetMapSensorValue(float* value)
 {
-    return GetAnalogMeasurement(2, value);
+    return GetAnalogMeasurement(1, value);
 }
 
 
 Status GetSpareValue(float* value)
 {
-    return GetAnalogMeasurement(3, value);
+    return GetAnalogMeasurement(2, value);
 }
 
 

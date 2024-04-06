@@ -25,7 +25,7 @@
 #include "stm32f10x_gpio.h"
 
 #define IGNITION_ANGLE_BASE 60
-#define IGNITION_PWM_PERIOD 100
+#define IGNITION_PWM_PERIOD 500
 #define IGNITION_PWM_RESOLUTION 0.5f
 
 #define DEGREES_PER_COG (360.0f / GetCogTotal())
@@ -250,7 +250,7 @@ Status UpdateIgnition()
     if (PwmIgnitionEnabled())
     {
     	ignitionDutyCycle = angle;
-    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / IGNITION_PWM_RESOLUTION))));
+    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / 50 * IGNITION_PWM_PERIOD))));
     }
     if (TimerIgnitionEnabled())
     {
