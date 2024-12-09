@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Configuration.h"
 #include "MeasurementTable.h"
 
 #include "HardwareSettings.h"
@@ -25,43 +26,20 @@
 #define INJECTION_CHANNEL 1
 #define CHANNEL_BUFFER_SIZE 64
 
-
-#define UART_INJECTION  0x01
-#define TIMER_INJECTION 0x02
-
-
 #define MIN_INJECTION_TIME 0.0f
 #define MAX_INJECTION_TIME 22.0f
 
 
-typedef struct
+CorrectionConfiguration injectionCorrections[] =
 {
-    const char* measurementName;
-    MeasurementTable* table;
-} CorrectionConfiguration;
-
-
-CorrectionConfiguration corrections[] =
-{
-    { WATER_TEMPERATURE, NULL },
-    { AIR_TEMPERATURE, NULL },
-    { BATTERY_VOLTAGE, NULL},
-    { MAP_SENSOR, NULL },
-    { LAMBDA, NULL },
-    { AUX1, NULL },
-    { AUX2, NULL }
 };
 
-#define CORRECTION_COUNT (sizeof(corrections) / sizeof(CorrectionConfiguration))
+#define CORRECTION_COUNT (sizeof(injectionCorrections) / sizeof(CorrectionConfiguration))
 
 
-char CORRECTION_POSTFIX[] = "Correction";
-
-MeasurementTable* injectionTable;
+MeasurementTable* injectionTable = NULL;
 
 float injectionTime = 0.0f;
-
-byte injectionMode = TIMER_INJECTION;
 
 
 Status UpdateInjectionTimeUart()
@@ -78,33 +56,15 @@ Status UpdateInjectionTime()
 {
     Status uartStatus = OK;
     Status timerStatus = OK;
-    if ((injectionMode & UART_INJECTION) != 0)
+    if ((GetInjectionMode() & UART_INJECTION) != 0)
     {
         uartStatus = UpdateInjectionTimeUart();
     }
-    if ((injectionMode & TIMER_INJECTION) != 0)
+    if ((GetInjectionMode() & TIMER_INJECTION) != 0)
     {
         timerStatus = SetInjectionTimer(injectionTime);
     }
     return (uartStatus != OK) ? uartStatus : timerStatus;
-}
-
-
-Status CreateCorrectionTable(const char* measurementName, MeasurementTable** correctionTable)
-{
-    size_t nameLength = strlen(measurementName) + strlen(CORRECTION_POSTFIX);
-    char* tableName = malloc(nameLength + 1);
-    strcpy(tableName, measurementName);
-    strcat(tableName, CORRECTION_POSTFIX);
-    Status status = CreateMeasurementTable(tableName, measurementName, NULL, 10, 1, correctionTable);
-    if (status == OK)
-    {
-        (*correctionTable)->precision = 1.0f;
-        (*correctionTable)->minimum = -150.0f;
-        (*correctionTable)->maximum = 150.0f;
-        (*correctionTable)->decimals = 0;
-    }
-    return status;
 }
 
 
@@ -117,6 +77,10 @@ char INJECTION[] = "Injection";
 
 Status InitInjection()
 {
+	if (GetInjectionMode() == INJECTION_DISABLED)
+	{
+		return DISABLED;
+	}
     Status status = CreateMeasurementTable(INJECTION, LOAD, RPM, 20, 20, &injectionTable);
     if (status == OK)
     {
@@ -130,7 +94,7 @@ Status InitInjection()
             injectionTable->decimals = 1;
             for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
             {
-                status = CreateCorrectionTable(corrections[i].measurementName, &(corrections[i].table));
+                status = CreateCorrectionTable(injectionCorrections[i].measurementName, &(injectionCorrections[i].table));
             }
         }
     }
@@ -138,7 +102,7 @@ Status InitInjection()
     {
         Status channelStatus = OK;
         Status timerStatus = OK;
-        if ((injectionMode & UART_INJECTION) != 0)
+        if ((GetInjectionMode() & UART_INJECTION) != 0)
         {
             channelStatus = OpenCommunicationChannel(INJECTION_CHANNEL, CHANNEL_BUFFER_SIZE);
             if (channelStatus == OK)
@@ -146,7 +110,7 @@ Status InitInjection()
                 channelStatus = UpdateInjectionTimeUart();
             }
         }
-        if ((injectionMode & TIMER_INJECTION) != 0)
+        if ((GetInjectionMode() & TIMER_INJECTION) != 0)
         {
             timerStatus = InitInjectionTimer();
             if (timerStatus == OK)
@@ -169,6 +133,10 @@ float GetInjectionTime()
 Status UpdateInjection()
 {
     float time;
+	if (GetInjectionMode() == INJECTION_DISABLED)
+	{
+		return DISABLED;
+	}
     Status status = GetActualMeasurementTableField(injectionTable, &time);
     if (status == OK)
     {
@@ -176,7 +144,7 @@ Status UpdateInjection()
         float totalCorrectionPercentage = 0.0f;
         for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
         {
-            MeasurementTable* table = corrections[i].table;
+            MeasurementTable* table = injectionCorrections[i].table;
             if (table != NULL)
             {
                 bool enabled;

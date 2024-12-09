@@ -6,7 +6,7 @@
 #include "Types.h"
 #include "Json.h"
 
-void Initialize(const char* source, JsonNode* node);
+void Initialize(char* source, JsonNode* node);
 
 JsonStatus AllocateString(const JsonNode* object, const char* name, char** value);
 JsonStatus GetDouble(const JsonNode* object, const char* name, double* value);

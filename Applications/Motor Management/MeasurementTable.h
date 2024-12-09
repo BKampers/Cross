@@ -25,7 +25,15 @@ typedef struct
 } MeasurementTable;
 
 
+typedef struct
+{
+    const char* measurementName;
+    MeasurementTable* table;
+} CorrectionConfiguration;
+
+
 Status CreateMeasurementTable(const char* name, const char* columnMeasurementName, const char* rowMeasurementName, byte columns, byte rows, MeasurementTable** measurementTable);
+Status CreateCorrectionTable(const char* measurementName, MeasurementTable** correctionTable);
 
 int GetMeasurementTableCount();
 Status GetMeasurementTable(int index, MeasurementTable** table);

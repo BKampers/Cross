@@ -8,14 +8,15 @@
 
 typedef char* Status;
 
-
-extern char UNINITIALIZED[];
 extern char OK[];
-extern char NOT_IMPLEMENTED[];
-extern char INVALID_PARAMETER[];
-extern char INVALID_ID[];
-extern char OUT_OF_MEMORY[];
+extern char DISABLED[];
+
 extern char BUFFER_OVERFLOW[];
+extern char INVALID_ID[];
+extern char INVALID_PARAMETER[];
+extern char NOT_IMPLEMENTED[];
+extern char OUT_OF_MEMORY[];
+extern char UNINITIALIZED[];
 extern char WRITE_ERROR[];
 
 int min(int a, int b);

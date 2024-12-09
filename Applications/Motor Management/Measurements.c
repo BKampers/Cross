@@ -13,37 +13,22 @@
 
 const char RPM[] = "RPM";
 const char LOAD[] = "Load";
-const char WATER_TEMPERATURE[] = "Water";
-const char AIR_TEMPERATURE[] = "Air";
-const char BATTERY_VOLTAGE[] = "Battery";
 const char MAP_SENSOR[] = "Map";
-const char LAMBDA[] = "Lambda";
-const char AUX1[] = "Aux1";
-const char AUX2[] = "Aux2";
+const char SPARE[] = "Spare";
 
 
 Status GetRpmValue(float* value);
 Status GetLoadValue(float* value);
-Status GetWaterTemperatureValue(float* value);
-Status GetAirTemperatureValue(float* value);
-Status GetBatteryVoltageValue(float* value);
 Status GetMapSensorValue(float* value);
-Status GetLambdaValue(float* value);
-Status GetAux1Value(float* value);
-Status GetAux2Value(float* value);
+Status GetSpareValue(float* value);
 
 
 Measurement measurements[] =
 { /*  Name                 GetValue                 format  minimum   maximum  simulation*/
     { RPM,               &GetRpmValue,              "%5d",     0.0f, 10000.0f, NULL },
     { LOAD,              &GetLoadValue,             "%3.1f",   0.0f,   100.0f, NULL },
-    { WATER_TEMPERATURE, &GetWaterTemperatureValue, "%3.1f",   0.0f,   100.0f, NULL },
-    { AIR_TEMPERATURE,   &GetAirTemperatureValue,   "%3.1f", -50.0f,   200.0f, NULL },
-    { BATTERY_VOLTAGE,   &GetBatteryVoltageValue,   "%2.1f",   0.0f,    30.0f, NULL },
     { MAP_SENSOR,        &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL },
-    { LAMBDA,            &GetLambdaValue,           "%3.1f",   0.0f,   100.0f, NULL },
-    { AUX1,              &GetAux1Value,             "%3.1f",   0.0f,   100.0f, NULL },
-    { AUX2,              &GetAux2Value,             "%3.1f",   0.0f,   100.0f, NULL }
+    { SPARE,             &GetSpareValue,            "%3.1f",   0.0f,   100.0f, NULL }
 };
 
 #define MEASUREMENT_COUNT (sizeof(measurements) / sizeof(Measurement))
@@ -68,45 +53,15 @@ Status GetLoadValue(float* value)
 }
 
 
-Status GetWaterTemperatureValue(float* value)
+Status GetMapSensorValue(float* value)
 {
     return GetAnalogMeasurement(1, value);
 }
 
 
-Status GetAirTemperatureValue(float* value)
+Status GetSpareValue(float* value)
 {
     return GetAnalogMeasurement(2, value);
-}
-
-
-Status GetBatteryVoltageValue(float* value)
-{
-    return GetAnalogMeasurement(3, value);
-}
-
-
-Status GetMapSensorValue(float* value)
-{
-    return GetAnalogMeasurement(4, value);
-}
-
-
-Status GetLambdaValue(float* value)
-{
-    return GetAnalogMeasurement(5, value);
-}
-
-
-Status GetAux1Value(float* value)
-{
-    return GetAnalogMeasurement(6, value);
-}
-
-
-Status GetAux2Value(float* value)
-{
-    return GetAnalogMeasurement(7, value);
 }
 
 

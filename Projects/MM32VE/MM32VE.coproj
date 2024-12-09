@@ -16,6 +16,7 @@
           <Define name="STM32F10X_HD"/>
           <Define name="USE_STDPERIPH_DRIVER"/>
           <Define name="__ASSEMBLY__"/>
+          <Define name="PWM_IGNITITION"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -34,7 +35,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/mm32ve/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="../../../../../../../coocox/coide/configuration/programdata/mm32ve/link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -70,23 +71,11 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Components path="./">
-    <Component id="30" name="C Library" path="" type="2"/>
-    <Component id="50" name="CMSIS core" path="" type="2"/>
-    <Component id="440" name="RCC" path="" type="2"/>
-    <Component id="444" name="GPIO" path="" type="2"/>
-    <Component id="445" name="EXTI" path="" type="2"/>
-    <Component id="446" name="DMA" path="" type="2"/>
-    <Component id="455" name="FLASH" path="" type="2"/>
-    <Component id="456" name="TIM" path="" type="2"/>
-    <Component id="457" name="ADC" path="" type="2"/>
-    <Component id="458" name="USART" path="" type="2"/>
-    <Component id="460" name="CMSIS Boot" path="" type="2"/>
-    <Component id="467" name="MISC" path="" type="2"/>
-  </Components>
+  <Components path="./"/>
   <Files>
     <File name="Motor Management/Ignition.c" path="../../Applications/Motor Management/Ignition.c" type="1"/>
     <File name="Cross/Generic" path="" type="2"/>
+    <File name="Motor Management/RpmIndication.c" path="../../Applications/Motor Management/RpmIndication.c" type="1"/>
     <File name="Cross/STM32/FlashDriver.c" path="../../Platforms/STM32/FlashDriver.c" type="1"/>
     <File name="Motor Management/Measurements.c" path="../../Applications/Motor Management/Measurements.c" type="1"/>
     <File name="Cross/Generic/PersistentElementManager.c" path="../../Generic/PersistentElementManager.c" type="1"/>
@@ -101,56 +90,58 @@
     <File name="cmsis_boot/startup/startup_stm32f10x_hd.c" path="cmsis_boot/startup/startup_stm32f10x_hd.c" type="1"/>
     <File name="stm_lib/src/misc.c" path="stm_lib/src/misc.c" type="1"/>
     <File name="Cross/STM32/FlashDefinitions.h" path="../../Platforms/STM32/FlashDefinitions.h" type="1"/>
-    <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
-    <File name="Cross/API/Types.h" path="../../API/Types.h" type="1"/>
-    <File name="Motor Management/Messaging.c" path="../../Applications/Motor Management/Messaging.c" type="1"/>
     <File name="Cross/API/PersistentMemoryDriver.h" path="../../API/PersistentMemoryDriver.h" type="1"/>
+    <File name="Cross/API/Types.h" path="../../API/Types.h" type="1"/>
+    <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="Motor Management/Injection.h" path="../../Applications/Motor Management/Injection.h" type="1"/>
-    <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
+    <File name="Motor Management/Messaging.c" path="../../Applications/Motor Management/Messaging.c" type="1"/>
     <File name="Cross/API/JsonMessaging.h" path="../../API/JsonMessaging.h" type="1"/>
+    <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
     <File name="Cross/STM32/ExternalInterrupt.c" path="../../Platforms/STM32/ExternalInterrupt.c" type="1"/>
     <File name="Cross/API/JsonWriter.h" path="../../API/JsonWriter.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_flash.h" path="stm_lib/inc/stm32f10x_flash.h" type="1"/>
     <File name="Cross/Generic/JsonParser.c" path="../../Generic/JsonParser.c" type="1"/>
     <File name="Cross/API/Json.h" path="../../API/Json.h" type="1"/>
-    <File name="Cross/STM32" path="" type="2"/>
     <File name="Cross/Generic/Json.c" path="../../Generic/Json.c" type="1"/>
+    <File name="Cross/STM32" path="" type="2"/>
     <File name="syscalls/syscalls.c" path="syscalls/syscalls.c" type="1"/>
     <File name="Cross/STM32/Pins.c" path="../../Platforms/STM32/Pins.c" type="1"/>
-    <File name="Motor Management/InjectionTimer.c" path="../../Applications/Motor Management/InjectionTimer.c" type="1"/>
-    <File name="stm_lib/src/stm32f10x_adc.c" path="stm_lib/src/stm32f10x_adc.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_dma.h" path="stm_lib/inc/stm32f10x_dma.h" type="1"/>
+    <File name="stm_lib/src/stm32f10x_adc.c" path="stm_lib/src/stm32f10x_adc.c" type="1"/>
+    <File name="Motor Management/InjectionTimer.c" path="../../Applications/Motor Management/InjectionTimer.c" type="1"/>
     <File name="Cross/API/Timers.h" path="../../API/Timers.h" type="1"/>
     <File name="Cross/API/Lcd.h" path="../../API/Lcd.h" type="1"/>
     <File name="Cross/Generic/Communication.c" path="../../Generic/Communication.c" type="1"/>
     <File name="Motor Management/Measurements.h" path="../../Applications/Motor Management/Measurements.h" type="1"/>
     <File name="Cross/STM32/UsartCommunication.c" path="../../Platforms/STM32/UartJson.c" type="1"/>
     <File name="Motor Management/MeasurementTable.h" path="../../Applications/Motor Management/MeasurementTable.h" type="1"/>
-    <File name="Motor Management/Messaging.h" path="../../Applications/Motor Management/Messaging.h" type="1"/>
     <File name="stm_lib/src/stm32f10x_usart.c" path="stm_lib/src/stm32f10x_usart.c" type="1"/>
+    <File name="Motor Management/Messaging.h" path="../../Applications/Motor Management/Messaging.h" type="1"/>
     <File name="Cross/API/AnalogInput.h" path="../../API/AnalogInput.h" type="1"/>
     <File name="Cross" path="" type="2"/>
     <File name="stm_lib/src/stm32f10x_gpio.c" path="stm_lib/src/stm32f10x_gpio.c" type="1"/>
-    <File name="Cross/Generic/JsonMessaging.c" path="../../Generic/JsonMessaging.c" type="1"/>
     <File name="Motor Management/Crank.c" path="../../Applications/Motor Management/Crank.c" type="1"/>
     <File name="Motor Management/Ignition.h" path="../../Applications/Motor Management/Ignition.h" type="1"/>
-    <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>
-    <File name="stm_lib/inc/stm32f10x_gpio.h" path="stm_lib/inc/stm32f10x_gpio.h" type="1"/>
+    <File name="Cross/Generic/JsonMessaging.c" path="../../Generic/JsonMessaging.c" type="1"/>
     <File name="Motor Management/main.c" path="../../Applications/Motor Management/main.c" type="1"/>
+    <File name="stm_lib/inc/stm32f10x_gpio.h" path="stm_lib/inc/stm32f10x_gpio.h" type="1"/>
+    <File name="Cross/STM32/AnalogInput.c" path="../../Platforms/STM32/AnalogInput.c" type="1"/>
     <File name="Cross/API/ApiStatus.h" path="../../API/ApiStatus.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_usart.h" path="stm_lib/inc/stm32f10x_usart.h" type="1"/>
     <File name="Cross/STM32/GPIO_LCD1602.c" path="../../Platforms/STM32/GPIO_LCD1602.c" type="1"/>
-    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
-    <File name="Cross/Generic/ApiStatus.c" path="../../Generic/ApiStatus.c" type="1"/>
     <File name="Motor Management/Table.h" path="../../Applications/Motor Management/Table.h" type="1"/>
+    <File name="Cross/Generic/ApiStatus.c" path="../../Generic/ApiStatus.c" type="1"/>
+    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
     <File name="stm_lib/inc/misc.h" path="stm_lib/inc/misc.h" type="1"/>
     <File name="Motor Management/MeasurementTable.c" path="../../Applications/Motor Management/MeasurementTable.c" type="1"/>
+    <File name="Motor Management/Configuration.h" path="../../Applications/Motor Management/Configuration.h" type="1"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
-    <File name="Cross/API/Communication.h" path="../../API/Communication.h" type="1"/>
     <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
+    <File name="Cross/API/Communication.h" path="../../API/Communication.h" type="1"/>
     <File name="stm_lib/src/stm32f10x_exti.c" path="stm_lib/src/stm32f10x_exti.c" type="1"/>
     <File name="stm_lib/src/stm32f10x_rcc.c" path="stm_lib/src/stm32f10x_rcc.c" type="1"/>
     <File name="Cross/API/Pins.h" path="../../API/Pins.h" type="1"/>
+    <File name="Motor Management/RpmIndication.h" path="../../Applications/Motor Management/RpmIndication.h" type="1"/>
     <File name="Cross/STM32/Timers.c" path="../../Platforms/STM32/Timers.c" type="1"/>
     <File name="Cross/API/JsonParser.h" path="../../API/JsonParser.h" type="1"/>
     <File name="Motor Management/Injection.c" path="../../Applications/Motor Management/Injection.c" type="1"/>
@@ -160,16 +151,17 @@
     <File name="cmsis" path="" type="2"/>
     <File name="stm_lib" path="" type="2"/>
     <File name="Motor Management/Engine.h" path="../../Applications/Motor Management/Engine.h" type="1"/>
-    <File name="Motor Management/Crank.h" path="../../Applications/Motor Management/Crank.h" type="1"/>
     <File name="stm_lib/inc/stm32f10x_exti.h" path="stm_lib/inc/stm32f10x_exti.h" type="1"/>
-    <File name="stm_lib/src/stm32f10x_flash.c" path="stm_lib/src/stm32f10x_flash.c" type="1"/>
+    <File name="Motor Management/Crank.h" path="../../Applications/Motor Management/Crank.h" type="1"/>
     <File name="Cross/Generic/JsonWriter.c" path="../../Generic/JsonWriter.c" type="1"/>
+    <File name="stm_lib/src/stm32f10x_flash.c" path="stm_lib/src/stm32f10x_flash.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_adc.h" path="stm_lib/inc/stm32f10x_adc.h" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
     <File name="Motor Management/Table.c" path="../../Applications/Motor Management/Table.c" type="1"/>
     <File name="stm_lib/inc/stm32f10x_rcc.h" path="stm_lib/inc/stm32f10x_rcc.h" type="1"/>
     <File name="Cross/API/ExternalInterrupt.h" path="../../API/ExternalInterrupt.h" type="1"/>
     <File name="syscalls" path="" type="2"/>
+    <File name="Motor Management/Configuration.c" path="../../Applications/Motor Management/Configuration.c" type="1"/>
     <File name="Cross/API/PersistentElementManager.h" path="../../API/PersistentElementManager.h" type="1"/>
     <File name="stm_lib/inc" path="" type="2"/>
     <File name="Cross/API" path="" type="2"/>

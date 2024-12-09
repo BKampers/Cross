@@ -1,13 +1,15 @@
 #include "ApiStatus.h"
 
 
-char UNINITIALIZED[] = "Uninitialized";
+char DISABLED[] = "Disabled";
 char OK[] = "OK";
-char NOT_IMPLEMENTED[] = "NotImplemented";
-char INVALID_PARAMETER[] = "InvalidParameter";
-char INVALID_ID[] = "InvalidId";
-char OUT_OF_MEMORY[] = "OutOfMemory";
+
 char BUFFER_OVERFLOW[] = "BufferOverflow";
+char INVALID_ID[] = "InvalidId";
+char INVALID_PARAMETER[] = "InvalidParameter";
+char NOT_IMPLEMENTED[] = "NotImplemented";
+char OUT_OF_MEMORY[] = "OutOfMemory";
+char UNINITIALIZED[] = "Uninitialized";
 char WRITE_ERROR[] = "WriteError";
 
 

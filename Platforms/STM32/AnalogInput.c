@@ -9,7 +9,7 @@
 
 #define ADC1_DR_Address ((uint32_t) 0x4001244C)
 
-#define NUMBER_OF_ADC_CHANNELS 8
+#define NUMBER_OF_ADC_CHANNELS 4
 
 
 char* INVALID_ADC_INDEX = "Invalid ADC index";
@@ -54,14 +54,10 @@ void InitAnalogInput()
     ADC_InitStructure.ADC_NbrOfChannel = NUMBER_OF_ADC_CHANNELS;
     ADC_Init(ADC1, &ADC_InitStructure);
 
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 3, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 4, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 5, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 6, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 7, ADC_SampleTime_55Cycles5);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_15, 8, ADC_SampleTime_55Cycles5);
+    for (uint8_t channel = ADC_Channel_0; channel < NUMBER_OF_ADC_CHANNELS; ++channel)
+    {
+    	ADC_RegularChannelConfig(ADC1, channel, channel + 1, ADC_SampleTime_55Cycles5);
+    }
 
     ADC_DMACmd(ADC1, ENABLE);
     ADC_Cmd(ADC1, ENABLE);

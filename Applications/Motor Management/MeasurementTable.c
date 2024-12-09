@@ -16,6 +16,8 @@
 
 #define ENABLED_MASK 0x01
 
+char CORRECTION_POSTFIX[] = "Correction";
+
 
 MeasurementTable measurementTables[MAX_MEASUREMENT_TABLES];
 int measurementTableCount = 0;
@@ -130,6 +132,24 @@ Status CreateMeasurementTable(const char* name, const char* columnMeasurementNam
 }
 
 
+Status CreateCorrectionTable(const char* measurementName, MeasurementTable** correctionTable)
+{
+    size_t nameLength = strlen(measurementName) + strlen(CORRECTION_POSTFIX);
+    char* tableName = malloc(nameLength + 1);
+    strcpy(tableName, measurementName);
+    strcat(tableName, CORRECTION_POSTFIX);
+    Status status = CreateMeasurementTable(tableName, measurementName, NULL, 20, 1, correctionTable);
+    if (status == OK)
+    {
+        (*correctionTable)->precision = 0.5f;
+        (*correctionTable)->minimum = -50.0f;
+        (*correctionTable)->maximum = 50.0f;
+        (*correctionTable)->decimals = 0;
+    }
+    return status;
+}
+
+
 int GetMeasurementTableCount()
 {
     return measurementTableCount;
@@ -168,6 +188,10 @@ Status FindMeasurementTable(const char* name, MeasurementTable** table)
 Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue)
 {
     TableField field;
+	if (measurementTable == NULL)
+	{
+		return UNINITIALIZED;
+	}
     Status status = GetActualTableControllerField(measurementTable, &field);
     if (status == OK)
     {
