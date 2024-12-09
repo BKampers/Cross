@@ -93,7 +93,7 @@ int ignitionTicks = 0;
 
 void StopIgnition()
 {
-    ResetOutputPins(ALL_IGNITION_PINS);
+    ResetMmOutputPins(ALL_IGNITION_PINS);
 }
 
 
@@ -250,6 +250,7 @@ Status UpdateIgnition()
     if (PwmIgnitionEnabled())
     {
     	ignitionDutyCycle = angle;
+    	ignitionAngle = (int) angle;
     	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / 50 * IGNITION_PWM_PERIOD))));
     }
     if (TimerIgnitionEnabled())
@@ -273,7 +274,7 @@ void StartIgnition(int cogNumber)
 		if ((0 <= deadPointIndex) && (deadPointIndex < DEAD_POINT_MAX))
 		{
 			uint16_t cylinderPin = ignitionPins[deadPointIndex][phase];
-			SetOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
+			SetMmOutputPins(GLOBAL_IGNITION_PIN | cylinderPin);
 		}
 		ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
 		ignitionTimeStatus = StartPeriodTimer(ignitionTicks);

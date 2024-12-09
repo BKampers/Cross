@@ -20,7 +20,9 @@
 #include "Crank.h"
 #include "Ignition.h"
 #include "Injection.h"
+#include "RpmIndication.h"
 
+#include "Table.h"
 #include "MeasurementTable.h"
 #include "Measurements.h"
 
@@ -70,6 +72,11 @@ bool FitsWord(int value)
 }
 
 
+bool IsPlainTable(const char* tableName)
+{
+    return strcmp(tableName, RPM_INDICATION) == 0;
+}
+
 Status PutMeasurementSimulation(const char* measurementName, Status* status)
 {
     RETURN_WHEN_INVALID
@@ -114,6 +121,25 @@ Status PutMeasurementProperties(const char* measurementName, Status* status)
         }
     }
     return (WriteJsonObjectEnd(DEFAULT_CHANNEL));    
+}
+
+
+Status PutPlainTableProperties(const char* tableName, Status* status)
+{
+    RETURN_WHEN_INVALID
+    Table table;
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
+    *status = FindTable(tableName, &table);
+    if (*status == OK)
+    {
+        VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, TRUE));
+        VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MINIMUM, 0.0f));
+        VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, MAXIMUM, 10000.0f));
+        VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, PRECISION, 1.0f));
+        VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, DECIMALS, 0));
+    }
+    return (WriteJsonObjectEnd(DEFAULT_CHANNEL));
 }
 
 
@@ -162,6 +188,77 @@ Status PutMeasurementTableActualValues(const char* tableName, Status* status)
         VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex));
     }
     return (WriteJsonObjectEnd(DEFAULT_CHANNEL));    
+}
+
+Status PutTableFields(const char* tableName, Status* status)
+{
+	RETURN_WHEN_INVALID
+	Table table;
+	VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL))
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, FIELDS))
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+    *status = FindTable(tableName, &table);
+	if (*status == OK)
+	{
+	    byte column, row;
+	    for (row = 0; row < table.rows; ++row)
+	    {
+            VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL))
+            for (column = 0; column < table.columns; ++column)
+            {
+            	TableField value;
+            	*status = GetTableField(tableName, column, row, &value);
+                if (*status == OK)
+                {
+                    VALIDATE(WriteJsonRealElement(DEFAULT_CHANNEL, value))
+                }
+                else
+                {
+                    VALIDATE(WriteJsonNullElement(DEFAULT_CHANNEL))
+                }
+            }
+            VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+	    }
+	}
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL))
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
+Status PutPlainTableFields(const char* tableName, Status* status)
+{
+    RETURN_WHEN_INVALID
+    Table table;
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName))
+    VALIDATE(WriteJsonMemberName(DEFAULT_CHANNEL, FIELDS));
+    VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+	*status = FindTable(tableName, &table);
+	if (*status == OK)
+	{
+        byte column, row;
+        for (row = 0; row < table.rows; ++row)
+        {
+            VALIDATE(WriteJsonArrayStart(DEFAULT_CHANNEL));
+            for (column = 0; column < table.columns; ++column)
+            {
+            	TableField value;
+                *status = GetTableField(tableName, column, row, &value);
+                if (*status == OK)
+                {
+                    VALIDATE(WriteJsonRealElement(DEFAULT_CHANNEL, value));
+                }
+                else
+                {
+                    VALIDATE(WriteJsonNullElement(DEFAULT_CHANNEL));
+                }
+            }
+            VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
+        }
+    }
+    VALIDATE(WriteJsonArrayEnd(DEFAULT_CHANNEL));
+    return (WriteJsonObjectEnd(DEFAULT_CHANNEL));
 }
 
 
@@ -392,6 +489,7 @@ Status CallGetTableNames(const JsonNode* parameters, Status* status)
             VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, measurementTable->name));
         }
     }
+    VALIDATE(WriteJsonStringElement(DEFAULT_CHANNEL, RPM_INDICATION));
     return WriteJsonArrayEnd(DEFAULT_CHANNEL);
 }
 
@@ -402,7 +500,9 @@ Status CallGetTableProperties(const JsonNode* parameters, Status* status)
     char* tableName;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
-        transportStatus = PutMeasurementTableProperties(tableName, status);
+        transportStatus = (IsPlainTable(tableName))
+            ? PutPlainTableProperties(tableName, status)
+            : PutMeasurementTableProperties(tableName, status);
         free(tableName);
     }
     else
@@ -438,7 +538,9 @@ Status CallGetTableFields(const JsonNode* parameters, Status* status)
     char* tableName;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
-        transportStatus = PutMeasurementTableFields(tableName, status);
+  	    transportStatus = (IsPlainTable(tableName))
+  	        ? PutPlainTableFields(tableName, status)
+  	        : PutMeasurementTableFields(tableName, status);
         free(tableName);
     }
     else
@@ -481,7 +583,9 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
         (GetFloat(parameters, VALUE, &value) == JSON_OK) && 
         (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK))
     {
-        *status = SetMeasurementTableField(tableName, column, row, value);
+    	*status = (IsPlainTable(tableName))
+    	    ? SetTableField(tableName, column, row, value)
+    	    : SetMeasurementTableField(tableName, column, row, value);
         transportStatus = PutMeasurementTableField(tableName, column, row, value);
         free(tableName);
     }

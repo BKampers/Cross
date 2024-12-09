@@ -3,12 +3,25 @@
 
 #include "Types.h"
 
+typedef void* Peripheral;
+
+typedef struct
+{
+	Peripheral peripheral;
+	uint16_t port;
+} Pin;
+
 void InitOutputPins();
 
-void SetOutputPins(uint16_t pins);
-void ResetOutputPins(uint16_t pins);
+void SetMmOutputPins(uint16_t pins);
+void ResetMmOutputPins(uint16_t pins);
 
-bool IsOutputPinSet(uint16_t pin);
+bool IsMmOutputPinSet(uint16_t pin);
+
+void SetOutputPin(Pin* pin);
+void ResetOutputPin(Pin* pin);
+bool IsPinSet(Pin* pin);
+
 
 
 #endif /* _PINS_H_ */

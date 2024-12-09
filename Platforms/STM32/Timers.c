@@ -256,11 +256,9 @@ Status SetPwmDutyCycle(int dutyCycle)
 	{
 		return INVALID_PARAMETER;
 	}
-//	TIM_Cmd(TIM4, DISABLE);
 	pwmDutyCycle = (uint16_t) dutyCycle;
 	TIM_OCInitStructure.TIM_Pulse = pwmDutyCycle;
     TIM_OC1Init(TIM4, &TIM_OCInitStructure);
-//    TIM_Cmd(TIM4, ENABLE);
     return OK;
 }
 

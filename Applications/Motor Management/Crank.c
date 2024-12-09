@@ -40,19 +40,19 @@ int gapTicks = 0;
 
 int previousCapture = 0;
 int previousDelta = 0;
-int c=-1;
+
 bool captured = FALSE;
 
 
 void PhaseShift()
 {
-    if (IsOutputPinSet(TEMP_PHASE_PIN))
+    if (IsMmOutputPinSet(TEMP_PHASE_PIN))
     {
-        ResetOutputPins(TEMP_PHASE_PIN);
+        ResetMmOutputPins(TEMP_PHASE_PIN);
     }
     else
     {
-        SetOutputPins(TEMP_PHASE_PIN);
+        SetMmOutputPins(TEMP_PHASE_PIN);
     }
     phase = 1;
 }
@@ -175,31 +175,15 @@ float GetRpm()
     int ticks = cogTicks;
     if (captured && (ticks > 0))
     {
-//        float spr = ticks / 60000.0f;
-//        return 60.0f / spr;
-//    	return (60000.0f * 60.0f) / ticks;
     	return 26901000.0f / ticks;
     }
-    else
-    {
-        return 0.0f;
-    }
+    return 0.0f;
 }
 
 
 bool EngineIsRunning()
 {
     return captured;
-}
-
-
-int GetCapture()
-{
-	if (captured)
-	{
-		c = previousDelta;
-	}
-	return c;
 }
 
 

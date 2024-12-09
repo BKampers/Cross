@@ -54,7 +54,7 @@ void EndInjection(int channel)
     {
         if ((channel & injector->channel) != 0)
         {
-            ResetOutputPins(injector->pinId);
+            ResetMmOutputPins(injector->pinId);
         }
         injector++;
     }
@@ -78,7 +78,7 @@ Status StartInjection(int cogNumber)
     if ((0 <= index) && (index < INJECTOR_COUNT))
     {
         Injector* injector = &(injectors[index]);
-        SetOutputPins(injector->pinId);
+        SetMmOutputPins(injector->pinId);
         return StartCompareTimer(injector->channel, injectionTicks);
     }
     else
