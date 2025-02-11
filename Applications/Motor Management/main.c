@@ -3,6 +3,7 @@
 ** Author: Bart Kampers
 */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,7 @@
 #include "Table.h"
 #include "Measurements.h"
 
+#include "Configuration.h"
 #include "Crank.h"
 #include "Ignition.h"
 #include "Injection.h"
@@ -31,16 +33,19 @@
 #define INPUT_BUFFER_SIZE 0xFF
 #define MESSAGE_TEXT_LENGTH 64
 
-#define DISPLAY_STATE_IGNITION  0
-#define DISPLAY_STATE_INJECTION 1
 #define DISPLAY_STATE_COUNT 2
 
 #define DISPLAY_REFRESH_RATE 1000
 #define DISPLAY_CYCLE_MAX (DISPLAY_REFRESH_RATE * DISPLAY_STATE_COUNT)
 
+typedef enum
+{
+	DISPLAY_STATE_IGNITION,
+	DISPLAY_STATE_INJECTION
+} DisplayState;
 
 char SYSTEM_NAME[] = "Randd MM32";
-char VERSION[] = "2024-12";
+char VERSION[] = "2025-02";
 
 char input[INPUT_BUFFER_SIZE];
 char message[MESSAGE_TEXT_LENGTH];
@@ -53,7 +58,7 @@ Status rpmIndicationStatus = UNINITIALIZED;
 Status communicationStatus = UNINITIALIZED;
 
 int displayCylceCount = 0;
-
+DisplayState displayState = DISPLAY_STATE_IGNITION;
 
 Measurement* rpmMeasurement;
 Measurement* loadMeasurement;
@@ -61,7 +66,7 @@ Measurement* loadMeasurement;
 
 void CheckPersistentMemoryNotifyCallback(Reference reference)
 {
-    if ((reference % 0x10) == 0)
+    if ((reference % 0x100) == 0)
     {
         sprintf(text, "Init memory %04X", reference);
         PutLcd(0, 1, text);
@@ -70,12 +75,26 @@ void CheckPersistentMemoryNotifyCallback(Reference reference)
 }
 
 
+void nextDisplayState() {
+	switch (displayState)
+	{
+		case DISPLAY_STATE_IGNITION:
+			displayState = (GetInjectionMode() == INJECTION_DISABLED) ? DISPLAY_STATE_IGNITION : DISPLAY_STATE_INJECTION;
+			break;
+		case DISPLAY_STATE_INJECTION:
+		default:
+			displayState = DISPLAY_STATE_IGNITION;
+			break;
+	}
+}
+
+
 void UpdateDisplay()
 {
     if ((displayCylceCount % DISPLAY_REFRESH_RATE) == 0)
     {
-        float load = -1.0f;
-        float rpm = -1.0f;
+        float load = NAN;
+        float rpm = NAN;
         if (rpmMeasurement != NULL)
         {
             GetMeasurementValue(rpmMeasurement, &rpm);
@@ -84,17 +103,15 @@ void UpdateDisplay()
         {
             GetMeasurementValue(loadMeasurement, &load);
         }
-        switch (displayCylceCount / DISPLAY_REFRESH_RATE)
+        switch (displayState)
         {
             case DISPLAY_STATE_IGNITION:
                 sprintf(text, "%5.0f%6.1f%5d", rpm, load, GetIgnitionAngle());
                 PutLcd(0, 0, "  RPM  LOAD  IGN");
-//                SetOutputPins(0x0000);
                 break;
             case DISPLAY_STATE_INJECTION:
                 sprintf(text, "%5.0f%6.1f%5.1f", rpm, load, GetInjectionTime());
                 PutLcd(0, 0, "  RPM  LOAD  INJ");
-//                ResetOutputPins(0xFFFF);
                 break;
         }
         PutLcd(0, 1, text);
@@ -105,6 +122,7 @@ void UpdateDisplay()
         UpdateLcd();
 //        snprintf(message, MESSAGE_TEXT_LENGTH, "cog=%d; gap=%d; rpm=%.0f; %s", GetCogTicks(), GetGapTicks(), GetRpm(), ((EngineIsRunning()) ? "run" : "stop"));
 //        FireTextEvent("Ticks", message, DEFAULT_CHANNEL);
+        nextDisplayState();
     }
     displayCylceCount = (displayCylceCount + 1) % DISPLAY_CYCLE_MAX;
 }
