@@ -13,6 +13,7 @@
 #include "Timers.h"
 
 #include "Configuration.h"
+#include "Measurements.h"
 #include "MeasurementTable.h"
 #include "HardwareSettings.h"
 #include "Engine.h"
@@ -53,6 +54,7 @@ CorrectionConfiguration ignitionCorrections[] =
 };
 #define CORRECTION_COUNT (sizeof(ignitionCorrections) / sizeof(CorrectionConfiguration))
 
+bool programmerActivated = FALSE;
 
 
 uint16_t ignitionPins[DEAD_POINT_MAX][PHASE_MAX] =
@@ -247,11 +249,27 @@ Status UpdateIgnition()
     {
     	return status;
     }
+    if (programmerActivated)
+    {
+    	Measurement* programmerMeasurement;
+    	status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
+    	if (status != OK)
+    	{
+    		return status;
+    	}
+    	float programmerValue;
+    	status = programmerMeasurement->GetValue(&programmerValue);
+    	if (status != OK)
+    	{
+    		return status;
+    	}
+    	angle = programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
+    }
     if (PwmIgnitionEnabled())
     {
     	ignitionDutyCycle = angle;
-    	ignitionAngle = (int) angle;
-    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / 50 * IGNITION_PWM_PERIOD))));
+    	ignitionAngle = roundf(angle);
+    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / (ignitionTable->maximum - ignitionTable->minimum) * IGNITION_PWM_PERIOD))));
     }
     if (TimerIgnitionEnabled())
     {
@@ -279,4 +297,10 @@ void StartIgnition(int cogNumber)
 		ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
 		ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 	}
+}
+
+
+void SetIgnitionProgrammerActivated(bool activated)
+{
+	programmerActivated = activated;
 }

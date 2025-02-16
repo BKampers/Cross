@@ -31,5 +31,7 @@ Status UpdateIgnition();
 
 void StartIgnition(int cogNumber);
 
+void SetIgnitionProgrammerActivated(bool enabled);
+
 
 #endif /* _IGNITION_H_ */

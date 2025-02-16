@@ -30,6 +30,9 @@
 ** Private
 */
 
+#define MEMORY_BUFFER_SIZE 0x100
+
+const char* ACTIVATED = "Activated";
 const char* MEASUREMENT_NAME = "MeasurementName";
 const char* TABLE_NAME = "TableName";
 const char* COLUMN_MEASUREMENT_NAME = "ColumnMeasurementName";
@@ -314,6 +317,23 @@ Status PutMeasurementTableEnabled(const char* tableName, bool enabled) {
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ENABLED, enabled));
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
+Status PutProgrammerActivated(const char* tableName, bool activated) {
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
+    VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, ACTIVATED, activated));
+    return WriteJsonObjectEnd(DEFAULT_CHANNEL);
+}
+
+
+Status PutApplyAdjustment(const char* tableName) {
+    RETURN_WHEN_INVALID
+    VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
+    VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
@@ -655,7 +675,6 @@ Status CallGetPersistentElements(const JsonNode* parameters, Status* status)
 }
 
 
-#define MEMORY_BUFFER_SIZE 0x100
 Status CallGetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
 {    
     RETURN_WHEN_INVALID
@@ -758,6 +777,58 @@ Status CallSetPersistentMemoryBytes(const JsonNode* parameters, Status* status)
 }
 
 
+Status CallSetProgrammerActivated(const JsonNode* parameters, Status* status) {
+    Status transportStatus;
+    char* tableName;
+    bool activated;
+    if ((GetBoolean(parameters, ACTIVATED, &activated) == JSON_OK) && (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK))
+    {
+    	if (strcmp(IGNITION, tableName) == 0)
+    	{
+    		SetIgnitionProgrammerActivated(activated);
+    		*status = OK;
+    	}
+    	else
+    	{
+    		*status = INVALID_PARAMETER;
+    	}
+        transportStatus = PutProgrammerActivated(tableName, activated);
+        free(tableName);
+    }
+    else
+    {
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
+    }
+    return transportStatus;
+}
+
+
+Status CallApplyAdjustment(const JsonNode* parameters, Status* status) {
+    Status transportStatus;
+    char* tableName;
+    if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
+    {
+    	if (strcmp(IGNITION, tableName) == 0)
+    	{
+    		*status = OK;
+    	}
+    	else
+    	{
+    		*status = INVALID_PARAMETER;
+    	}
+        transportStatus = PutApplyAdjustment(tableName);
+        free(tableName);
+    }
+    else
+    {
+        transportStatus = WriteJsonNull(DEFAULT_CHANNEL);
+        *status = INVALID_PARAMETER;
+    }
+    return transportStatus;
+}
+
+
 Function functions[] =
 {
     { "GetMeasurements", &CallGetMeasurements },
@@ -777,7 +848,9 @@ Function functions[] =
     { "GetPersistentElements", &CallGetPersistentElements },
     { "GetPersistentMemoryBytes", &CallGetPersistentMemoryBytes },
     { "SetPersistentMemoryByte", &CallSetPersistentMemoryByte },
-    { "SetPersistentMemoryBytes", &CallSetPersistentMemoryBytes }
+    { "SetPersistentMemoryBytes", &CallSetPersistentMemoryBytes },
+    { "SetProgrammerActivated", &CallSetProgrammerActivated },
+    { "ApplyAdjustment", &CallApplyAdjustment }
 };
 
 

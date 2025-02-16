@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Version.h"
 #include "Timers.h"
 #include "Communication.h"
 #include "Lcd.h"
@@ -45,7 +46,6 @@ typedef enum
 } DisplayState;
 
 char SYSTEM_NAME[] = "Randd MM32";
-char VERSION[] = "2025-02";
 
 char input[INPUT_BUFFER_SIZE];
 char message[MESSAGE_TEXT_LENGTH];
@@ -115,13 +115,7 @@ void UpdateDisplay()
                 break;
         }
         PutLcd(0, 1, text);
-//        sprintf(text, "%16s", rpmIndicationStatus);
-//        PutLcd(0, 0, text);
-//        sprintf(text, " %7d %7d", GetCogTicks(), GetPwmDutyCycle());
-//        PutLcd(0, 1, text);
         UpdateLcd();
-//        snprintf(message, MESSAGE_TEXT_LENGTH, "cog=%d; gap=%d; rpm=%.0f; %s", GetCogTicks(), GetGapTicks(), GetRpm(), ((EngineIsRunning()) ? "run" : "stop"));
-//        FireTextEvent("Ticks", message, DEFAULT_CHANNEL);
         nextDisplayState();
     }
     displayCylceCount = (displayCylceCount + 1) % DISPLAY_CYCLE_MAX;
@@ -159,7 +153,6 @@ void ShowStatus(char* name, Status status)
     ShowIfError(status);
 }
 
-//uint8_t count = 0;
 
 int main(void)
 {
