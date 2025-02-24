@@ -114,6 +114,25 @@ Status SetIgnitionAngle(int angle)
 }
 
 
+Status GetProgrammerAngle(float* angle)
+{
+	float programmerValue;
+	Measurement* programmerMeasurement;
+	Status status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
+	if (status != OK)
+	{
+		return status;
+	}
+	status = programmerMeasurement->GetValue(&programmerValue);
+	if (status != OK)
+	{
+		return status;
+	}
+	*angle = programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
+	return OK;
+}
+
+
 /*
 ** Interface
 */
@@ -141,16 +160,13 @@ Status InitIgnition()
     		return status;
     	}
     }
-
     if (TimerIgnitionEnabled())
     {
 		GetIgnitionTimerSettings(&timerSettings);
 		ignitionTicks = timerSettings.counter;
 	    InitPeriodTimer(&StopIgnition);
     }
-    
     SetIgnitionAngle(0);
-
     status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
     {
@@ -163,6 +179,10 @@ Status InitIgnition()
         {
             status = CreateCorrectionTable(ignitionCorrections[i].measurementName, &(ignitionCorrections[i].table));
         }
+    }
+    if (status == OK)
+    {
+    	status = SetMeasurementTableProgrammable(IGNITION, TRUE);
     }
     return status;
 }
@@ -226,7 +246,9 @@ Status UpdateIgnition()
     int i;
     Status pwmStatus = OK;
     Status timerStatus = OK;
-    Status status = GetActualMeasurementTableField(ignitionTable, &angle);
+    Status status = (programmerActivated)
+		? GetProgrammerAngle(&angle)
+		: GetActualMeasurementTableField(ignitionTable, &angle);
     for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
     {
         MeasurementTable* table = ignitionCorrections[i].table;
@@ -248,22 +270,6 @@ Status UpdateIgnition()
     if (status != OK)
     {
     	return status;
-    }
-    if (programmerActivated)
-    {
-    	Measurement* programmerMeasurement;
-    	status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
-    	if (status != OK)
-    	{
-    		return status;
-    	}
-    	float programmerValue;
-    	status = programmerMeasurement->GetValue(&programmerValue);
-    	if (status != OK)
-    	{
-    		return status;
-    	}
-    	angle = programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
     }
     if (PwmIgnitionEnabled())
     {

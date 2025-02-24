@@ -15,6 +15,7 @@
 
 
 #define ENABLED_MASK 0x01
+#define PROGRAMMABLE_MASK 0x02
 
 char CORRECTION_POSTFIX[] = "Correction";
 
@@ -213,14 +214,15 @@ Status GetMeasurementTableField(const MeasurementTable* measurementTable, byte c
 }
 
 
-Status SetMeasurementTableField(const char* name, int column, int row, float value)
+Status SetMeasurementTableField(const char* name, int column, int row, float* value)
 {
     MeasurementTable* measurementTable;
     Status status = FindMeasurementTable(name, &measurementTable);
     if (status == OK)
     {
-        int field = roundf(value / measurementTable->precision);
+        int field = roundf(*value / measurementTable->precision);
         status = SetTableField(name, column, row, field);
+        *value = field * measurementTable->precision;
     }
     return status;
 }
@@ -234,12 +236,21 @@ Status GetMeasurementTableEnabled(const char* name, bool* enabled)
 
 Status SetMeasurementTableEnabled(const char* name, bool enabled)
 {
-    if (enabled)
-    {
-        return SetTableFlags(name, ENABLED_MASK);
-    }
-    else
-    {
-        return ClearTableFlags(name, ENABLED_MASK);
-    }
+    return (enabled)
+        ? SetTableFlags(name, ENABLED_MASK)
+        : ClearTableFlags(name, ENABLED_MASK);
+}
+
+
+Status GetMeasurementTableProgrammable(const char* name, bool* programmable)
+{
+    return GetTableFlags(name, PROGRAMMABLE_MASK, programmable);
+}
+
+
+Status SetMeasurementTableProgrammable(const char* name, bool programmable)
+{
+    return (programmable)
+        ? SetTableFlags(name, PROGRAMMABLE_MASK)
+        : ClearTableFlags(name, PROGRAMMABLE_MASK);
 }
