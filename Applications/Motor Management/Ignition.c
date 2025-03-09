@@ -248,7 +248,7 @@ Status UpdateIgnition()
     Status timerStatus = OK;
     Status status = (programmerActivated)
 		? GetProgrammerAngle(&angle)
-		: GetActualMeasurementTableField(ignitionTable, &angle);
+		: GetCurrentMeasurementTableField(ignitionTable, &angle);
     for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
     {
         MeasurementTable* table = ignitionCorrections[i].table;
@@ -259,7 +259,7 @@ Status UpdateIgnition()
             if ((status == OK) && enabled)
             {
                 float correction;
-                status = GetActualMeasurementTableField(table, &correction);
+                status = GetCurrentMeasurementTableField(table, &correction);
                 if (status == OK)
                 {
                     angle += correction;
@@ -309,4 +309,28 @@ void StartIgnition(int cogNumber)
 void SetIgnitionProgrammerActivated(bool activated)
 {
 	programmerActivated = activated;
+}
+
+
+bool IsIgnitionProgrammerActivated()
+{
+	return programmerActivated;
+}
+
+
+Status IgnitionApplyProgrammerValue(float* programmerValue)
+{
+	Measurement* programmerMeasurement;
+	Status status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
+	if (status != OK)
+	{
+		return status;
+	}
+	status = programmerMeasurement->GetValue(programmerValue);
+	if (status != OK)
+	{
+		return status;
+	}
+	*programmerValue = *programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
+	return SetCurrentMeasurementTableField(ignitionTable, *programmerValue);
 }

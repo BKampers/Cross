@@ -5,6 +5,7 @@
 
 #include "Messaging.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -46,6 +47,7 @@ const char* CURRENT_COLUMN = "CurrentColumn";
 const char* CURRENT_ROW = "CurrentRow";
 const char* ENABLED = "Enabled";
 const char* PROGRAMMABLE = "Programmable";
+const char* PROGRAMMER_ACTIVATED = "ProgrammerActivated";
 const char* MINIMUM = "Minimum";
 const char* MAXIMUM = "Maximum";
 const char* PRECISION = "Precision";
@@ -309,6 +311,16 @@ Status CallGetTableProperties(const JsonNode* parameters, Status* status)
 }
 
 
+bool IsProgrammerActivated(const char* tableName)
+{
+	if (strcmp(tableName, IGNITION) == 0)
+	{
+		return IsIgnitionProgrammerActivated();
+	}
+	return FALSE;
+}
+
+
 Status ReturnMeasurementTableActualValues(const char* tableName, Status* status)
 {
     RETURN_WHEN_INVALID
@@ -320,6 +332,7 @@ Status ReturnMeasurementTableActualValues(const char* tableName, Status* status)
     {
         VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_ROW, measurementTable->rowIndex));
         VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, CURRENT_COLUMN, measurementTable->columnIndex));
+        VALIDATE(WriteJsonBooleanMember(DEFAULT_CHANNEL, PROGRAMMER_ACTIVATED, IsProgrammerActivated(tableName)));
     }
     return (WriteJsonObjectEnd(DEFAULT_CHANNEL));    
 }
@@ -487,7 +500,7 @@ Status CallSetTableField(const JsonNode* parameters, Status* status)
         (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK))
     {
     	*status = (IsPlainTable(tableName))
-    	    ? SetTableField(tableName, column, row, value)
+    	    ? SetTableField(tableName, column, row, roundf(value))
     	    : SetMeasurementTableField(tableName, column, row, &value);
         transportStatus = ReturnMeasurementTableField(tableName, column, row, value);
         free(tableName);
@@ -770,10 +783,11 @@ Status CallSetProgrammerActivated(const JsonNode* parameters, Status* status) {
 }
 
 
-Status ReturnApplyProgrammerValue(const char* tableName) {
+Status ReturnApplyProgrammerValue(const char* tableName, float programmerValue) {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
+    VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, programmerValue));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
 
@@ -781,20 +795,23 @@ Status ReturnApplyProgrammerValue(const char* tableName) {
 Status CallApplyProgrammerValue(const JsonNode* parameters, Status* status) {
     Status transportStatus;
     char* tableName;
+    float programmerValue;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
     	bool programmable;
     	*status = GetMeasurementTableProgrammable(tableName, &programmable);
     	if (programmable)
     	{
-    		MeasurementTable* table;
-    		*status = FindMeasurementTable(tableName, &table);
-    		if (*status == OK)
+    		if (strcmp(tableName, IGNITION) == 0)
     		{
-    			//TODO: Introduce function pointer in measurement table? And remove "Programmable" flag?
+    			*status = IgnitionApplyProgrammerValue(&programmerValue);
+    		}
+    		else
+    		{
+    			*status = INVALID_PARAMETER;
     		}
     	}
-		transportStatus = ReturnApplyProgrammerValue(tableName);
+		transportStatus = ReturnApplyProgrammerValue(tableName, programmerValue);
         free(tableName);
     }
     else

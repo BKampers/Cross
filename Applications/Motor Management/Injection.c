@@ -137,7 +137,7 @@ Status UpdateInjection()
 	{
 		return DISABLED;
 	}
-    Status status = GetActualMeasurementTableField(injectionTable, &time);
+    Status status = GetCurrentMeasurementTableField(injectionTable, &time);
     if (status == OK)
     {
         int i;
@@ -152,7 +152,7 @@ Status UpdateInjection()
                 if ((status == OK) && enabled)
                 {
                     float percentage;
-                    status = GetActualMeasurementTableField(table, &percentage);
+                    status = GetCurrentMeasurementTableField(table, &percentage);
                     if (status == OK)
                     {
                         totalCorrectionPercentage += percentage;

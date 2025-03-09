@@ -69,7 +69,7 @@ Status CalculateIndex(Measurement* measurement, byte bound, byte* index)
 }
 
 
-Status GetActualTableControllerField(MeasurementTable* measurementTable, TableField* field)
+Status GetCurrentTableControllerField(MeasurementTable* measurementTable, TableField* field)
 {
     Status status = CalculateIndex(measurementTable->columnMeasurement, measurementTable->table.columns, &(measurementTable->columnIndex));
     if (status == OK)
@@ -78,6 +78,21 @@ Status GetActualTableControllerField(MeasurementTable* measurementTable, TableFi
         if (status == OK)
         {
             status = GetTableField(measurementTable->name, measurementTable->columnIndex, measurementTable->rowIndex, field);
+        }
+    }
+    return status;
+}
+
+
+Status SetCurrentTableControllerField(MeasurementTable* measurementTable, int field)
+{
+    Status status = CalculateIndex(measurementTable->columnMeasurement, measurementTable->table.columns, &(measurementTable->columnIndex));
+    if (status == OK)
+    {
+        status = CalculateIndex(measurementTable->rowMeasurement, measurementTable->table.rows, &(measurementTable->rowIndex));
+        if (status == OK)
+        {
+            status = SetTableField(measurementTable->name, measurementTable->columnIndex, measurementTable->rowIndex, field);
         }
     }
     return status;
@@ -186,19 +201,29 @@ Status FindMeasurementTable(const char* name, MeasurementTable** table)
 }
 
 
-Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue)
+Status GetCurrentMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue)
 {
     TableField field;
 	if (measurementTable == NULL)
 	{
 		return UNINITIALIZED;
 	}
-    Status status = GetActualTableControllerField(measurementTable, &field);
+    Status status = GetCurrentTableControllerField(measurementTable, &field);
     if (status == OK)
     {
         *fieldValue = field * measurementTable->precision;
     }
     return status;
+}
+
+
+Status SetCurrentMeasurementTableField(MeasurementTable* measurementTable, float fieldValue)
+{
+ 	if (measurementTable == NULL)
+	{
+		return UNINITIALIZED;
+	}
+    return SetCurrentTableControllerField(measurementTable, roundf(fieldValue / measurementTable->precision));
 }
 
 
