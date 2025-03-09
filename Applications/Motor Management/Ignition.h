@@ -33,7 +33,7 @@ void StartIgnition(int cogNumber);
 
 void SetIgnitionProgrammerActivated(bool activated);
 bool IsIgnitionProgrammerActivated();
-Status IgnitionApplyProgrammerValue(float* programmerValue);
+Status IgnitionApplyProgrammerValue(int* column, int* row, float* programmerValue);
 
 
 #endif /* _IGNITION_H_ */

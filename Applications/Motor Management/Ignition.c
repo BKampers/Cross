@@ -318,7 +318,7 @@ bool IsIgnitionProgrammerActivated()
 }
 
 
-Status IgnitionApplyProgrammerValue(float* programmerValue)
+Status IgnitionApplyProgrammerValue(int* column, int* row, float* programmerValue)
 {
 	Measurement* programmerMeasurement;
 	Status status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
@@ -332,5 +332,8 @@ Status IgnitionApplyProgrammerValue(float* programmerValue)
 		return status;
 	}
 	*programmerValue = *programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
-	return SetCurrentMeasurementTableField(ignitionTable, *programmerValue);
+	status = SetCurrentMeasurementTableField(ignitionTable, *programmerValue);
+	*column = ignitionTable->columnIndex;
+	*row = ignitionTable->rowIndex;
+	return status;
 }

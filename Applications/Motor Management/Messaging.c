@@ -783,10 +783,12 @@ Status CallSetProgrammerActivated(const JsonNode* parameters, Status* status) {
 }
 
 
-Status ReturnApplyProgrammerValue(const char* tableName, float programmerValue) {
+Status ReturnApplyProgrammerValue(const char* tableName, int column, int row, float programmerValue) {
     RETURN_WHEN_INVALID
     VALIDATE(WriteJsonObjectStart(DEFAULT_CHANNEL));
     VALIDATE(WriteJsonStringMember(DEFAULT_CHANNEL, TABLE_NAME, tableName));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, COLUMN, column));
+    VALIDATE(WriteJsonIntegerMember(DEFAULT_CHANNEL, ROW, row));
     VALIDATE(WriteJsonRealMember(DEFAULT_CHANNEL, VALUE, programmerValue));
     return WriteJsonObjectEnd(DEFAULT_CHANNEL);
 }
@@ -795,6 +797,8 @@ Status ReturnApplyProgrammerValue(const char* tableName, float programmerValue) 
 Status CallApplyProgrammerValue(const JsonNode* parameters, Status* status) {
     Status transportStatus;
     char* tableName;
+    int column;
+    int row;
     float programmerValue;
     if (AllocateString(parameters, TABLE_NAME, &tableName) == JSON_OK)
     {
@@ -804,14 +808,14 @@ Status CallApplyProgrammerValue(const JsonNode* parameters, Status* status) {
     	{
     		if (strcmp(tableName, IGNITION) == 0)
     		{
-    			*status = IgnitionApplyProgrammerValue(&programmerValue);
+    			*status = IgnitionApplyProgrammerValue(&column, &row, &programmerValue);
     		}
     		else
     		{
     			*status = INVALID_PARAMETER;
     		}
     	}
-		transportStatus = ReturnApplyProgrammerValue(tableName, programmerValue);
+		transportStatus = ReturnApplyProgrammerValue(tableName, column, row, programmerValue);
         free(tableName);
     }
     else
