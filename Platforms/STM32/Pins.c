@@ -24,20 +24,10 @@ void InitOutputPins()
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+    RCC_APB2PeriphClockCmd(OUTPUT_REGISTER_MM, ENABLE);
 	InitOutputPort(OUTPUT_PORT_MM, GPIO_Pin_All);
+    RCC_APB2PeriphClockCmd(OUTPUT_REGISTER_RPM, ENABLE);
 	InitOutputPort(OUTPUT_PORT_RPM, RPM_INDICATOR_1 | RPM_INDICATOR_2 | RPM_INDICATOR_3 | RPM_INDICATOR_4);
-
-//    GPIO_InitTypeDef GPIO_InitStructure;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-//    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//
-//    RCC_APB2PeriphClockCmd(OUTPUT_REGISTER_MM, ENABLE);
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-//    GPIO_Init(OUTPUT_PORT_MM, &GPIO_InitStructure);
-//
-//    RCC_APB2PeriphClockCmd(OUTPUT_REGISTER_RPM, ENABLE);
-//    GPIO_InitStructure.GPIO_Pin = RPM_INDICATOR_1 | RPM_INDICATOR_2 | RPM_INDICATOR_3 | RPM_INDICATOR_4;
-//    GPIO_Init(OUTPUT_PORT_RPM, &GPIO_InitStructure);
 }
 
 
@@ -59,15 +49,35 @@ bool IsMmOutputPinSet(uint16_t pin)
 }
 
 
+void SetRpmOutputPins(uint16_t pins)
+{
+    GPIO_SetBits(OUTPUT_PORT_RPM, pins);
+}
+
+
+void ResetRpmOutputPins(uint16_t pins)
+{
+    GPIO_ResetBits(OUTPUT_PORT_RPM, pins);
+}
+
+
+bool IsRpmOutputPinSet(uint16_t pin)
+{
+    return GPIO_ReadOutputDataBit(OUTPUT_PORT_RPM, pin);
+}
+
+
 void SetOutputPin(Pin* pin)
 {
 	GPIO_SetBits((GPIO_TypeDef*) pin->peripheral, pin->port);
 }
 
+
 void ResetOutputPin(Pin* pin)
 {
 	GPIO_ResetBits((GPIO_TypeDef*) pin->peripheral, pin->port);
 }
+
 
 bool IsPinSet(Pin* pin)
 {

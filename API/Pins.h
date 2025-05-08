@@ -15,12 +15,15 @@ void InitOutputPins();
 
 void SetMmOutputPins(uint16_t pins);
 void ResetMmOutputPins(uint16_t pins);
-
 bool IsMmOutputPinSet(uint16_t pin);
 
-void SetOutputPin(Pin* pin);
-void ResetOutputPin(Pin* pin);
-bool IsPinSet(Pin* pin);
+void SetRpmOutputPins(uint16_t pins);
+void ResetRpmOutputPins(uint16_t pins);
+bool IsRpmOutputPinSet(uint16_t pin);
+
+//void SetOutputPin(Pin* pin);
+//void ResetOutputPin(Pin* pin);
+//bool IsPinSet(Pin* pin);
 
 
 
