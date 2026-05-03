@@ -31,5 +31,7 @@ Status UpdateIgnition();
 
 void StartIgnition(int cogNumber);
 
+Status IgnitionApplyProgrammerValue(int* column, int* row, float* programmerValue);
+
 
 #endif /* _IGNITION_H_ */

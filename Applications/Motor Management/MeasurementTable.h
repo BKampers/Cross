@@ -39,9 +39,10 @@ int GetMeasurementTableCount();
 Status GetMeasurementTable(int index, MeasurementTable** table);
 Status FindMeasurementTable(const char* name, MeasurementTable** table);
 
-Status GetActualMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue);
+Status GetCurrentMeasurementTableField(MeasurementTable* measurementTable, float* fieldValue);
+Status SetCurrentMeasurementTableField(MeasurementTable* measurementTable, float fieldValue);
 Status GetMeasurementTableField(const MeasurementTable* measurementTable, byte column, byte row, float* fieldValue);
-Status SetMeasurementTableField(const char* name, int column, int row, float value);
+Status SetMeasurementTableField(const char* name, int column, int row, float* value);
 
 Status GetMeasurementTableEnabled(const char* name, bool* enabled);
 Status SetMeasurementTableEnabled(const char* name, bool enabled);

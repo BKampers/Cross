@@ -5,7 +5,7 @@
 #include "PersistentMemoryDriver.h"
 
 #include "FlashDefinitions.h"
-
+#include "VoltageDetector.h"
 #include <stdio.h>
 
 
@@ -26,6 +26,8 @@ char statusText[STATUS_TEXT_LENGTH];
 
 char workMemory[FLASH_PAGE_SIZE];
 Reference loadedPage = NULL_REFERENCE;
+
+char* LOW_VOLTAGE_STATUS = "Low voltage detected";
 
 
 void GenerateFlashStatusText(const char* message, FLASH_Status flashStatus, int address)
@@ -69,9 +71,18 @@ void ModifyPageData(int index, int length, void* buffer)
 
 Status StorePage(Reference pageBase)
 {
+    if (LowVoltageDetected()) {
+		return LOW_VOLTAGE_STATUS;
+    }
+
     UNLOCK_FLASH_BANK();
     /* Clear All pending flags */
     CLEAR_FLASH_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+
+    if (LowVoltageDetected()) {
+		LOCK_FLASH_BANK();
+		return LOW_VOLTAGE_STATUS;
+    }
 
     FLASH_Status flashStatus = ERASE_FLASH_PAGE(pageBase);
     if (flashStatus == FLASH_COMPLETE)
@@ -81,7 +92,15 @@ Status StorePage(Reference pageBase)
         Reference reference = pageBase;
         while ((flashStatus == FLASH_COMPLETE) && (reference < pageBase + FLASH_PAGE_SIZE))
         {
+            if (LowVoltageDetected()) {
+        		LOCK_FLASH_BANK();
+        		return LOW_VOLTAGE_STATUS;
+            }
             flashStatus = WRITE_FLASH_WORD(reference, *workAddress);
+            if (LowVoltageDetected()) {
+        		LOCK_FLASH_BANK();
+        		return LOW_VOLTAGE_STATUS;
+            }
             workAddress++;
             reference += sizeof(FlashWord);
         }

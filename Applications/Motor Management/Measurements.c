@@ -11,12 +11,19 @@
 ** Private
 */
 
+#define PROGRAMMER_ADC_INDEX 3
+#define LOAD_ADC_INDEX 0
+#define MAP_ADC_INDEX 1
+#define SPARE_ADC_INDEX 2
+
+const char PROGRAMMER[] = "Programmer";
 const char RPM[] = "RPM";
 const char LOAD[] = "Load";
 const char MAP_SENSOR[] = "Map";
 const char SPARE[] = "Spare";
 
 
+Status GetProgrammerValue(float* value);
 Status GetRpmValue(float* value);
 Status GetLoadValue(float* value);
 Status GetMapSensorValue(float* value);
@@ -24,11 +31,12 @@ Status GetSpareValue(float* value);
 
 
 Measurement measurements[] =
-{ /*  Name                 GetValue                 format  minimum   maximum  simulation*/
+{ /*  Name                 GetValue                 format  minimum   maximum  simulation */
     { RPM,               &GetRpmValue,              "%5d",     0.0f, 10000.0f, NULL },
     { LOAD,              &GetLoadValue,             "%3.1f",   0.0f,   100.0f, NULL },
     { MAP_SENSOR,        &GetMapSensorValue,        "%3.1f",   0.0f,   100.0f, NULL },
-    { SPARE,             &GetSpareValue,            "%3.1f",   0.0f,   100.0f, NULL }
+    { SPARE,             &GetSpareValue,            "%3.1f",   0.0f,   100.0f, NULL },
+    { PROGRAMMER,        &GetProgrammerValue,       "%4.2f",   0.0f,     1.0f, NULL }
 };
 
 #define MEASUREMENT_COUNT (sizeof(measurements) / sizeof(Measurement))
@@ -49,21 +57,26 @@ Status GetAnalogMeasurement(int index, float* value)
 
 Status GetLoadValue(float* value)
 {
-    return GetAnalogMeasurement(0, value);
+    return GetAnalogMeasurement(LOAD_ADC_INDEX, value);
 }
 
 
 Status GetMapSensorValue(float* value)
 {
-    return GetAnalogMeasurement(1, value);
+    return GetAnalogMeasurement(MAP_ADC_INDEX, value);
 }
 
 
 Status GetSpareValue(float* value)
 {
-    return GetAnalogMeasurement(2, value);
+    return GetAnalogMeasurement(SPARE_ADC_INDEX, value);
 }
 
+
+Status GetProgrammerValue(float* value)
+{
+	return GetAnalogMeasurement(PROGRAMMER_ADC_INDEX, value);
+}
 
 Status GetRpmValue(float* value)
 {

@@ -13,11 +13,13 @@
 #include "Timers.h"
 
 #include "Configuration.h"
+#include "Measurements.h"
 #include "MeasurementTable.h"
 #include "HardwareSettings.h"
 #include "Engine.h"
 #include "Crank.h"
 #include "AnalogInput.h"
+#include "Programmer.h"
 
 #include "stm32f10x.h"
 #include "stm32f10x_tim.h"
@@ -52,8 +54,6 @@ CorrectionConfiguration ignitionCorrections[] =
     { SPARE, NULL }
 };
 #define CORRECTION_COUNT (sizeof(ignitionCorrections) / sizeof(CorrectionConfiguration))
-
-
 
 uint16_t ignitionPins[DEAD_POINT_MAX][PHASE_MAX] =
 {
@@ -112,6 +112,25 @@ Status SetIgnitionAngle(int angle)
 }
 
 
+Status GetProgrammerAngle(float* angle)
+{
+	float programmerValue;
+	Measurement* programmerMeasurement;
+	Status status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
+	if (status != OK)
+	{
+		return status;
+	}
+	status = programmerMeasurement->GetValue(&programmerValue);
+	if (status != OK)
+	{
+		return status;
+	}
+	*angle = programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
+	return OK;
+}
+
+
 /*
 ** Interface
 */
@@ -139,16 +158,13 @@ Status InitIgnition()
     		return status;
     	}
     }
-
     if (TimerIgnitionEnabled())
     {
 		GetIgnitionTimerSettings(&timerSettings);
 		ignitionTicks = timerSettings.counter;
 	    InitPeriodTimer(&StopIgnition);
     }
-    
     SetIgnitionAngle(0);
-
     status = CreateMeasurementTable(IGNITION, LOAD, RPM, 20, 20, &ignitionTable);
     if (status == OK)
     {
@@ -224,7 +240,9 @@ Status UpdateIgnition()
     int i;
     Status pwmStatus = OK;
     Status timerStatus = OK;
-    Status status = GetActualMeasurementTableField(ignitionTable, &angle);
+    Status status = (IsProgrammerActivated(IGNITION))
+		? GetProgrammerAngle(&angle)
+		: GetCurrentMeasurementTableField(ignitionTable, &angle);
     for (i = 0; (i < CORRECTION_COUNT) && (status == OK); ++i)
     {
         MeasurementTable* table = ignitionCorrections[i].table;
@@ -235,7 +253,7 @@ Status UpdateIgnition()
             if ((status == OK) && enabled)
             {
                 float correction;
-                status = GetActualMeasurementTableField(table, &correction);
+                status = GetCurrentMeasurementTableField(table, &correction);
                 if (status == OK)
                 {
                     angle += correction;
@@ -250,8 +268,8 @@ Status UpdateIgnition()
     if (PwmIgnitionEnabled())
     {
     	ignitionDutyCycle = angle;
-    	ignitionAngle = (int) angle;
-    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / 50 * IGNITION_PWM_PERIOD))));
+    	ignitionAngle = roundf(angle);
+    	pwmStatus = SetPwmDutyCycle(max(0, min(IGNITION_PWM_PERIOD, roundf(angle / (ignitionTable->maximum - ignitionTable->minimum) * IGNITION_PWM_PERIOD))));
     }
     if (TimerIgnitionEnabled())
     {
@@ -279,4 +297,25 @@ void StartIgnition(int cogNumber)
 		ignitionTicks = (int) (GetCogTicks() / angleTimeRatio);
 		ignitionTimeStatus = StartPeriodTimer(ignitionTicks);
 	}
+}
+
+
+Status IgnitionApplyProgrammerValue(int* column, int* row, float* programmerValue)
+{
+	Measurement* programmerMeasurement;
+	Status status = FindMeasurement(PROGRAMMER, &programmerMeasurement);
+	if (status != OK)
+	{
+		return status;
+	}
+	status = programmerMeasurement->GetValue(programmerValue);
+	if (status != OK)
+	{
+		return status;
+	}
+	*programmerValue = *programmerValue * (ignitionTable->maximum - ignitionTable->minimum);
+	status = SetCurrentMeasurementTableField(ignitionTable, *programmerValue);
+	*column = ignitionTable->columnIndex;
+	*row = ignitionTable->rowIndex;
+	return status;
 }

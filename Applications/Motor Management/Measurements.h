@@ -3,7 +3,7 @@
 
 #include "ApiStatus.h"
 
-
+extern const char PROGRAMMER[];
 extern const char RPM[];
 extern const char LOAD[];
 extern const char MAP_SENSOR[];

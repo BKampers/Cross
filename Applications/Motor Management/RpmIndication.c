@@ -2,7 +2,7 @@
 ** Indicate RPM level.
 ** Ports set high when RPM of engine is above a programmable value.
 **
-** Copyright 2024, Bart Kampers
+** Copyright 2025, Bart Kampers
 */
 
 #include "RpmIndication.h"
@@ -17,17 +17,12 @@
 /* Private */
 
 Table rpmIndicationTable;
-Pin pins[] =
-{
-	{ OUTPUT_PORT_RPM, RPM_INDICATOR_1 },
-	{ OUTPUT_PORT_RPM, RPM_INDICATOR_2 },
-	{ OUTPUT_PORT_RPM, RPM_INDICATOR_3 },
-	{ OUTPUT_PORT_RPM, RPM_INDICATOR_4 }
-};
+
+uint16_t indicatorPins[] = { RPM_INDICATOR_1, RPM_INDICATOR_2, RPM_INDICATOR_3, RPM_INDICATOR_4 };
 
 #define RPM_COLUMN 0
 #define COLUMN_COUNT 1
-#define ROW_COUNT (sizeof(pins) / sizeof(Pin))
+#define ROW_COUNT (sizeof(indicatorPins) / sizeof(uint16_t))
 
 
 /* Interface */
@@ -46,23 +41,27 @@ Status InitRpmIndication()
 
 Status UpdateRpmIndication()
 {
+	uint16_t pinsToSet = 0;
+	uint16_t pinsToReset = 0;
 	byte row;
 	for (row = 0; row < ROW_COUNT; ++row)
 	{
-		TableField value;
-		Status status = GetTableField(RPM_INDICATION, RPM_COLUMN, row, &value);
+		TableField rpmTreshold;
+		Status status = GetTableField(RPM_INDICATION, RPM_COLUMN, row, &rpmTreshold);
 		if (status != OK)
 		{
 			return status;
 		}
-		if (value < GetRpm())
+		if (rpmTreshold < GetRpm())
 		{
-			SetOutputPin(&(pins[row]));
+			pinsToSet |= indicatorPins[row];
 		}
 		else
 		{
-			ResetOutputPin(&(pins[row]));
+			pinsToReset |= indicatorPins[row];
 		}
 	}
+	SetRpmOutputPins(pinsToSet);
+	ResetRpmOutputPins(pinsToReset);
 	return OK;
 }

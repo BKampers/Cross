@@ -76,13 +76,10 @@ void InitAnalogInput()
 
 Status GetAnalogValue(int index, int* value)
 {
-    if ((0 <= index) && (index < NUMBER_OF_ADC_CHANNELS))
-    {
-        *value = (int) ADCConvertedValues[index];
-        return OK;
-    }
-    else
+    if ((index < 0) || (NUMBER_OF_ADC_CHANNELS <= index))
     {
         return INVALID_ADC_INDEX;
     }
+    *value = (int) ADCConvertedValues[index];
+    return OK;
 }
